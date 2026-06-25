@@ -245,6 +245,55 @@ body {
 .btn:disabled { opacity: 0.45; cursor: not-allowed; }
 .btn-row { display: flex; gap: 10px; justify-content: flex-end; padding: 16px 20px; border-top: 1px solid var(--border); }
 
+/* ── TOPIC EDITOR TABLE ──────────────────────────────── */
+.topic-editor { width: 100%; border-collapse: collapse; }
+.topic-editor th {
+  padding: 8px 12px; font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--muted); text-align: right;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
+}
+.topic-editor td { padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
+.topic-editor tr:last-child td { border-bottom: none; }
+.topic-editor tr:hover td { background: rgba(255,255,255,0.02); }
+.field {
+  background: var(--input-bg); border: 1px solid var(--border);
+  border-radius: 5px; padding: 5px 9px;
+  color: var(--text-dark); font-family: inherit; font-size: 13px;
+  width: 100%; transition: border-color 0.15s;
+}
+.field:focus { outline: none; border-color: var(--primary); }
+.field-hours { width: 64px; text-align: center; }
+.row-num { font-size: 12px; color: var(--muted); text-align: center; width: 32px; }
+.del-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); padding: 4px; border-radius: 4px;
+  transition: all 0.15s; display: flex; align-items: center;
+}
+.del-btn:hover { color: var(--danger); background: var(--danger-lt); }
+.editor-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px; border-top: 1px solid var(--border);
+}
+.editor-summary { font-size: 12px; color: var(--muted); }
+.editor-summary strong { color: var(--text-dark); }
+
+/* ── COURSE META FIELDS ──────────────────────────────── */
+.meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.meta-group { display: flex; flex-direction: column; gap: 5px; }
+.meta-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+
+/* ── GENERATE CARD ───────────────────────────────────── */
+.gen-preview {
+  background: rgba(79,128,255,0.06); border: 1px solid rgba(79,128,255,0.2);
+  border-radius: 8px; padding: 16px; margin-bottom: 16px;
+}
+.gen-preview-title { font-size: 14px; font-weight: 700; color: var(--text-dark); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.gen-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; }
+.gen-row-label { color: var(--muted); }
+.gen-row-val { color: var(--text-dark); font-weight: 600; }
+
 /* ── ALERT ───────────────────────────────────────────── */
 .alert {
   display: flex; align-items: flex-start; gap: 10px;
@@ -261,7 +310,7 @@ body {
 
 <!-- TOPBAR -->
 <div class="topbar">
-  <button class="topbar-back" onclick="history.back()">
+  <button class="topbar-back" onclick="closeIfEmbedded()">
     <span class="material-icons" style="font-size:16px">arrow_forward</span>
     חזור
   </button>
@@ -348,12 +397,13 @@ body {
     </div>
   </div>
 
-  <!-- ═══ STEP 3: SYLLABUS PREVIEW ═══ -->
+  <!-- ═══ STEP 3: SYLLABUS PREVIEW + TOPIC EDITOR ═══ -->
   <div id="viewStep3" style="display:none">
-    <div class="section-title">סקירת סילבוס</div>
-    <div class="section-sub">בדיקת תוכן הסילבוס שנבחר</div>
+    <div class="section-title">סקירת סילבוס וזיהוי נושאים</div>
+    <div class="section-sub">עיין בסילבוס, ערוך את הנושאים שזוהו</div>
 
-    <div class="card">
+    <!-- Syllabus text -->
+    <div class="card" style="margin-bottom:14px">
       <div class="syllabus-meta">
         <div class="file-icon pdf"><span class="material-icons">picture_as_pdf</span></div>
         <div>
@@ -361,43 +411,120 @@ body {
           <div id="syllabusFileMeta" style="font-size:12px;color:var(--muted)">—</div>
         </div>
       </div>
-      <div id="syllabusContent" class="syllabus-text-area">
-        <div class="parse-loading">
-          <div class="spinner"></div>
-          <div>מנתח את הסילבוס…</div>
-        </div>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-outline" onclick="goToStep(2)">
-          <span class="material-icons" style="font-size:16px">arrow_forward</span> חזור
-        </button>
-        <button class="btn btn-primary" id="btnContinue" onclick="goToStep(4)" disabled>
-          המשך לבניית מעקב
-          <span class="material-icons" style="font-size:16px">arrow_back</span>
-        </button>
+      <div id="syllabusContent" class="syllabus-text-area" style="height:200px">
+        <div class="parse-loading"><div class="spinner"></div><div>מנתח את הסילבוס…</div></div>
       </div>
     </div>
 
-    <!-- Page count info -->
-    <div id="pdfPageInfo" style="display:none" class="alert alert-warning" style="margin-top:12px">
+    <!-- Topic editor -->
+    <div class="card" id="topicEditorCard" style="display:none">
+      <div style="padding:14px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:var(--text-dark);display:flex;align-items:center;gap:6px">
+            <span class="material-icons" style="font-size:17px;color:var(--primary)">auto_awesome</span>
+            נושאים שזוהו
+          </div>
+          <div id="extractMsg" style="font-size:12px;color:var(--muted);margin-top:2px"></div>
+        </div>
+        <button class="btn btn-outline" onclick="addTopic()" style="font-size:12px;padding:5px 10px">
+          <span class="material-icons" style="font-size:15px">add</span> הוסף נושא
+        </button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="topic-editor">
+          <thead>
+            <tr>
+              <th style="width:36px">#</th>
+              <th>שם הנושא</th>
+              <th style="width:80px;text-align:center">שעות</th>
+              <th style="width:36px"></th>
+            </tr>
+          </thead>
+          <tbody id="topicTableBody"></tbody>
+        </table>
+      </div>
+      <div class="editor-footer">
+        <div class="editor-summary">
+          סה"כ: <strong id="summaryTopics">0</strong> נושאים ·
+          <strong id="summaryHours">0</strong> שעות
+        </div>
+        <div style="font-size:12px;color:var(--muted)">ניתן לערוך ידנית</div>
+      </div>
+    </div>
+
+    <div id="pdfPageInfo" style="display:none;margin-bottom:12px" class="alert alert-warning">
       <span class="material-icons" style="font-size:16px;flex-shrink:0">layers</span>
       <span id="pdfPageInfoText"></span>
     </div>
+
+    <div style="display:flex;gap:10px;justify-content:space-between;align-items:center">
+      <button class="btn btn-outline" onclick="goToStep(2)">
+        <span class="material-icons" style="font-size:16px">arrow_forward</span> חזור
+      </button>
+      <button class="btn btn-primary" id="btnContinue" onclick="prepareStep4()" disabled>
+        המשך לבניית מעקב
+        <span class="material-icons" style="font-size:16px">arrow_back</span>
+      </button>
+    </div>
   </div>
 
-  <!-- ═══ STEP 4: COMING SOON ═══ -->
+  <!-- ═══ STEP 4: BUILD TRACKER ═══ -->
   <div id="viewStep4" style="display:none">
     <div class="section-title">בניית מעקב</div>
-    <div class="section-sub">השלב הבא — זיהוי נושאים ובניית דשבורד</div>
-    <div class="card">
-      <div class="card-body" style="text-align:center;padding:40px">
-        <span class="material-icons" style="font-size:48px;color:var(--primary)">construction</span>
-        <div style="font-size:16px;font-weight:700;color:var(--text-dark);margin-top:12px">בקרוב!</div>
-        <div style="font-size:13px;color:var(--muted);margin-top:6px">בשלב הבא נזהה אוטומטית נושאים, שעות ופרטים מהסילבוס.</div>
-        <button class="btn btn-outline" onclick="goToStep(3)" style="margin-top:20px">
-          <span class="material-icons" style="font-size:16px">arrow_forward</span> חזור לסקירה
-        </button>
+    <div class="section-sub">הגדר פרטי קורס וצור את קובץ המעקב</div>
+
+    <!-- Course meta -->
+    <div class="card" style="margin-bottom:14px">
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);font-size:14px;font-weight:700;color:var(--text-dark)">פרטי הקורס</div>
+      <div class="card-body">
+        <div class="meta-grid">
+          <div class="meta-group">
+            <label class="meta-label">שם הקורס</label>
+            <input class="field" id="courseNameField" placeholder="לדוגמה: סיעוד פדיאטרי" type="text">
+          </div>
+          <div class="meta-group">
+            <label class="meta-label">מוסד לימודי</label>
+            <input class="field" id="courseInstField" placeholder="לדוגמה: אייכילוב" type="text">
+          </div>
+          <div class="meta-group">
+            <label class="meta-label">שנת לימודים</label>
+            <input class="field" id="courseYearField" placeholder="לדוגמה: תשפ״ו" type="text">
+          </div>
+          <div class="meta-group">
+            <label class="meta-label">צבע ראשי</label>
+            <select class="field" id="courseColorField">
+              <option value="#4f80ff">כחול (ברירת מחדל)</option>
+              <option value="#1cbb8c">ירוק</option>
+              <option value="#a78bfa">סגול</option>
+              <option value="#fb923c">כתום</option>
+              <option value="#e05260">אדום</option>
+              <option value="#38bdf8">תכלת</option>
+            </select>
+          </div>
+        </div>
       </div>
+    </div>
+
+    <!-- Preview -->
+    <div class="gen-preview" id="genPreview">
+      <div class="gen-preview-title">
+        <span class="material-icons" style="font-size:18px">preview</span>
+        תצוגה מקדימה
+      </div>
+      <div class="gen-row"><span class="gen-row-label">שם הקורס</span><span class="gen-row-val" id="prevCourseName">—</span></div>
+      <div class="gen-row"><span class="gen-row-label">מספר נושאים</span><span class="gen-row-val" id="prevTopics">—</span></div>
+      <div class="gen-row"><span class="gen-row-label">סה"כ שעות</span><span class="gen-row-val" id="prevHours">—</span></div>
+      <div class="gen-row"><span class="gen-row-label">שם הקובץ</span><span class="gen-row-val" id="prevFileName">—</span></div>
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:space-between">
+      <button class="btn btn-outline" onclick="goToStep(3)">
+        <span class="material-icons" style="font-size:16px">arrow_forward</span> חזור
+      </button>
+      <button class="btn btn-primary" onclick="generateAndDownload()">
+        <span class="material-icons" style="font-size:16px">download</span>
+        צור והורד מעקב
+      </button>
     </div>
   </div>
 
@@ -409,18 +536,20 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 
 // ── State ──────────────────────────────────────────────
 let dirHandle = null;
-let allFiles = [];
+let allFiles  = [];
 let selectedFile = null;
 let syllabusText = '';
+let topics = []; // [{id, name, hours}]
+let nextId = 1;
 
 // ── Step navigation ────────────────────────────────────
 function goToStep(n) {
   [1,2,3,4].forEach(i => {
     document.getElementById('viewStep'+i).style.display = i===n ? '' : 'none';
     const dot = document.getElementById('step'+i+'Dot');
-    dot.className = 'step-item' + (i<n ? ' done' : i===n ? ' active' : '');
+    dot.className = 'step-item' + (i<n?' done':i===n?' active':'');
   });
-  window.scrollTo(0, 0);
+  window.scrollTo(0,0);
 }
 
 // ── Step 1: Pick local folder ──────────────────────────
@@ -429,59 +558,46 @@ async function pickLocalFolder() {
     dirHandle = await window.showDirectoryPicker({ mode: 'read' });
     await loadFolderFiles();
     goToStep(2);
-  } catch (e) {
+  } catch(e) {
     if (e.name !== 'AbortError') alert('שגיאה בפתיחת תיקיה: ' + e.message);
   }
 }
 
 // ── Step 2: Load & display files ──────────────────────
+const syllabusScore = f => {
+  const n = f.name.toLowerCase();
+  if (['pdf','docx','doc'].includes(f.ext)) {
+    if (n.includes('סיל')||n.includes('syllabus')||n.includes('תכנית')||n.includes('plan')) return 0;
+    return 1;
+  }
+  return 2;
+};
+
 async function loadFolderFiles() {
   allFiles = [];
   document.getElementById('folderNameLabel').textContent = dirHandle.name;
-
   for await (const [name, handle] of dirHandle.entries()) {
     if (handle.kind === 'file') {
       const ext = name.split('.').pop().toLowerCase();
       allFiles.push({ name, handle, ext });
     }
   }
-
-  // Sort: syllabus-likely files first, then alphabetical
-  const syllabusScore = f => {
-    const n = f.name.toLowerCase();
-    if (['pdf','docx','xlsx'].includes(f.ext)) {
-      if (n.includes('סיל') || n.includes('syllabus') || n.includes('תכנית') || n.includes('plan')) return 0;
-      return 1;
-    }
-    return 2;
-  };
-  allFiles.sort((a,b) => syllabusScore(a) - syllabusScore(b) || a.name.localeCompare(b.name, 'he'));
-
+  allFiles.sort((a,b) => syllabusScore(a)-syllabusScore(b) || a.name.localeCompare(b.name,'he'));
   const list = document.getElementById('fileList');
   document.getElementById('fileCountLabel').textContent = `${allFiles.length} קבצים`;
-
-  if (allFiles.length === 0) {
-    list.innerHTML = '<div class="file-empty">לא נמצאו קבצים בתיקיה</div>';
-    return;
-  }
-
-  list.innerHTML = allFiles.map((f, i) => {
-    const iconClass = ['pdf','docx','doc'].includes(f.ext) ? f.ext==='pdf'?'pdf':'docx'
-                    : ['xlsx','xls','csv'].includes(f.ext) ? 'xlsx'
-                    : 'other';
-    const iconName = f.ext==='pdf' ? 'picture_as_pdf'
-                   : ['docx','doc'].includes(f.ext) ? 'description'
-                   : ['xlsx','xls','csv'].includes(f.ext) ? 'table_chart'
-                   : 'insert_drive_file';
-    const isSyllabus = syllabusScore(f) === 0;
-    const isDoc = syllabusScore(f) <= 1;
-    return `<div class="file-item${!isDoc?' style="opacity:0.6"':''}" onclick="selectSyllabus(${i})">
-      <div class="file-icon ${iconClass}"><span class="material-icons">${iconName}</span></div>
+  if (!allFiles.length) { list.innerHTML='<div class="file-empty">לא נמצאו קבצים בתיקיה</div>'; return; }
+  list.innerHTML = allFiles.map((f,i) => {
+    const ic = f.ext==='pdf'?'pdf':['docx','doc'].includes(f.ext)?'docx':['xlsx','xls'].includes(f.ext)?'xlsx':'other';
+    const iconName = f.ext==='pdf'?'picture_as_pdf':['docx','doc'].includes(f.ext)?'description':['xlsx','xls'].includes(f.ext)?'table_chart':'insert_drive_file';
+    const isSyllabus = syllabusScore(f)===0;
+    const isDoc = syllabusScore(f)<=1;
+    return `<div class="file-item" style="${!isDoc?'opacity:0.55':''}" onclick="selectSyllabus(${i})">
+      <div class="file-icon ${ic}"><span class="material-icons">${iconName}</span></div>
       <div class="file-info">
         <div class="file-name">${f.name}</div>
         <div class="file-meta">${f.ext.toUpperCase()}</div>
       </div>
-      ${isSyllabus ? '<span class="file-badge">סילבוס?</span>' : ''}
+      ${isSyllabus?'<span class="file-badge">סילבוס?</span>':''}
     </div>`;
   }).join('');
 }
@@ -490,86 +606,288 @@ async function loadFolderFiles() {
 async function selectSyllabus(idx) {
   selectedFile = allFiles[idx];
   goToStep(3);
-
   document.getElementById('syllabusFileName').textContent = selectedFile.name;
   document.getElementById('syllabusFileMeta').textContent = selectedFile.ext.toUpperCase();
   document.getElementById('syllabusContent').innerHTML =
-    '<div class="parse-loading"><div class="spinner"></div><div>מנתח את הסילבוס…</div></div>';
+    '<div class="parse-loading"><div class="spinner"></div><div>מנתח…</div></div>';
   document.getElementById('btnContinue').disabled = true;
+  document.getElementById('topicEditorCard').style.display = 'none';
 
   try {
     const file = await selectedFile.handle.getFile();
-
-    if (selectedFile.ext === 'pdf') {
-      await parsePDF(file);
-    } else if (['docx','doc'].includes(selectedFile.ext)) {
-      await parseDocx(file);
-    } else if (['txt','md'].includes(selectedFile.ext)) {
-      await parseText(file, '');
-    } else {
-      document.getElementById('syllabusContent').textContent =
-        'פורמט זה אינו נתמך לתצוגה. ניתן להמשיך ולבנות מעקב ידנית.';
-    }
+    if (selectedFile.ext==='pdf') await parsePDF(file);
+    else if (['docx','doc'].includes(selectedFile.ext)) await parseDocx(file);
+    else if (['txt','md'].includes(selectedFile.ext)) await parseText(file);
+    else document.getElementById('syllabusContent').textContent = 'פורמט לא נתמך';
 
     syllabusText = document.getElementById('syllabusContent').textContent || '';
+    topics = extractTopics(syllabusText);
+    nextId = topics.length + 1;
+    renderTopicEditor();
+    document.getElementById('topicEditorCard').style.display = '';
     document.getElementById('btnContinue').disabled = false;
-  } catch (e) {
-    document.getElementById('syllabusContent').textContent = 'שגיאה בקריאת הקובץ: ' + e.message;
+  } catch(e) {
+    document.getElementById('syllabusContent').textContent = 'שגיאה: ' + e.message;
   }
 }
 
+// ── Parsers ────────────────────────────────────────────
 async function parsePDF(file) {
-  const arrayBuffer = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-  const numPages = pdf.numPages;
-
-  // Show page info
-  const info = document.getElementById('pdfPageInfo');
-  info.style.display = 'flex';
-  document.getElementById('pdfPageInfoText').textContent =
-    `${numPages} עמודים — מחלץ טקסט מלא`;
-
-  let fullText = '';
+  const ab = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: ab }).promise;
+  const n = pdf.numPages;
+  document.getElementById('pdfPageInfo').style.display='flex';
+  document.getElementById('pdfPageInfoText').textContent = `${n} עמודים`;
+  let txt = '';
   setProgress(10);
-
-  for (let p = 1; p <= numPages; p++) {
-    const page = await pdf.getPage(p);
-    const content = await page.getTextContent();
-    const pageText = content.items.map(i => i.str).join(' ');
-    fullText += `\n── עמוד ${p} ──\n${pageText}\n`;
-    setProgress(10 + Math.round((p / numPages) * 80));
+  for (let p=1; p<=n; p++) {
+    const pg = await pdf.getPage(p);
+    const ct = await pg.getTextContent();
+    txt += ct.items.map(i=>i.str).join(' ') + '\n';
+    setProgress(10 + Math.round(p/n*80));
   }
-
-  setProgress(100);
-  setTimeout(() => setProgress(0), 600);
-
-  document.getElementById('syllabusContent').textContent =
-    fullText.trim() || '(לא נמצא טקסט — ייתכן שהקובץ סרוק/תמונה)';
+  setProgress(100); setTimeout(()=>setProgress(0),600);
+  document.getElementById('syllabusContent').textContent = txt.trim()||'(לא נמצא טקסט)';
 }
 
 async function parseDocx(file) {
-  const arrayBuffer = await file.arrayBuffer();
-  setProgress(30);
-  const result = await mammoth.extractRawText({ arrayBuffer });
-  setProgress(100);
-  setTimeout(() => setProgress(0), 600);
-  const text = result.value.trim();
-  document.getElementById('syllabusContent').textContent =
-    text || '(לא נמצא טקסט בקובץ)';
-  // Update icon to Word style
-  document.querySelector('.syllabus-meta .file-icon').className = 'file-icon docx';
-  document.querySelector('.syllabus-meta .file-icon .material-icons').textContent = 'description';
+  const ab = await file.arrayBuffer();
+  setProgress(40);
+  const r = await mammoth.extractRawText({ arrayBuffer: ab });
+  setProgress(100); setTimeout(()=>setProgress(0),600);
+  document.getElementById('syllabusContent').textContent = r.value.trim()||'(לא נמצא טקסט)';
+  document.querySelector('.syllabus-meta .file-icon').className='file-icon docx';
+  document.querySelector('.syllabus-meta .file-icon .material-icons').textContent='description';
 }
 
-async function parseText(file, note) {
-  const text = await file.text();
-  document.getElementById('syllabusContent').textContent =
-    (note ? note + '\n\n' : '') + text;
+async function parseText(file) {
+  document.getElementById('syllabusContent').textContent = await file.text();
+}
+
+// ── Auto topic extractor ───────────────────────────────
+function extractTopics(text) {
+  const hourRe = /(\d+(?:[.,]\d+)?)\s*(?:שעות|ש["״']א|ש["״']ס|ש'|שעה)/;
+  const lines = text.split(/\n/).map(l=>l.trim()).filter(l=>l.length>2);
+  const found = [];
+
+  // Pass 1: numbered list lines  "1. topic - X שעות"
+  const numRe = /^(\d{1,2})[.)]\s+(.{3,80})/;
+  lines.forEach(line => {
+    const m = line.match(numRe);
+    if (!m) return;
+    const raw = m[2];
+    const hm = raw.match(hourRe);
+    const name = raw.replace(hourRe,'').replace(/[-–—|:]+$/, '').trim();
+    if (name.length > 1)
+      found.push({ id: nextId++, name, hours: hm ? parseFloat(hm[1].replace(',','.')) : 0 });
+  });
+
+  // Pass 2: if not enough — look for lines with hours nearby
+  if (found.length < 3) {
+    lines.forEach((line, i) => {
+      if (numRe.test(line)) return; // already caught
+      const hm = line.match(hourRe);
+      if (!hm) return;
+      const name = line.replace(hourRe,'').replace(/[-–—|:]+$/, '').trim();
+      if (name.length > 2 && name.length < 120)
+        found.push({ id: nextId++, name, hours: parseFloat(hm[1].replace(',','.')) });
+    });
+  }
+
+  // Deduplicate by name similarity
+  const seen = new Set();
+  return found.filter(t => {
+    const key = t.name.slice(0,20);
+    if (seen.has(key)) return false;
+    seen.add(key); return true;
+  }).map((t,i) => ({...t, id: i+1}));
+}
+
+// ── Topic editor ───────────────────────────────────────
+function renderTopicEditor() {
+  const body = document.getElementById('topicTableBody');
+  body.innerHTML = topics.length ? topics.map(t=>`
+    <tr id="tr-${t.id}">
+      <td class="row-num">${t.id}</td>
+      <td><input class="field" value="${t.name.replace(/"/g,'&quot;')}"
+           onchange="updateTopic(${t.id},'name',this.value)"></td>
+      <td><input class="field field-hours" type="number" min="0" step="0.5"
+           value="${t.hours||''}" placeholder="0"
+           onchange="updateTopic(${t.id},'hours',this.value)"></td>
+      <td><button class="del-btn" onclick="deleteTopic(${t.id})">
+        <span class="material-icons" style="font-size:16px">delete</span></button></td>
+    </tr>`).join('') : '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--muted);font-size:13px">לא זוהו נושאים — הוסף ידנית</td></tr>';
+
+  const msg = topics.length
+    ? `זוהו ${topics.length} נושאים אוטומטית — ניתן לערוך`
+    : 'לא זוהו נושאים אוטומטית';
+  document.getElementById('extractMsg').textContent = msg;
+  updateSummary();
+}
+
+function updateTopic(id, field, val) {
+  const t = topics.find(t=>t.id===id);
+  if (!t) return;
+  if (field==='hours') t.hours = parseFloat(val)||0;
+  else t[field] = val;
+  updateSummary();
+}
+
+function deleteTopic(id) {
+  topics = topics.filter(t=>t.id!==id);
+  renderTopicEditor();
+}
+
+function addTopic() {
+  topics.push({ id: nextId++, name: '', hours: 0 });
+  renderTopicEditor();
+  // Focus the last name field
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('#topicTableBody input.field:not(.field-hours)');
+    if (inputs.length) inputs[inputs.length-1].focus();
+  }, 50);
+}
+
+function updateSummary() {
+  const totalH = topics.reduce((s,t)=>s+(t.hours||0),0);
+  document.getElementById('summaryTopics').textContent = topics.length;
+  document.getElementById('summaryHours').textContent = totalH % 1 === 0 ? totalH : totalH.toFixed(1);
+}
+
+// ── Step 4: Prepare & generate ────────────────────────
+function prepareStep4() {
+  goToStep(4);
+  // Pre-fill course name from folder
+  if (!document.getElementById('courseNameField').value && dirHandle)
+    document.getElementById('courseNameField').value = dirHandle.name;
+  updatePreview();
+  ['courseNameField','courseInstField','courseYearField','courseColorField']
+    .forEach(id => document.getElementById(id).addEventListener('input', updatePreview));
+}
+
+function updatePreview() {
+  const name = document.getElementById('courseNameField').value || 'קורס חדש';
+  const totalH = topics.reduce((s,t)=>s+(t.hours||0),0);
+  document.getElementById('prevCourseName').textContent = name;
+  document.getElementById('prevTopics').textContent = topics.length;
+  document.getElementById('prevHours').textContent = (totalH%1===0?totalH:totalH.toFixed(1)) + ' ש"א';
+  document.getElementById('prevFileName').textContent = `מעקב_${name.replace(/\s+/g,'_')}.html`;
+}
+
+function generateAndDownload() {
+  const name   = document.getElementById('courseNameField').value  || 'קורס חדש';
+  const inst   = document.getElementById('courseInstField').value  || '';
+  const year   = document.getElementById('courseYearField').value  || '';
+  const color  = document.getElementById('courseColorField').value || '#4f80ff';
+  const totalH = topics.reduce((s,t)=>s+(t.hours||0),0);
+  const topicsJSON = JSON.stringify(topics.map(t=>({...t, done:false, subs:[]})));
+  const subtitle = [inst, year].filter(Boolean).join(' · ');
+
+  const html = `<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${name} — מעקב לימודים</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+:root{--primary:${color};--primary-lt:${color}22;--page-bg:#1c1e2e;--card-bg:#252838;--border:rgba(255,255,255,0.07);--text:#c8cdd8;--text-dark:#e8eaf0;--muted:#7a8394;--success:#1cbb8c;--success-lt:rgba(28,187,140,0.15);}
+*{box-sizing:border-box;margin:0;padding:0;}
+.material-icons{font-size:inherit;vertical-align:middle;line-height:1;user-select:none;}
+body{font-family:'Heebo',sans-serif;background:var(--page-bg);color:var(--text);direction:rtl;font-size:15px;min-height:100vh;}
+.topbar{background:#141720;border-bottom:1px solid var(--border);height:52px;display:flex;align-items:center;padding:0 20px;gap:12px;position:sticky;top:0;z-index:10;}
+.topbar-brand{font-weight:700;font-size:16px;color:var(--text-dark);}
+.topbar-sub{font-size:12px;color:var(--muted);}
+.topbar-pct{font-size:14px;font-weight:700;color:var(--primary);margin-right:auto;}
+.prog-track{flex:1;max-width:200px;height:5px;background:rgba(255,255,255,0.08);border-radius:5px;overflow:hidden;}
+.prog-fill{height:100%;background:var(--primary);border-radius:5px;transition:width .4s;}
+.container{max-width:760px;margin:0 auto;padding:20px 16px 60px;}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.stat{background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.stat-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;}
+.stat-val{font-size:26px;font-weight:700;color:var(--text-dark);margin-top:2px;}
+.card{background:var(--card-bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;}
+.card-header{padding:12px 16px;border-bottom:1px solid var(--border);font-size:14px;font-weight:700;color:var(--text-dark);}
+.topic-row{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:background .1s;}
+.topic-row:hover{background:rgba(255,255,255,0.03);}
+.topic-row:last-child{border-bottom:none;}
+.topic-row.done{background:rgba(28,187,140,0.04);}
+.topic-cb{width:17px;height:17px;accent-color:var(--success);cursor:pointer;flex-shrink:0;}
+.topic-name{flex:1;font-size:14px;color:var(--text-dark);}
+.topic-name.done{text-decoration:line-through;color:var(--muted);}
+.topic-hrs{font-size:12px;color:var(--muted);white-space:nowrap;}
+.bar-bg{height:3px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;margin-top:4px;}
+.bar-fill{height:100%;background:var(--primary);border-radius:3px;transition:width .4s;}
+.bar-fill.done{background:var(--success);}
+.footer{text-align:center;font-size:12px;color:var(--muted);padding:20px;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div>
+    <div class="topbar-brand">${name}</div>
+    ${subtitle?`<div class="topbar-sub">${subtitle}</div>`:''}
+  </div>
+  <div class="topbar-pct" id="pctLabel">0%</div>
+  <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+</div>
+<div class="container">
+  <div class="stat-row">
+    <div class="stat"><div class="stat-label">נושאים</div><div class="stat-val" id="statTotal">${topics.length}</div></div>
+    <div class="stat"><div class="stat-label">הושלמו</div><div class="stat-val" id="statDone">0</div></div>
+    <div class="stat"><div class="stat-label">שעות</div><div class="stat-val">${totalH%1===0?totalH:totalH.toFixed(1)}</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header">רשימת נושאים</div>
+    <div id="topicList"></div>
+  </div>
+</div>
+<div class="footer">${name}${subtitle?' · '+subtitle:''}</div>
+<script>
+const TOPICS=${topicsJSON};
+const KEY='tracker_${name.replace(/\s+/g,'_')}';
+let state=JSON.parse(localStorage.getItem(KEY)||'{}');
+function save(){localStorage.setItem(KEY,JSON.stringify(state));}
+function render(){
+  const done=TOPICS.filter(t=>state[t.id]);
+  document.getElementById('statDone').textContent=done.length;
+  const pct=TOPICS.length?Math.round(done.length/TOPICS.length*100):0;
+  document.getElementById('pctLabel').textContent=pct+'%';
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('topicList').innerHTML=TOPICS.map(t=>{
+    const isDone=!!state[t.id];
+    return \`<div class="topic-row\${isDone?' done':''}" onclick="toggle(\${t.id})">
+      <input type="checkbox" class="topic-cb" \${isDone?'checked':''} onclick="event.stopPropagation();toggle(\${t.id})">
+      <div><div class="topic-name\${isDone?' done':''}">\${t.name}</div>
+      <div class="bar-bg"><div class="bar-fill\${isDone?' done':''}" style="width:\${isDone?100:0}%"></div></div></div>
+      \${t.hours?'<div class="topic-hrs">'+t.hours+' ש"א</div>':''}
+    </div>\`;
+  }).join('');
+}
+function toggle(id){state[id]=!state[id];save();render();}
+render();
+<\/script>
+</body>
+</html>`;
+
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `מעקב_${name.replace(/\s+/g,'_')}.html`;
+  a.click();
 }
 
 // ── Progress bar ───────────────────────────────────────
-function setProgress(pct) {
-  document.getElementById('pageLoader').style.width = pct + '%';
+function setProgress(pct){document.getElementById('pageLoader').style.width=pct+'%';}
+
+// ── Overlay close support ──────────────────────────────
+function closeIfEmbedded() {
+  if (window.parent !== window) {
+    window.parent.postMessage('closeWizard', '*');
+  } else {
+    history.back();
+  }
 }
 </script>
 </body>
