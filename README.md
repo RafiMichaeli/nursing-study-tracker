@@ -29,8 +29,8 @@
 
 - HTML/CSS/JS — קובץ יחיד, ללא תלויות חיצוניות
 - [Chart.js 4.4.1](https://www.chartjs.org/) — גרפים
-- [Bootstrap Icons 1.11.3](https://icons.getbootstrap.com/) — אייקונים
-- [Rubik Font](https://fonts.google.com/specimen/Rubik) — גופן עברי
+- [Material Icons](https://fonts.google.com/icons) — אייקונים (Google)
+- [Heebo](https://fonts.google.com/specimen/Heebo) — גופן עברי (Google Fonts)
 
 ---
 
