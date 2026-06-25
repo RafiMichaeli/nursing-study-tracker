@@ -307,6 +307,8 @@ body {
 <body>
 
 <div class="page-loader" id="pageLoader"></div>
+<input type="file" id="folderInput" webkitdirectory multiple style="display:none"
+  onchange="onFolderSelected(this.files)">
 
 <!-- TOPBAR -->
 <div class="topbar">
@@ -553,14 +555,14 @@ function goToStep(n) {
 }
 
 // ── Step 1: Pick local folder ──────────────────────────
-async function pickLocalFolder() {
-  try {
-    dirHandle = await window.showDirectoryPicker({ mode: 'read' });
-    await loadFolderFiles();
-    goToStep(2);
-  } catch(e) {
-    if (e.name !== 'AbortError') alert('שגיאה בפתיחת תיקיה: ' + e.message);
-  }
+function pickLocalFolder() {
+  document.getElementById('folderInput').click();
+}
+
+function onFolderSelected(fileList) {
+  if (!fileList || fileList.length === 0) return;
+  loadFolderFiles(fileList);
+  goToStep(2);
 }
 
 // ── Step 2: Load & display files ──────────────────────
@@ -573,15 +575,18 @@ const syllabusScore = f => {
   return 2;
 };
 
-async function loadFolderFiles() {
+function loadFolderFiles(fileList) {
   allFiles = [];
-  document.getElementById('folderNameLabel').textContent = dirHandle.name;
-  for await (const [name, handle] of dirHandle.entries()) {
-    if (handle.kind === 'file') {
-      const ext = name.split('.').pop().toLowerCase();
-      allFiles.push({ name, handle, ext });
-    }
-  }
+  const folderName = fileList[0]?.webkitRelativePath?.split('/')[0] || 'תיקיה';
+  document.getElementById('folderNameLabel').textContent = folderName;
+  Array.from(fileList).forEach(file => {
+    // skip files in sub-sub-folders (depth > 2), only include direct children
+    const parts = file.webkitRelativePath.split('/');
+    if (parts.length > 2) return;
+    const name = parts[parts.length - 1];
+    const ext = name.split('.').pop().toLowerCase();
+    allFiles.push({ name, file, ext });
+  });
   allFiles.sort((a,b) => syllabusScore(a)-syllabusScore(b) || a.name.localeCompare(b.name,'he'));
   const list = document.getElementById('fileList');
   document.getElementById('fileCountLabel').textContent = `${allFiles.length} קבצים`;
@@ -614,7 +619,7 @@ async function selectSyllabus(idx) {
   document.getElementById('topicEditorCard').style.display = 'none';
 
   try {
-    const file = await selectedFile.handle.getFile();
+    const file = selectedFile.file;
     if (selectedFile.ext==='pdf') await parsePDF(file);
     else if (['docx','doc'].includes(selectedFile.ext)) await parseDocx(file);
     else if (['txt','md'].includes(selectedFile.ext)) await parseText(file);
