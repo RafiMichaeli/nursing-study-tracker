@@ -622,13 +622,23 @@ async function selectSyllabus(idx) {
 
   try {
     const file = selectedFile.file;
+    let directTopics = null;
     if (selectedFile.ext==='pdf') await parsePDF(file);
-    else if (['docx','doc'].includes(selectedFile.ext)) await parseDocx(file);
+    else if (['docx','doc'].includes(selectedFile.ext)) directTopics = await parseDocx(file);
     else if (['txt','md'].includes(selectedFile.ext)) await parseText(file);
     else document.getElementById('syllabusContent').textContent = 'פורמט לא נתמך';
 
     syllabusText = document.getElementById('syllabusContent').textContent || '';
-    topics = extractTopics(syllabusText);
+    // Auto-fill course metadata from syllabus text
+    autoFillCourseMetadata(syllabusText);
+
+    if (directTopics && directTopics.length > 0) {
+      // DOCX: use structured table data directly — much more reliable
+      topics = directTopics.map((t, i) => ({ id: i + 1, name: t.name, hours: t.hours }));
+    } else {
+      // PDF / TXT: use regex-based extraction
+      topics = extractTopics(syllabusText);
+    }
     nextId = topics.length + 1;
     renderTopicEditor();
     document.getElementById('topicEditorCard').style.display = '';
@@ -645,26 +655,81 @@ async function parsePDF(file) {
   const n = pdf.numPages;
   document.getElementById('pdfPageInfo').style.display='flex';
   document.getElementById('pdfPageInfoText').textContent = `${n} עמודים`;
-  let txt = '';
+  let allLines = [];
   setProgress(10);
   for (let p=1; p<=n; p++) {
     const pg = await pdf.getPage(p);
     const ct = await pg.getTextContent();
-    txt += ct.items.map(i=>i.str).join(' ') + '\n';
+    // Group items by Y position so we reconstruct real text lines
+    // items with similar Y (±4px) go on the same line
+    const buckets = [];
+    ct.items.forEach(item => {
+      if (!item.str.trim()) return;
+      const y = Math.round(item.transform[5] / 4) * 4; // snap to 4px grid
+      let bucket = buckets.find(b => b.y === y);
+      if (!bucket) { bucket = { y, items: [] }; buckets.push(bucket); }
+      bucket.items.push(item);
+    });
+    // Sort by Y descending (PDF Y is bottom-up), then X for RTL
+    buckets.sort((a,b) => b.y - a.y);
+    buckets.forEach(b => {
+      const lineText = b.items
+        .sort((a,bb) => bb.transform[4] - a.transform[4]) // RTL: sort X desc
+        .map(i => i.str).join(' ').trim();
+      if (lineText) allLines.push(lineText);
+    });
+    allLines.push(''); // blank line between pages
     setProgress(10 + Math.round(p/n*80));
   }
   setProgress(100); setTimeout(()=>setProgress(0),600);
-  document.getElementById('syllabusContent').textContent = txt.trim()||'(לא נמצא טקסט)';
+  const txt = allLines.join('\n');
+  document.getElementById('syllabusContent').textContent = txt.trim()||'(לא נמצא טקסט — ייתכן שהקובץ סרוק)';
 }
 
 async function parseDocx(file) {
   const ab = await file.arrayBuffer();
-  setProgress(40);
-  const r = await mammoth.extractRawText({ arrayBuffer: ab });
-  setProgress(100); setTimeout(()=>setProgress(0),600);
-  document.getElementById('syllabusContent').textContent = r.value.trim()||'(לא נמצא טקסט)';
-  document.querySelector('.syllabus-meta .file-icon').className='file-icon docx';
-  document.querySelector('.syllabus-meta .file-icon .material-icons').textContent='description';
+  setProgress(30);
+  // Use convertToHtml to preserve table structure
+  const result = await mammoth.convertToHtml({ arrayBuffer: ab });
+  setProgress(80);
+
+  // Parse HTML in a temp element
+  const div = document.createElement('div');
+  div.innerHTML = result.value;
+
+  // Show plain text in preview
+  document.getElementById('syllabusContent').textContent =
+    div.textContent.trim() || '(לא נמצא טקסט)';
+  document.querySelector('.syllabus-meta .file-icon').className = 'file-icon docx';
+  document.querySelector('.syllabus-meta .file-icon .material-icons').textContent = 'description';
+
+  setProgress(100); setTimeout(()=>setProgress(0), 600);
+
+  // ── Extract topics from table structure ───────────────
+  const SKIP_RE = /^(?:נהלים|נושאי|תכנים|שעות|סה[״"כ]|חוזר|משרד|הנהלים|ספרות|מקורות|bibliography|references)/i;
+  const tableTopics = [];
+
+  div.querySelectorAll('table').forEach(table => {
+    const rows = Array.from(table.querySelectorAll('tr'));
+    rows.forEach((row, ri) => {
+      if (ri === 0) return; // skip header
+      const cells = Array.from(row.querySelectorAll('td'));
+      if (cells.length < 2) return;
+
+      const name = cells[0].textContent.trim();
+      if (!name || name.length < 2 || name.length > 90) return;
+      if (SKIP_RE.test(name)) return;
+
+      // Hours: last cell, take first number found
+      const hoursText = cells[cells.length - 1].textContent.trim();
+      const hoursMatch = hoursText.match(/(\d+)/);
+      const hours = hoursMatch ? parseInt(hoursMatch[1]) : 0;
+
+      tableTopics.push({ name, hours });
+    });
+  });
+
+  return tableTopics.length > 0 ? tableTopics : null;
 }
 
 async function parseText(file) {
@@ -682,8 +747,8 @@ function extractTopics(text) {
   const raw = norm.split('\n').map(l => l.trim());
 
   // ── 2. Hour pattern (many Hebrew variants) ──────────
-  // Matches: 2, 2.5, 2,5 followed by שעות/ש"א/ש"ס/ש"ל/ש"מ/שע"מ/ש'/ש.א/ש.ס/שע
-  const HOUR_RE = /(\d+(?:[.,]\d+)?)\s*(?:ש["']א|ש["']ס|ש["']ל|ש["']מ|שע["']מ|שעות?|ש\.א\.?|ש\.ס\.?|שע\.?(?!\S))/;
+  // Matches: 2, 2.5, 2,5 followed by any Hebrew hour abbreviation
+  const HOUR_RE = /(\d+(?:[.,]\d+)?)\s*(?:ש["'״׳]?[אסלמ]|שע["'״׳]?מ|שעות\s*אקדמיות?|שעות?|ש\.א\.?|ש\.ס\.?|\(ש["'״׳][אסלמ]\))/;
   const parseHours = s => {
     const m = s.match(HOUR_RE);
     return m ? parseFloat(m[1].replace(',', '.')) : 0;
@@ -752,10 +817,68 @@ function extractTopics(text) {
       const next = raw[i+1] || '';
       const hours = parseHours(next);
       if (!hours) return;
-      // Current line is probably the topic name, next line has hours
       const name = cleanName(line);
       if (name.length >= 3 && name.length <= 80)
         candidates.push({ name, hours, strategy: 'lookahead', score: 1 });
+    });
+  }
+
+  // ── 4E. Strategy: RTL table — "topic | hours | content" ─
+  // Hebrew syllabi tables: topic name (short, rightmost col) + standalone
+  // number in next col + content text. PDF.js extracts RTL order so topic
+  // comes first in the line string.
+  // Pattern: [Hebrew phrase ≤50 chars] [space] [1-2 digit num 1-40] [space] [more text]
+  const NOISE_WORD = /^(?:פרק|מתוך|חוזר|הערות|בדיקות?|מטרות|עקרון|שיטות|הסתכלות|Health|Berman|Assessing|Pearson|Safety|Nutrition|Sleep|Hygiene|Vital|Fluids|Medication|Diagnostic|Activity)/i;
+  const heHebRE = /^[א-ת\s,."'״׳()/–-]+$/;
+
+  lines.forEach(line => {
+    // Match: <hebrew-phrase (3-50 chars)> <space> <1-2 digit num> <space> <non-digit>
+    const m = line.match(/^(.{3,50}?)\s{1,3}(\d{1,2})\s+\D/);
+    if (!m) return;
+    const hours = parseInt(m[2]);
+    if (hours < 1 || hours > 40) return;
+    const rawName = m[1].trim();
+    // Must be mostly Hebrew characters, not a "content" keyword
+    if (!heHebRE.test(rawName)) return;
+    if (NOISE_WORD.test(rawName)) return;
+    const name = cleanName(rawName);
+    if (name.length < 2) return;
+    if (candidates.some(c => c.name === name)) return;
+    candidates.push({ name, hours, strategy: 'rtl-table', score: 3 });
+  });
+
+  // ── 4F. Strategy: standalone number line adjacent to topic line ──
+  // Some PDFs put the hours number on its own line; topic is 1-2 lines above
+  if (candidates.length < 3) {
+    raw.forEach((line, i) => {
+      const trimmed = line.trim();
+      const standaloneNum = trimmed.match(/^(\d{1,2})$/);
+      if (!standaloneNum) return;
+      const hours = parseInt(standaloneNum[1]);
+      if (hours < 1 || hours > 40) return;
+      // Look at the 1-2 lines before for a short topic name
+      for (let back = 1; back <= 2; back++) {
+        const prev = (raw[i - back] || '').trim();
+        if (prev.length < 3 || prev.length > 55 || isNoise(prev)) continue;
+        if (NOISE_WORD.test(prev)) continue;
+        const name = cleanName(prev);
+        if (name.length >= 2 && !candidates.some(c => c.name === name))
+          candidates.push({ name, hours, strategy: 'adjacent-num', score: 2 });
+        break;
+      }
+    });
+  }
+
+  // ── 4G. Strategy: numbered items WITHOUT hours ───────
+  // Last resort: extract any numbered lines even without hour info
+  if (candidates.length < 2) {
+    lines.forEach(line => {
+      const m = line.match(NUM_RE) || line.match(HEB_RE);
+      if (!m) return;
+      const name = cleanName(stripHours(m[2]));
+      if (candidates.some(c => c.name === name)) return;
+      if (name.length >= 2)
+        candidates.push({ name, hours: 0, strategy: 'numbered-nohours', score: 1 });
     });
   }
 
@@ -771,6 +894,23 @@ function extractTopics(text) {
 
   // Sort by original order (strategy priority already keeps order)
   return unique.map((t, i) => ({ id: i + 1, name: t.name, hours: t.hours }));
+}
+
+// ── Auto-fill course metadata from syllabus ───────────
+function autoFillCourseMetadata(text) {
+  // Course name: look for "קורס: X" or "קורס : X" pattern
+  const courseMatch = text.match(/קורס\s*[:\-–]\s*([^\n(]{3,40})/);
+  if (courseMatch) {
+    const name = courseMatch[1].replace(/\(.*?\)/g,'').trim();
+    const field = document.getElementById('courseNameField');
+    if (field && !field.value) field.value = name;
+  }
+  // Academic year: look for תשפ"ו / תשפ"ה style
+  const yearMatch = text.match(/תש[פצקרשת]["'״]?[א-ת]/);
+  if (yearMatch) {
+    const field = document.getElementById('courseYearField');
+    if (field && !field.value) field.value = yearMatch[0];
+  }
 }
 
 // ── Clean up a topic name string ──────────────────────
