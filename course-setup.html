@@ -630,6 +630,8 @@ async function selectSyllabus(idx) {
     syllabusText = document.getElementById('syllabusContent').textContent || '';
     topics = extractTopics(syllabusText);
     nextId = topics.length + 1;
+    // Auto-fill course metadata from syllabus text
+    autoFillCourseMetadata(syllabusText);
     renderTopicEditor();
     document.getElementById('topicEditorCard').style.display = '';
     document.getElementById('btnContinue').disabled = false;
@@ -777,14 +779,59 @@ function extractTopics(text) {
     });
   }
 
-  // ── 4E. Strategy: numbered items WITHOUT hours ───────
+  // ── 4E. Strategy: RTL table — "topic | hours | content" ─
+  // Hebrew syllabi tables: topic name (short, rightmost col) + standalone
+  // number in next col + content text. PDF.js extracts RTL order so topic
+  // comes first in the line string.
+  // Pattern: [Hebrew phrase ≤50 chars] [space] [1-2 digit num 1-40] [space] [more text]
+  const NOISE_WORD = /^(?:פרק|מתוך|חוזר|הערות|בדיקות?|מטרות|עקרון|שיטות|הסתכלות|Health|Berman|Assessing|Pearson|Safety|Nutrition|Sleep|Hygiene|Vital|Fluids|Medication|Diagnostic|Activity)/i;
+  const heHebRE = /^[א-ת\s,."'״׳()/–-]+$/;
+
+  lines.forEach(line => {
+    // Match: <hebrew-phrase (3-50 chars)> <space> <1-2 digit num> <space> <non-digit>
+    const m = line.match(/^(.{3,50}?)\s{1,3}(\d{1,2})\s+\D/);
+    if (!m) return;
+    const hours = parseInt(m[2]);
+    if (hours < 1 || hours > 40) return;
+    const rawName = m[1].trim();
+    // Must be mostly Hebrew characters, not a "content" keyword
+    if (!heHebRE.test(rawName)) return;
+    if (NOISE_WORD.test(rawName)) return;
+    const name = cleanName(rawName);
+    if (name.length < 2) return;
+    if (candidates.some(c => c.name === name)) return;
+    candidates.push({ name, hours, strategy: 'rtl-table', score: 3 });
+  });
+
+  // ── 4F. Strategy: standalone number line adjacent to topic line ──
+  // Some PDFs put the hours number on its own line; topic is 1-2 lines above
+  if (candidates.length < 3) {
+    raw.forEach((line, i) => {
+      const trimmed = line.trim();
+      const standaloneNum = trimmed.match(/^(\d{1,2})$/);
+      if (!standaloneNum) return;
+      const hours = parseInt(standaloneNum[1]);
+      if (hours < 1 || hours > 40) return;
+      // Look at the 1-2 lines before for a short topic name
+      for (let back = 1; back <= 2; back++) {
+        const prev = (raw[i - back] || '').trim();
+        if (prev.length < 3 || prev.length > 55 || isNoise(prev)) continue;
+        if (NOISE_WORD.test(prev)) continue;
+        const name = cleanName(prev);
+        if (name.length >= 2 && !candidates.some(c => c.name === name))
+          candidates.push({ name, hours, strategy: 'adjacent-num', score: 2 });
+        break;
+      }
+    });
+  }
+
+  // ── 4G. Strategy: numbered items WITHOUT hours ───────
   // Last resort: extract any numbered lines even without hour info
   if (candidates.length < 2) {
     lines.forEach(line => {
       const m = line.match(NUM_RE) || line.match(HEB_RE);
       if (!m) return;
       const name = cleanName(stripHours(m[2]));
-      // skip if already captured
       if (candidates.some(c => c.name === name)) return;
       if (name.length >= 2)
         candidates.push({ name, hours: 0, strategy: 'numbered-nohours', score: 1 });
@@ -803,6 +850,23 @@ function extractTopics(text) {
 
   // Sort by original order (strategy priority already keeps order)
   return unique.map((t, i) => ({ id: i + 1, name: t.name, hours: t.hours }));
+}
+
+// ── Auto-fill course metadata from syllabus ───────────
+function autoFillCourseMetadata(text) {
+  // Course name: look for "קורס: X" or "קורס : X" pattern
+  const courseMatch = text.match(/קורס\s*[:\-–]\s*([^\n(]{3,40})/);
+  if (courseMatch) {
+    const name = courseMatch[1].replace(/\(.*?\)/g,'').trim();
+    const field = document.getElementById('courseNameField');
+    if (field && !field.value) field.value = name;
+  }
+  // Academic year: look for תשפ"ו / תשפ"ה style
+  const yearMatch = text.match(/תש[פצקרשת]["'״]?[א-ת]/);
+  if (yearMatch) {
+    const field = document.getElementById('courseYearField');
+    if (field && !field.value) field.value = yearMatch[0];
+  }
 }
 
 // ── Clean up a topic name string ──────────────────────
