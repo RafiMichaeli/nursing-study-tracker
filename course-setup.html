@@ -689,47 +689,100 @@ async function parsePDF(file) {
 async function parseDocx(file) {
   const ab = await file.arrayBuffer();
   setProgress(30);
-  // Use convertToHtml to preserve table structure
   const result = await mammoth.convertToHtml({ arrayBuffer: ab });
   setProgress(80);
 
-  // Parse HTML in a temp element
   const div = document.createElement('div');
   div.innerHTML = result.value;
 
-  // Show plain text in preview
   document.getElementById('syllabusContent').textContent =
     div.textContent.trim() || '(לא נמצא טקסט)';
   document.querySelector('.syllabus-meta .file-icon').className = 'file-icon docx';
   document.querySelector('.syllabus-meta .file-icon .material-icons').textContent = 'description';
-
   setProgress(100); setTimeout(()=>setProgress(0), 600);
 
-  // ── Extract topics from table structure ───────────────
-  const SKIP_RE = /^(?:נהלים|נושאי|תכנים|שעות|סה[״"כ]|חוזר|משרד|הנהלים|ספרות|מקורות|bibliography|references)/i;
-  const tableTopics = [];
+  // ── Strategy A: "הנושא: X" paragraph → following table's סה"כ hours ─────
+  // This matches the standard Israeli nursing school DOCX syllabus format.
+  // Each body-system section starts with a paragraph like "הנושא: מערכת הנשימה"
+  // followed by a table whose last row contains "סה"כ XX ש''א".
+  const TOPIC_HDR = /הנושא\s*[:\-–]\s*(.+)/;
+  const TOTAL_ROW = /סה["״']?כ/;
+  const SKIP_ROW  = /^(?:נהלים|נושאי|תכנים|שעות|חוזר|משרד|ספרות|bibliography)/i;
 
-  div.querySelectorAll('table').forEach(table => {
-    const rows = Array.from(table.querySelectorAll('tr'));
-    rows.forEach((row, ri) => {
-      if (ri === 0) return; // skip header
+  const sectionTopics = [];
+  let pendingSection = '';
+
+  Array.from(div.children).forEach(node => {
+    const tag = node.tagName;
+
+    // Detect "הנושא: X" in any block element
+    if (/^(P|H[1-6])$/.test(tag)) {
+      const text = node.textContent.trim();
+      const m = text.match(TOPIC_HDR);
+      if (m) pendingSection = m[1].replace(/\(.*?\)/g, '').trim();
+      return;
+    }
+
+    if (tag !== 'TABLE') return;
+
+    // Extract total hours from the סה"כ row
+    let totalHours = 0;
+    const rows = Array.from(node.querySelectorAll('tr'));
+    rows.forEach(row => {
+      const cells = Array.from(row.querySelectorAll('td'));
+      if (!cells.length) return;
+      const joined = cells.map(c => c.textContent).join(' ');
+      if (TOTAL_ROW.test(joined)) {
+        const m = joined.match(/(\d+)/);
+        if (m && !totalHours) totalHours = parseInt(m[1]);
+      }
+    });
+
+    if (pendingSection) {
+      sectionTopics.push({ name: pendingSection, hours: totalHours });
+      pendingSection = '';
+    }
+  });
+
+  if (sectionTopics.length >= 3) return sectionTopics;
+
+  // ── Strategy B: sub-topic rows from tables (fallback for other DOCX formats) ──
+  // Prefix generic rows with the section name so "מבוא" doesn't appear 9 times.
+  const GENERIC_ROW = /^(?:מבוא|דרכי אבחון|נהלים|בדיקות)$/;
+  const subTopics = [];
+  let curSection = '';
+
+  Array.from(div.children).forEach(node => {
+    if (/^(P|H[1-6])$/.test(node.tagName)) {
+      const text = node.textContent.trim();
+      const m = text.match(TOPIC_HDR);
+      if (m) curSection = m[1].replace(/\(.*?\)/g, '').trim();
+      return;
+    }
+    if (node.tagName !== 'TABLE') return;
+
+    Array.from(node.querySelectorAll('tr')).forEach((row, ri) => {
+      if (ri === 0) return;
       const cells = Array.from(row.querySelectorAll('td'));
       if (cells.length < 2) return;
+      const rawName = cells[0].textContent.trim();
+      if (!rawName || rawName.length < 2 || rawName.length > 90) return;
+      if (SKIP_ROW.test(rawName) || TOTAL_ROW.test(rawName)) return;
 
-      const name = cells[0].textContent.trim();
-      if (!name || name.length < 2 || name.length > 90) return;
-      if (SKIP_RE.test(name)) return;
+      // Find hours: scan cells from right, take first that starts with a digit
+      let hours = 0;
+      for (let ci = cells.length - 1; ci >= 1; ci--) {
+        const m = cells[ci].textContent.trim().match(/^(\d+)/);
+        if (m) { hours = parseInt(m[1]); break; }
+      }
 
-      // Hours: last cell, take first number found
-      const hoursText = cells[cells.length - 1].textContent.trim();
-      const hoursMatch = hoursText.match(/(\d+)/);
-      const hours = hoursMatch ? parseInt(hoursMatch[1]) : 0;
-
-      tableTopics.push({ name, hours });
+      const needsPrefix = curSection && (rawName.length <= 6 || GENERIC_ROW.test(rawName));
+      const name = needsPrefix ? `${curSection} – ${rawName}` : rawName;
+      subTopics.push({ name, hours });
     });
   });
 
-  return tableTopics.length > 0 ? tableTopics : null;
+  return subTopics.length > 0 ? subTopics : null;
 }
 
 async function parseText(file) {
