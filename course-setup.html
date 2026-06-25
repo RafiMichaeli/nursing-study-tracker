@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>בניית קורס חדש</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<style>
+:root {
+  --page-bg: #1c1e2e;
+  --card-bg: #252838;
+  --card-border: rgba(255,255,255,0.06);
+  --card-shadow: 0 2px 12px rgba(0,0,0,0.35);
+  --primary: #4f80ff;
+  --primary-lt: rgba(79,128,255,0.15);
+  --success: #1cbb8c;
+  --success-lt: rgba(28,187,140,0.15);
+  --warning: #fcb92c;
+  --warning-lt: rgba(252,185,44,0.12);
+  --danger: #e05260;
+  --danger-lt: rgba(224,82,96,0.12);
+  --muted: #7a8394;
+  --text: #c8cdd8;
+  --text-dark: #e8eaf0;
+  --border: rgba(255,255,255,0.07);
+  --input-bg: rgba(255,255,255,0.05);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.material-icons { font-size: inherit; vertical-align: middle; line-height: 1; user-select: none; }
+body {
+  font-family: 'Heebo', sans-serif;
+  background: var(--page-bg);
+  color: var(--text);
+  min-height: 100vh;
+  direction: rtl;
+  font-size: 15px;
+}
+
+/* ── TOPBAR ──────────────────────────────────────────── */
+.topbar {
+  background: #141720;
+  border-bottom: 1px solid var(--border);
+  height: 52px;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 12px;
+  position: sticky; top: 0; z-index: 10;
+}
+.topbar-brand { font-weight: 700; font-size: 16px; color: var(--text-dark); display: flex; align-items: center; gap: 8px; }
+.topbar-back {
+  background: none; border: 1px solid var(--border);
+  border-radius: 6px; padding: 5px 10px;
+  color: var(--muted); font-size: 13px; cursor: pointer;
+  display: flex; align-items: center; gap: 4px; transition: all 0.15s;
+  font-family: inherit;
+}
+.topbar-back:hover { color: var(--text-dark); border-color: rgba(255,255,255,0.2); }
+
+/* ── PROGRESS STEPS ──────────────────────────────────── */
+.steps-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 20px 24px 0;
+  max-width: 600px;
+  margin: 0 auto;
+}
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  position: relative;
+}
+.step-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 16px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--border);
+  z-index: 0;
+}
+.step-item.done:not(:last-child)::after { background: var(--primary); }
+.step-dot {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700;
+  background: var(--card-bg); border: 2px solid var(--border);
+  color: var(--muted); position: relative; z-index: 1;
+  transition: all 0.2s;
+}
+.step-item.active .step-dot { background: var(--primary); border-color: var(--primary); color: #fff; }
+.step-item.done .step-dot { background: var(--success); border-color: var(--success); color: #fff; }
+.step-label { font-size: 11px; color: var(--muted); white-space: nowrap; }
+.step-item.active .step-label { color: var(--primary); font-weight: 600; }
+.step-item.done .step-label { color: var(--success); }
+
+/* ── MAIN LAYOUT ─────────────────────────────────────── */
+.container {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 28px 20px 60px;
+}
+.section-title {
+  font-size: 20px; font-weight: 700; color: var(--text-dark);
+  margin-bottom: 6px;
+}
+.section-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+
+/* ── CARD ────────────────────────────────────────────── */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.card-body { padding: 20px; }
+
+/* ── SOURCE CARDS (step 1) ───────────────────────────── */
+.source-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.source-card {
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  border-radius: 10px;
+  padding: 28px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.source-card:hover:not(.disabled) {
+  border-color: var(--primary);
+  background: rgba(79,128,255,0.05);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+.source-card.disabled { opacity: 0.45; cursor: not-allowed; }
+.source-icon {
+  width: 56px; height: 56px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+}
+.source-icon.local { background: var(--primary-lt); color: var(--primary); }
+.source-icon.drive { background: var(--warning-lt); color: var(--warning); }
+.source-name { font-size: 15px; font-weight: 700; color: var(--text-dark); }
+.source-desc { font-size: 12px; color: var(--muted); }
+.badge-soon {
+  font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px;
+  background: var(--warning-lt); color: var(--warning); letter-spacing: 0.3px;
+}
+
+/* ── FILE BROWSER (step 2) ───────────────────────────── */
+.folder-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px; color: var(--muted);
+}
+.folder-name { color: var(--text-dark); font-weight: 600; }
+.file-list { max-height: 380px; overflow-y: auto; }
+.file-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  cursor: pointer; transition: background 0.12s;
+}
+.file-item:hover { background: rgba(79,128,255,0.07); }
+.file-item:last-child { border-bottom: none; }
+.file-icon {
+  width: 32px; height: 32px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+.file-icon.pdf { background: rgba(224,82,96,0.15); color: #e05260; }
+.file-icon.docx { background: rgba(79,128,255,0.15); color: var(--primary); }
+.file-icon.xlsx { background: var(--success-lt); color: var(--success); }
+.file-icon.folder { background: rgba(252,185,44,0.12); color: var(--warning); }
+.file-icon.other { background: rgba(255,255,255,0.07); color: var(--muted); }
+.file-info { flex: 1; min-width: 0; }
+.file-name { font-size: 13px; color: var(--text-dark); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.file-meta { font-size: 11px; color: var(--muted); }
+.file-badge {
+  font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px;
+  background: var(--primary-lt); color: var(--primary);
+}
+.file-empty { padding: 32px; text-align: center; color: var(--muted); font-size: 13px; }
+
+/* ── SYLLABUS PREVIEW (step 3) ───────────────────────── */
+.syllabus-meta {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 20px; border-bottom: 1px solid var(--border);
+}
+.syllabus-text-area {
+  height: 320px; overflow-y: auto;
+  padding: 16px 20px;
+  font-size: 13px; line-height: 1.7;
+  color: var(--text); white-space: pre-wrap;
+  font-family: 'Heebo', sans-serif;
+}
+.parse-loading {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 12px; height: 200px;
+  color: var(--muted); font-size: 13px;
+}
+.spinner {
+  width: 32px; height: 32px; border: 3px solid rgba(79,128,255,0.2);
+  border-top-color: var(--primary); border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── PAGE PROGRESS ───────────────────────────────────── */
+.page-loader {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 3px; background: var(--primary);
+  width: 0; transition: width 0.3s; z-index: 100;
+}
+
+/* ── BUTTONS ─────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 18px; border-radius: 6px;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  border: none; transition: all 0.15s; font-family: inherit;
+}
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: #3d6eff; }
+.btn-outline {
+  background: none; border: 1px solid var(--border);
+  color: var(--text);
+}
+.btn-outline:hover { border-color: rgba(255,255,255,0.25); color: var(--text-dark); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-row { display: flex; gap: 10px; justify-content: flex-end; padding: 16px 20px; border-top: 1px solid var(--border); }
+
+/* ── ALERT ───────────────────────────────────────────── */
+.alert {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 16px; border-radius: 8px;
+  font-size: 13px; margin-bottom: 16px;
+}
+.alert-info { background: var(--primary-lt); color: var(--primary); border: 1px solid rgba(79,128,255,0.2); }
+.alert-warning { background: var(--warning-lt); color: var(--warning); border: 1px solid rgba(252,185,44,0.2); }
+</style>
+</head>
+<body>
+
+<div class="page-loader" id="pageLoader"></div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <button class="topbar-back" onclick="history.back()">
+    <span class="material-icons" style="font-size:16px">arrow_forward</span>
+    חזור
+  </button>
+  <div class="topbar-brand">
+    <span class="material-icons" style="font-size:20px;color:var(--primary)">add_circle</span>
+    בניית קורס חדש
+  </div>
+</div>
+
+<!-- STEPS BAR -->
+<div class="steps-bar" id="stepsBar">
+  <div class="step-item active" id="step1Dot">
+    <div class="step-dot">1</div>
+    <div class="step-label">מקור</div>
+  </div>
+  <div class="step-item" id="step2Dot">
+    <div class="step-dot">2</div>
+    <div class="step-label">סילבוס</div>
+  </div>
+  <div class="step-item" id="step3Dot">
+    <div class="step-dot">3</div>
+    <div class="step-label">סקירה</div>
+  </div>
+  <div class="step-item" id="step4Dot">
+    <div class="step-dot">4</div>
+    <div class="step-label">בניית מעקב</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ═══ STEP 1: SOURCE ═══ -->
+  <div id="viewStep1">
+    <div class="section-title">בחר מקור הקורס</div>
+    <div class="section-sub">מאיפה לטעון את חומרי הקורס והסילבוס?</div>
+
+    <div class="source-grid">
+      <div class="source-card" onclick="pickLocalFolder()">
+        <div class="source-icon local">
+          <span class="material-icons">folder_open</span>
+        </div>
+        <div class="source-name">תיקיה מקומית</div>
+        <div class="source-desc">פתח תיקיה מהמחשב שלך</div>
+      </div>
+      <div class="source-card disabled" title="בקרוב">
+        <div class="source-icon drive">
+          <span class="material-icons">add_to_drive</span>
+        </div>
+        <div class="source-name">Google Drive</div>
+        <div class="source-desc">חבר את Google Drive שלך</div>
+        <span class="badge-soon">בקרוב</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 2: FILE BROWSER ═══ -->
+  <div id="viewStep2" style="display:none">
+    <div class="section-title">בחר קובץ סילבוס</div>
+    <div class="section-sub">בחר את קובץ הסילבוס מהתיקיה שפתחת</div>
+
+    <div class="alert alert-info">
+      <span class="material-icons" style="font-size:16px;flex-shrink:0">info</span>
+      קבצי PDF, Word ו-Excel מסומנים כמתאימים לסילבוס. ניתן לבחור כל קובץ אחר.
+    </div>
+
+    <div class="card">
+      <div class="folder-header">
+        <span class="material-icons" style="font-size:16px">folder</span>
+        <span id="folderNameLabel" class="folder-name">—</span>
+        <span id="fileCountLabel"></span>
+      </div>
+      <div class="file-list" id="fileList">
+        <div class="file-empty">טוען קבצים…</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-outline" onclick="goToStep(1)">
+        <span class="material-icons" style="font-size:16px">arrow_forward</span> חזור
+      </button>
+      <button class="btn btn-outline" onclick="pickLocalFolder()">
+        <span class="material-icons" style="font-size:16px">folder_open</span> תיקיה אחרת
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 3: SYLLABUS PREVIEW ═══ -->
+  <div id="viewStep3" style="display:none">
+    <div class="section-title">סקירת סילבוס</div>
+    <div class="section-sub">בדיקת תוכן הסילבוס שנבחר</div>
+
+    <div class="card">
+      <div class="syllabus-meta">
+        <div class="file-icon pdf"><span class="material-icons">picture_as_pdf</span></div>
+        <div>
+          <div id="syllabusFileName" style="font-size:14px;font-weight:600;color:var(--text-dark)">—</div>
+          <div id="syllabusFileMeta" style="font-size:12px;color:var(--muted)">—</div>
+        </div>
+      </div>
+      <div id="syllabusContent" class="syllabus-text-area">
+        <div class="parse-loading">
+          <div class="spinner"></div>
+          <div>מנתח את הסילבוס…</div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goToStep(2)">
+          <span class="material-icons" style="font-size:16px">arrow_forward</span> חזור
+        </button>
+        <button class="btn btn-primary" id="btnContinue" onclick="goToStep(4)" disabled>
+          המשך לבניית מעקב
+          <span class="material-icons" style="font-size:16px">arrow_back</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Page count info -->
+    <div id="pdfPageInfo" style="display:none" class="alert alert-warning" style="margin-top:12px">
+      <span class="material-icons" style="font-size:16px;flex-shrink:0">layers</span>
+      <span id="pdfPageInfoText"></span>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 4: COMING SOON ═══ -->
+  <div id="viewStep4" style="display:none">
+    <div class="section-title">בניית מעקב</div>
+    <div class="section-sub">השלב הבא — זיהוי נושאים ובניית דשבורד</div>
+    <div class="card">
+      <div class="card-body" style="text-align:center;padding:40px">
+        <span class="material-icons" style="font-size:48px;color:var(--primary)">construction</span>
+        <div style="font-size:16px;font-weight:700;color:var(--text-dark);margin-top:12px">בקרוב!</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:6px">בשלב הבא נזהה אוטומטית נושאים, שעות ופרטים מהסילבוס.</div>
+        <button class="btn btn-outline" onclick="goToStep(3)" style="margin-top:20px">
+          <span class="material-icons" style="font-size:16px">arrow_forward</span> חזור לסקירה
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+// ── State ──────────────────────────────────────────────
+let dirHandle = null;
+let allFiles = [];
+let selectedFile = null;
+let syllabusText = '';
+
+// ── Step navigation ────────────────────────────────────
+function goToStep(n) {
+  [1,2,3,4].forEach(i => {
+    document.getElementById('viewStep'+i).style.display = i===n ? '' : 'none';
+    const dot = document.getElementById('step'+i+'Dot');
+    dot.className = 'step-item' + (i<n ? ' done' : i===n ? ' active' : '');
+  });
+  window.scrollTo(0, 0);
+}
+
+// ── Step 1: Pick local folder ──────────────────────────
+async function pickLocalFolder() {
+  try {
+    dirHandle = await window.showDirectoryPicker({ mode: 'read' });
+    await loadFolderFiles();
+    goToStep(2);
+  } catch (e) {
+    if (e.name !== 'AbortError') alert('שגיאה בפתיחת תיקיה: ' + e.message);
+  }
+}
+
+// ── Step 2: Load & display files ──────────────────────
+async function loadFolderFiles() {
+  allFiles = [];
+  document.getElementById('folderNameLabel').textContent = dirHandle.name;
+
+  for await (const [name, handle] of dirHandle.entries()) {
+    if (handle.kind === 'file') {
+      const ext = name.split('.').pop().toLowerCase();
+      allFiles.push({ name, handle, ext });
+    }
+  }
+
+  // Sort: syllabus-likely files first, then alphabetical
+  const syllabusScore = f => {
+    const n = f.name.toLowerCase();
+    if (['pdf','docx','xlsx'].includes(f.ext)) {
+      if (n.includes('סיל') || n.includes('syllabus') || n.includes('תכנית') || n.includes('plan')) return 0;
+      return 1;
+    }
+    return 2;
+  };
+  allFiles.sort((a,b) => syllabusScore(a) - syllabusScore(b) || a.name.localeCompare(b.name, 'he'));
+
+  const list = document.getElementById('fileList');
+  document.getElementById('fileCountLabel').textContent = `${allFiles.length} קבצים`;
+
+  if (allFiles.length === 0) {
+    list.innerHTML = '<div class="file-empty">לא נמצאו קבצים בתיקיה</div>';
+    return;
+  }
+
+  list.innerHTML = allFiles.map((f, i) => {
+    const iconClass = ['pdf','docx','doc'].includes(f.ext) ? f.ext==='pdf'?'pdf':'docx'
+                    : ['xlsx','xls','csv'].includes(f.ext) ? 'xlsx'
+                    : 'other';
+    const iconName = f.ext==='pdf' ? 'picture_as_pdf'
+                   : ['docx','doc'].includes(f.ext) ? 'description'
+                   : ['xlsx','xls','csv'].includes(f.ext) ? 'table_chart'
+                   : 'insert_drive_file';
+    const isSyllabus = syllabusScore(f) === 0;
+    const isDoc = syllabusScore(f) <= 1;
+    return `<div class="file-item${!isDoc?' style="opacity:0.6"':''}" onclick="selectSyllabus(${i})">
+      <div class="file-icon ${iconClass}"><span class="material-icons">${iconName}</span></div>
+      <div class="file-info">
+        <div class="file-name">${f.name}</div>
+        <div class="file-meta">${f.ext.toUpperCase()}</div>
+      </div>
+      ${isSyllabus ? '<span class="file-badge">סילבוס?</span>' : ''}
+    </div>`;
+  }).join('');
+}
+
+// ── Step 3: Select & parse syllabus ───────────────────
+async function selectSyllabus(idx) {
+  selectedFile = allFiles[idx];
+  goToStep(3);
+
+  document.getElementById('syllabusFileName').textContent = selectedFile.name;
+  document.getElementById('syllabusFileMeta').textContent = selectedFile.ext.toUpperCase();
+  document.getElementById('syllabusContent').innerHTML =
+    '<div class="parse-loading"><div class="spinner"></div><div>מנתח את הסילבוס…</div></div>';
+  document.getElementById('btnContinue').disabled = true;
+
+  try {
+    const file = await selectedFile.handle.getFile();
+
+    if (selectedFile.ext === 'pdf') {
+      await parsePDF(file);
+    } else if (['docx','doc'].includes(selectedFile.ext)) {
+      await parseDocx(file);
+    } else if (['txt','md'].includes(selectedFile.ext)) {
+      await parseText(file, '');
+    } else {
+      document.getElementById('syllabusContent').textContent =
+        'פורמט זה אינו נתמך לתצוגה. ניתן להמשיך ולבנות מעקב ידנית.';
+    }
+
+    syllabusText = document.getElementById('syllabusContent').textContent || '';
+    document.getElementById('btnContinue').disabled = false;
+  } catch (e) {
+    document.getElementById('syllabusContent').textContent = 'שגיאה בקריאת הקובץ: ' + e.message;
+  }
+}
+
+async function parsePDF(file) {
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  const numPages = pdf.numPages;
+
+  // Show page info
+  const info = document.getElementById('pdfPageInfo');
+  info.style.display = 'flex';
+  document.getElementById('pdfPageInfoText').textContent =
+    `${numPages} עמודים — מחלץ טקסט מלא`;
+
+  let fullText = '';
+  setProgress(10);
+
+  for (let p = 1; p <= numPages; p++) {
+    const page = await pdf.getPage(p);
+    const content = await page.getTextContent();
+    const pageText = content.items.map(i => i.str).join(' ');
+    fullText += `\n── עמוד ${p} ──\n${pageText}\n`;
+    setProgress(10 + Math.round((p / numPages) * 80));
+  }
+
+  setProgress(100);
+  setTimeout(() => setProgress(0), 600);
+
+  document.getElementById('syllabusContent').textContent =
+    fullText.trim() || '(לא נמצא טקסט — ייתכן שהקובץ סרוק/תמונה)';
+}
+
+async function parseDocx(file) {
+  const arrayBuffer = await file.arrayBuffer();
+  setProgress(30);
+  const result = await mammoth.extractRawText({ arrayBuffer });
+  setProgress(100);
+  setTimeout(() => setProgress(0), 600);
+  const text = result.value.trim();
+  document.getElementById('syllabusContent').textContent =
+    text || '(לא נמצא טקסט בקובץ)';
+  // Update icon to Word style
+  document.querySelector('.syllabus-meta .file-icon').className = 'file-icon docx';
+  document.querySelector('.syllabus-meta .file-icon .material-icons').textContent = 'description';
+}
+
+async function parseText(file, note) {
+  const text = await file.text();
+  document.getElementById('syllabusContent').textContent =
+    (note ? note + '\n\n' : '') + text;
+}
+
+// ── Progress bar ───────────────────────────────────────
+function setProgress(pct) {
+  document.getElementById('pageLoader').style.width = pct + '%';
+}
+</script>
+</body>
+</html>
