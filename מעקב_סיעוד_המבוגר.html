@@ -68,6 +68,45 @@ body {
   line-height: 1.6;
 }
 
+/* ── COURSE WIZARD OVERLAY ───────────────────────────── */
+.wizard-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 2000;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(3px);
+  align-items: center; justify-content: center;
+}
+.wizard-overlay.open { display: flex; }
+.wizard-sheet {
+  width: min(680px, 96vw);
+  height: min(88vh, 800px);
+  background: #1c1e2e;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+  display: flex; flex-direction: column; overflow: hidden;
+  animation: sheetIn .22s ease;
+}
+@keyframes sheetIn {
+  from { opacity:0; transform: scale(0.96) translateY(12px); }
+  to   { opacity:1; transform: scale(1)    translateY(0); }
+}
+.wizard-sheet-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0;
+  background: #141720;
+}
+.wizard-sheet-title { font-size: 14px; font-weight: 700; color: #e8eaf0; }
+.wizard-close-btn {
+  background: none; border: none; cursor: pointer;
+  color: #7a8394; padding: 4px; border-radius: 6px;
+  display: flex; align-items: center; transition: all .15s;
+}
+.wizard-close-btn:hover { color: #e8eaf0; background: rgba(255,255,255,0.07); }
+.wizard-frame { flex: 1; border: none; width: 100%; background: #1c1e2e; }
+
 /* ── WRAPPER ─────────────────────────────────────────── */
 .wrapper {
   display: flex;
@@ -841,6 +880,9 @@ body {
       <input type="file" id="loadInput" accept=".json" style="display:none" onchange="loadProgress(event)">
       <button class="sb-btn danger" onclick="resetAll()">
         <span class="material-icons">delete</span> אפס הכל
+      </button>
+      <button class="sb-btn" onclick="openCourseWizard()">
+        <span class="material-icons">add_circle_outline</span> קורס חדש
       </button>
     </div>
   </nav>
@@ -1803,6 +1845,47 @@ initTheme();
 loadState();
 renderAll();
 // Initial donut (will be created by updateStats → renderDonutChart)
+
+// ── Course wizard overlay ──────────────────────────────
+function openCourseWizard() {
+  document.getElementById('wizardOverlay').classList.add('open');
+  document.getElementById('wizardFrame').src = 'course-setup.html';
+  document.body.style.overflow = 'hidden';
+}
+function closeCourseWizard() {
+  document.getElementById('wizardOverlay').classList.remove('open');
+  document.getElementById('wizardFrame').src = '';
+  document.body.style.overflow = '';
+}
+// Close on backdrop click
+document.getElementById('wizardOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeCourseWizard();
+});
+// Close on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeCourseWizard();
+});
+// Listen for postMessage from iframe (e.g. after download)
+window.addEventListener('message', e => {
+  if (e.data === 'closeWizard') closeCourseWizard();
+});
 </script>
+
+<!-- ═══ COURSE WIZARD OVERLAY ═══ -->
+<div class="wizard-overlay" id="wizardOverlay">
+  <div class="wizard-sheet">
+    <div class="wizard-sheet-bar">
+      <span class="wizard-sheet-title">
+        <span class="material-icons" style="font-size:16px;vertical-align:middle;margin-left:4px;color:var(--primary)">add_circle_outline</span>
+        בניית מעקב לקורס חדש
+      </span>
+      <button class="wizard-close-btn" onclick="closeCourseWizard()">
+        <span class="material-icons" style="font-size:20px">close</span>
+      </button>
+    </div>
+    <iframe class="wizard-frame" id="wizardFrame" src="" allow="file-system"></iframe>
+  </div>
+</div>
+
 </body>
 </html>

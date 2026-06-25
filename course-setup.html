@@ -310,7 +310,7 @@ body {
 
 <!-- TOPBAR -->
 <div class="topbar">
-  <button class="topbar-back" onclick="history.back()">
+  <button class="topbar-back" onclick="closeIfEmbedded()">
     <span class="material-icons" style="font-size:16px">arrow_forward</span>
     חזור
   </button>
@@ -880,6 +880,15 @@ render();
 
 // ── Progress bar ───────────────────────────────────────
 function setProgress(pct){document.getElementById('pageLoader').style.width=pct+'%';}
+
+// ── Overlay close support ──────────────────────────────
+function closeIfEmbedded() {
+  if (window.parent !== window) {
+    window.parent.postMessage('closeWizard', '*');
+  } else {
+    history.back();
+  }
+}
 </script>
 </body>
 </html>
