@@ -645,16 +645,35 @@ async function parsePDF(file) {
   const n = pdf.numPages;
   document.getElementById('pdfPageInfo').style.display='flex';
   document.getElementById('pdfPageInfoText').textContent = `${n} עמודים`;
-  let txt = '';
+  let allLines = [];
   setProgress(10);
   for (let p=1; p<=n; p++) {
     const pg = await pdf.getPage(p);
     const ct = await pg.getTextContent();
-    txt += ct.items.map(i=>i.str).join(' ') + '\n';
+    // Group items by Y position so we reconstruct real text lines
+    // items with similar Y (±4px) go on the same line
+    const buckets = [];
+    ct.items.forEach(item => {
+      if (!item.str.trim()) return;
+      const y = Math.round(item.transform[5] / 4) * 4; // snap to 4px grid
+      let bucket = buckets.find(b => b.y === y);
+      if (!bucket) { bucket = { y, items: [] }; buckets.push(bucket); }
+      bucket.items.push(item);
+    });
+    // Sort by Y descending (PDF Y is bottom-up), then X for RTL
+    buckets.sort((a,b) => b.y - a.y);
+    buckets.forEach(b => {
+      const lineText = b.items
+        .sort((a,bb) => bb.transform[4] - a.transform[4]) // RTL: sort X desc
+        .map(i => i.str).join(' ').trim();
+      if (lineText) allLines.push(lineText);
+    });
+    allLines.push(''); // blank line between pages
     setProgress(10 + Math.round(p/n*80));
   }
   setProgress(100); setTimeout(()=>setProgress(0),600);
-  document.getElementById('syllabusContent').textContent = txt.trim()||'(לא נמצא טקסט)';
+  const txt = allLines.join('\n');
+  document.getElementById('syllabusContent').textContent = txt.trim()||'(לא נמצא טקסט — ייתכן שהקובץ סרוק)';
 }
 
 async function parseDocx(file) {
@@ -682,8 +701,8 @@ function extractTopics(text) {
   const raw = norm.split('\n').map(l => l.trim());
 
   // ── 2. Hour pattern (many Hebrew variants) ──────────
-  // Matches: 2, 2.5, 2,5 followed by שעות/ש"א/ש"ס/ש"ל/ש"מ/שע"מ/ש'/ש.א/ש.ס/שע
-  const HOUR_RE = /(\d+(?:[.,]\d+)?)\s*(?:ש["']א|ש["']ס|ש["']ל|ש["']מ|שע["']מ|שעות?|ש\.א\.?|ש\.ס\.?|שע\.?(?!\S))/;
+  // Matches: 2, 2.5, 2,5 followed by any Hebrew hour abbreviation
+  const HOUR_RE = /(\d+(?:[.,]\d+)?)\s*(?:ש["'״׳]?[אסלמ]|שע["'״׳]?מ|שעות\s*אקדמיות?|שעות?|ש\.א\.?|ש\.ס\.?|\(ש["'״׳][אסלמ]\))/;
   const parseHours = s => {
     const m = s.match(HOUR_RE);
     return m ? parseFloat(m[1].replace(',', '.')) : 0;
@@ -752,10 +771,23 @@ function extractTopics(text) {
       const next = raw[i+1] || '';
       const hours = parseHours(next);
       if (!hours) return;
-      // Current line is probably the topic name, next line has hours
       const name = cleanName(line);
       if (name.length >= 3 && name.length <= 80)
         candidates.push({ name, hours, strategy: 'lookahead', score: 1 });
+    });
+  }
+
+  // ── 4E. Strategy: numbered items WITHOUT hours ───────
+  // Last resort: extract any numbered lines even without hour info
+  if (candidates.length < 2) {
+    lines.forEach(line => {
+      const m = line.match(NUM_RE) || line.match(HEB_RE);
+      if (!m) return;
+      const name = cleanName(stripHours(m[2]));
+      // skip if already captured
+      if (candidates.some(c => c.name === name)) return;
+      if (name.length >= 2)
+        candidates.push({ name, hours: 0, strategy: 'numbered-nohours', score: 1 });
     });
   }
 
