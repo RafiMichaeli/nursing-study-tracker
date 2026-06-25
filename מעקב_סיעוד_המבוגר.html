@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 /* ═══════════════════════════════════════════════════════
@@ -48,6 +48,8 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
+
+.material-icons { font-size: inherit; vertical-align: middle; line-height: 1; user-select: none; }
 
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -743,7 +745,7 @@ body {
       <li class="sidebar-header">ניווט</li>
       <li class="sidebar-item">
         <button class="sidebar-link active" data-cat="all" onclick="filterCat(null)">
-          <i class="bi bi-grid link-icon"></i>
+          <span class="material-icons link-icon">grid_view</span>
           כל הנושאים
           <span class="link-badge" id="sb-badge-all">18</span>
         </button>
@@ -828,17 +830,17 @@ body {
     <!-- Footer controls -->
     <div class="sidebar-footer">
       <button class="sb-btn" id="filterSbBtn" onclick="toggleFilter()">
-        <i class="bi bi-funnel"></i> לא-גמורים בלבד
+        <span class="material-icons">filter_list</span> לא-גמורים בלבד
       </button>
       <button class="sb-btn" onclick="saveProgress()">
-        <i class="bi bi-floppy"></i> שמור התקדמות
+        <span class="material-icons">save</span> שמור התקדמות
       </button>
       <button class="sb-btn" onclick="loadProgress()">
-        <i class="bi bi-folder2-open"></i> טען התקדמות
+        <span class="material-icons">folder_open</span> טען התקדמות
       </button>
       <input type="file" id="loadInput" accept=".json" style="display:none" onchange="loadProgress(event)">
       <button class="sb-btn danger" onclick="resetAll()">
-        <i class="bi bi-trash"></i> אפס הכל
+        <span class="material-icons">delete</span> אפס הכל
       </button>
     </div>
   </nav>
@@ -849,7 +851,7 @@ body {
     <!-- Topbar -->
     <nav class="topbar">
       <button class="topbar-toggle" onclick="toggleSidebar()">
-        <i class="bi bi-list"></i>
+        <span class="material-icons">menu</span>
       </button>
       <div class="topbar-progress-wrap">
         <div class="topbar-progress-track">
@@ -861,7 +863,7 @@ body {
       <div class="topbar-spacer"></div>
       <span style="font-size:13px;color:var(--muted);">336 ש"א · תשפ"ו</span>
       <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="החלף ערכת נושא">
-        <i class="bi bi-sun" id="themeIcon"></i>
+        <span class="material-icons" id="themeIcon">light_mode</span>
       </button>
     </nav>
 
@@ -875,10 +877,10 @@ body {
         </div>
         <div class="page-header-btns">
           <button class="btn btn-outline-secondary" onclick="expandAllRows()">
-            <i class="bi bi-chevron-bar-down"></i> פתח הכל
+            <span class="material-icons">unfold_more</span> פתח הכל
           </button>
           <button class="btn btn-outline-secondary" onclick="collapseAllRows()">
-            <i class="bi bi-chevron-bar-up"></i> סגור הכל
+            <span class="material-icons">unfold_less</span> סגור הכל
           </button>
         </div>
       </div>
@@ -888,44 +890,44 @@ body {
         <div class="stat-card">
           <div class="stat-card-top">
             <span class="stat-card-title">נושאים</span>
-            <div class="stat-card-icon blue"><i class="bi bi-journals"></i></div>
+            <div class="stat-card-icon blue"><span class="material-icons">library_books</span></div>
           </div>
           <div class="stat-val" id="statTopics">0/18</div>
           <div class="stat-trend">
-            <i class="bi bi-check-circle up"></i>
+            <span class="material-icons up">check_circle</span>
             <span class="trend-label">נושאים הושלמו</span>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-card-top">
             <span class="stat-card-title">סעיפים</span>
-            <div class="stat-card-icon green"><i class="bi bi-check2-all"></i></div>
+            <div class="stat-card-icon green"><span class="material-icons">done_all</span></div>
           </div>
           <div class="stat-val" id="statSubs">0</div>
           <div class="stat-trend">
-            <i class="bi bi-list-check up"></i>
+            <span class="material-icons up">checklist</span>
             <span class="trend-label">סעיפים שנסקרו</span>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-card-top">
             <span class="stat-card-title">ש"א הושלמו</span>
-            <div class="stat-card-icon amber"><i class="bi bi-clock-history"></i></div>
+            <div class="stat-card-icon amber"><span class="material-icons">schedule</span></div>
           </div>
           <div class="stat-val" id="statHours">0</div>
           <div class="stat-trend">
-            <i class="bi bi-arrow-up-short up"></i>
+            <span class="material-icons up">trending_up</span>
             <span class="trend-label">שעות אקדמיות</span>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-card-top">
             <span class="stat-card-title">ש"א נותרות</span>
-            <div class="stat-card-icon red"><i class="bi bi-hourglass-split"></i></div>
+            <div class="stat-card-icon red"><span class="material-icons">hourglass_empty</span></div>
           </div>
           <div class="stat-val" id="statLeft">336</div>
           <div class="stat-trend">
-            <i class="bi bi-arrow-down-short down"></i>
+            <span class="material-icons down">trending_down</span>
             <span class="trend-label">עד סיום הסילבוס</span>
           </div>
         </div>
@@ -1037,23 +1039,23 @@ body {
 <!-- ═══════════ MOBILE BOTTOM NAV ═══════════ -->
 <nav class="mobile-bottom-nav" id="mobileBottomNav">
   <button class="mob-nav-btn active" id="mobBtnAll" onclick="mobFilter('all')" title="הכל">
-    <i class="bi bi-grid-3x3-gap"></i>
+    <span class="material-icons">grid_view</span>
     <span>הכל</span>
   </button>
   <button class="mob-nav-btn" id="mobBtnA" onclick="mobFilter('א')" title="חלק א׳">
-    <i class="bi bi-bookmark-star"></i>
+    <span class="material-icons">bookmark_add</span>
     <span>חלק א׳</span>
   </button>
   <button class="mob-nav-btn" id="mobBtnB" onclick="mobFilter('ב')" title="חלק ב׳">
-    <i class="bi bi-bookmark-check"></i>
+    <span class="material-icons">bookmarks</span>
     <span>חלק ב׳</span>
   </button>
   <button class="mob-nav-btn" id="mobBtnIncomplete" onclick="mobFilterIncomplete()" title="לא הושלמו">
-    <i class="bi bi-hourglass-split"></i>
+    <span class="material-icons">hourglass_empty</span>
     <span>נותר</span>
   </button>
   <button class="mob-nav-btn" onclick="toggleTheme()" title="ערכת נושא">
-    <i class="bi bi-sun" id="mobThemeIcon"></i>
+    <span class="material-icons" id="mobThemeIcon">light_mode</span>
     <span>מראה</span>
   </button>
 </nav>
@@ -1138,9 +1140,9 @@ function toggleTheme() {
 }
 function updateThemeIcon(theme) {
   const icon = document.getElementById('themeIcon');
-  if (icon) icon.className = theme === 'dark' ? 'bi bi-sun' : 'bi bi-moon-stars';
+  if (icon) icon.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
   const mobIcon = document.getElementById('mobThemeIcon');
-  if (mobIcon) mobIcon.className = theme === 'dark' ? 'bi bi-sun' : 'bi bi-moon-stars';
+  if (mobIcon) mobIcon.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
 }
 
 // ── Mobile bottom nav ──────────────────────────────────────
@@ -1291,16 +1293,16 @@ function toggleSubRow(topicId) {
   const isOpen = subRow.style.display !== 'none' && subRow.style.display !== '';
   subRow.style.display = isOpen ? 'none' : 'table-row';
   if (chevron) {
-    chevron.className = isOpen ? 'bi bi-chevron-down' : 'bi bi-chevron-up';
+    chevron.textContent = isOpen ? 'expand_more' : 'expand_less';
   }
 }
 function expandAllRows() {
   document.querySelectorAll('.sub-tr').forEach(el => el.style.display = 'table-row');
-  document.querySelectorAll('[id^="chev-"]').forEach(el => el.className = 'bi bi-chevron-up');
+  document.querySelectorAll('[id^="chev-"]').forEach(el => el.textContent = 'expand_less');
 }
 function collapseAllRows() {
   document.querySelectorAll('.sub-tr').forEach(el => el.style.display = 'none');
-  document.querySelectorAll('[id^="chev-"]').forEach(el => el.className = 'bi bi-chevron-down');
+  document.querySelectorAll('[id^="chev-"]').forEach(el => el.textContent = 'expand_more');
 }
 function toggleFilter() {
   filterIncomplete = !filterIncomplete;
@@ -1648,7 +1650,7 @@ function renderTable() {
       <td class="col-hide">${partBadge}</td>
       <td onclick="event.stopPropagation()">
         <button class="expand-btn" onclick="toggleSubRow('${t.id}')">
-          <i class="bi bi-chevron-down" id="chev-${t.id}"></i>
+          <span class="material-icons" id="chev-${t.id}">expand_more</span>
         </button>
       </td>
     `;
@@ -1777,7 +1779,7 @@ async function saveProgress() {
     const w = await handle.createWritable();
     await w.write(data); await w.close();
     const btn = document.querySelector('[onclick="saveProgress()"]');
-    if (btn) { const orig = btn.innerHTML; btn.innerHTML = '<i class="bi bi-check-lg"></i> נשמר!'; setTimeout(()=>{btn.innerHTML=orig;},1800); }
+    if (btn) { const orig = btn.innerHTML; btn.innerHTML = '<span class="material-icons" style="font-size:14px;vertical-align:middle">check</span> נשמר!'; setTimeout(()=>{btn.innerHTML=orig;},1800); }
   } catch(e) { alert('שגיאה בשמירה: '+e.message); }
 }
 async function loadProgress(e) {
