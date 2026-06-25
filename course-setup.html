@@ -528,6 +528,28 @@ body {
         צור והורד מעקב
       </button>
     </div>
+
+    <!-- Preview -->
+    <div class="gen-preview" id="genPreview">
+      <div class="gen-preview-title">
+        <span class="material-icons" style="font-size:18px">preview</span>
+        תצוגה מקדימה
+      </div>
+      <div class="gen-row"><span class="gen-row-label">שם הקורס</span><span class="gen-row-val" id="prevCourseName">—</span></div>
+      <div class="gen-row"><span class="gen-row-label">מספר נושאים</span><span class="gen-row-val" id="prevTopics">—</span></div>
+      <div class="gen-row"><span class="gen-row-label">סה"כ שעות</span><span class="gen-row-val" id="prevHours">—</span></div>
+      <div class="gen-row"><span class="gen-row-label">שם הקובץ</span><span class="gen-row-val" id="prevFileName">—</span></div>
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:space-between">
+      <button class="btn btn-outline" onclick="goToStep(3)">
+        <span class="material-icons" style="font-size:16px">arrow_forward</span> חזור
+      </button>
+      <button class="btn btn-primary" onclick="generateAndDownload()">
+        <span class="material-icons" style="font-size:16px">download</span>
+        צור והורד מעקב
+      </button>
+    </div>
   </div>
 
 </div><!-- /container -->
