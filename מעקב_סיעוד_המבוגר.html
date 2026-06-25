@@ -49,7 +49,7 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-.material-icons { font-size: inherit; vertical-align: middle; line-height: 1; user-select: none; }
+.material-icons { font-size: 1.3em; vertical-align: middle; line-height: 1; user-select: none; }
 
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -1821,7 +1821,7 @@ async function saveProgress() {
     const w = await handle.createWritable();
     await w.write(data); await w.close();
     const btn = document.querySelector('[onclick="saveProgress()"]');
-    if (btn) { const orig = btn.innerHTML; btn.innerHTML = '<span class="material-icons" style="font-size:14px;vertical-align:middle">check</span> נשמר!'; setTimeout(()=>{btn.innerHTML=orig;},1800); }
+    if (btn) { const orig = btn.innerHTML; btn.innerHTML = '<span class="material-icons" style="font-size:18px;vertical-align:middle">check</span> נשמר!'; setTimeout(()=>{btn.innerHTML=orig;},1800); }
   } catch(e) { alert('שגיאה בשמירה: '+e.message); }
 }
 async function loadProgress(e) {
@@ -1876,11 +1876,11 @@ window.addEventListener('message', e => {
   <div class="wizard-sheet">
     <div class="wizard-sheet-bar">
       <span class="wizard-sheet-title">
-        <span class="material-icons" style="font-size:16px;vertical-align:middle;margin-left:4px;color:var(--primary)">add_circle_outline</span>
+        <span class="material-icons" style="font-size:21px;vertical-align:middle;margin-left:4px;color:var(--primary)">add_circle_outline</span>
         בניית מעקב לקורס חדש
       </span>
       <button class="wizard-close-btn" onclick="closeCourseWizard()">
-        <span class="material-icons" style="font-size:20px">close</span>
+        <span class="material-icons" style="font-size:26px">close</span>
       </button>
     </div>
     <iframe class="wizard-frame" id="wizardFrame" src="" allow="file-system"></iframe>
