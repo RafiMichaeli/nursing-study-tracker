@@ -482,19 +482,19 @@ body {
         <div class="meta-grid">
           <div class="meta-group">
             <label class="meta-label">שם הקורס</label>
-            <input class="field" id="courseNameField" placeholder="לדוגמה: סיעוד פדיאטרי" type="text">
+            <input class="field" id="courseNameField" placeholder="לדוגמה: סיעוד פדיאטרי" type="text" oninput="updatePreview()">
           </div>
           <div class="meta-group">
             <label class="meta-label">מוסד לימודי</label>
-            <input class="field" id="courseInstField" placeholder="לדוגמה: אייכילוב" type="text">
+            <input class="field" id="courseInstField" placeholder="לדוגמה: אייכילוב" type="text" oninput="updatePreview()">
           </div>
           <div class="meta-group">
             <label class="meta-label">שנת לימודים</label>
-            <input class="field" id="courseYearField" placeholder="לדוגמה: תשפ״ו" type="text">
+            <input class="field" id="courseYearField" placeholder="לדוגמה: תשפ״ו" type="text" oninput="updatePreview()">
           </div>
           <div class="meta-group">
             <label class="meta-label">צבע ראשי</label>
-            <select class="field" id="courseColorField">
+            <select class="field" id="courseColorField" onchange="updatePreview()">
               <option value="#4f80ff">כחול (ברירת מחדל)</option>
               <option value="#1cbb8c">ירוק</option>
               <option value="#a78bfa">סגול</option>
@@ -505,28 +505,6 @@ body {
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Preview -->
-    <div class="gen-preview" id="genPreview">
-      <div class="gen-preview-title">
-        <span class="material-icons" style="font-size:18px">preview</span>
-        תצוגה מקדימה
-      </div>
-      <div class="gen-row"><span class="gen-row-label">שם הקורס</span><span class="gen-row-val" id="prevCourseName">—</span></div>
-      <div class="gen-row"><span class="gen-row-label">מספר נושאים</span><span class="gen-row-val" id="prevTopics">—</span></div>
-      <div class="gen-row"><span class="gen-row-label">סה"כ שעות</span><span class="gen-row-val" id="prevHours">—</span></div>
-      <div class="gen-row"><span class="gen-row-label">שם הקובץ</span><span class="gen-row-val" id="prevFileName">—</span></div>
-    </div>
-
-    <div style="display:flex;gap:10px;justify-content:space-between">
-      <button class="btn btn-outline" onclick="goToStep(3)">
-        <span class="material-icons" style="font-size:16px">arrow_forward</span> חזור
-      </button>
-      <button class="btn btn-primary" onclick="generateAndDownload()">
-        <span class="material-icons" style="font-size:16px">download</span>
-        צור והורד מעקב
-      </button>
     </div>
 
     <!-- Preview -->
@@ -639,6 +617,8 @@ async function selectSyllabus(idx) {
     '<div class="parse-loading"><div class="spinner"></div><div>מנתח…</div></div>';
   document.getElementById('btnContinue').disabled = true;
   document.getElementById('topicEditorCard').style.display = 'none';
+  // Reset PDF page info from any previous selection
+  document.getElementById('pdfPageInfo').style.display = 'none';
 
   try {
     const file = selectedFile.file;
@@ -693,41 +673,113 @@ async function parseText(file) {
 
 // ── Auto topic extractor ───────────────────────────────
 function extractTopics(text) {
-  const hourRe = /(\d+(?:[.,]\d+)?)\s*(?:שעות|ש["״']א|ש["״']ס|ש'|שעה)/;
-  const lines = text.split(/\n/).map(l=>l.trim()).filter(l=>l.length>2);
-  const found = [];
+  // ── 1. Normalize ────────────────────────────────────
+  const norm = text
+    .replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+    .replace(/[״"]/g, '"').replace(/[׳'`]/g, "'")
+    .replace(/\t+/g, ' ').replace(/ {3,}/g, '  ');
 
-  // Pass 1: numbered list lines  "1. topic - X שעות"
-  const numRe = /^(\d{1,2})[.)]\s+(.{3,80})/;
+  const raw = norm.split('\n').map(l => l.trim());
+
+  // ── 2. Hour pattern (many Hebrew variants) ──────────
+  // Matches: 2, 2.5, 2,5 followed by שעות/ש"א/ש"ס/ש"ל/ש"מ/שע"מ/ש'/ש.א/ש.ס/שע
+  const HOUR_RE = /(\d+(?:[.,]\d+)?)\s*(?:ש["']א|ש["']ס|ש["']ל|ש["']מ|שע["']מ|שעות?|ש\.א\.?|ש\.ס\.?|שע\.?(?!\S))/;
+  const parseHours = s => {
+    const m = s.match(HOUR_RE);
+    return m ? parseFloat(m[1].replace(',', '.')) : 0;
+  };
+  const stripHours = s => s.replace(HOUR_RE, '').replace(/\s+/g, ' ').trim();
+
+  // ── 3. Noise filter ──────────────────────────────────
+  // Skip lines that look like headers, dates, metadata
+  const NOISE_RE = /^(?:עמוד|תאריך|מרצה|מרצים|הערות?|מועד|בניין|חדר|אחראי|קורס מס|שם הקורס|תואר|שנה|סמסטר|פקולטה|מחלקה|─|={3,}|[-]{3,}|\d+\s*$)/i;
+  const isNoise = l => NOISE_RE.test(l) || l.length < 3 || l.length > 200;
+
+  const lines = raw.filter(l => !isNoise(l));
+
+  const candidates = [];
+
+  // ── 4A. Strategy: numbered Arabic list ──────────────
+  // Patterns: "1. topic", "1) topic", "1 topic" (if followed by hours)
+  const NUM_RE   = /^(\d{1,2})[.)]\s+(.{3,})/;
+  // Hebrew letter bullets: א. or א)
+  const HEB_RE   = /^([א-ת])[.)]\s+(.{3,})/;
+
   lines.forEach(line => {
-    const m = line.match(numRe);
+    let m = line.match(NUM_RE) || line.match(HEB_RE);
     if (!m) return;
-    const raw = m[2];
-    const hm = raw.match(hourRe);
-    const name = raw.replace(hourRe,'').replace(/[-–—|:]+$/, '').trim();
-    if (name.length > 1)
-      found.push({ id: nextId++, name, hours: hm ? parseFloat(hm[1].replace(',','.')) : 0 });
+    const body = m[2];
+    const hours = parseHours(body) || parseHours(line);
+    const name = cleanName(stripHours(body));
+    if (name.length >= 2) candidates.push({ name, hours, strategy: 'numbered', score: 3 });
   });
 
-  // Pass 2: if not enough — look for lines with hours nearby
-  if (found.length < 3) {
-    lines.forEach((line, i) => {
-      if (numRe.test(line)) return; // already caught
-      const hm = line.match(hourRe);
-      if (!hm) return;
-      const name = line.replace(hourRe,'').replace(/[-–—|:]+$/, '').trim();
-      if (name.length > 2 && name.length < 120)
-        found.push({ id: nextId++, name, hours: parseFloat(hm[1].replace(',','.')) });
+  // ── 4B. Strategy: table rows (delimiter-separated) ──
+  // Look for lines that contain | or multiple spaces as column separators
+  // and have both text and a number
+  if (candidates.length < 3) {
+    lines.forEach(line => {
+      if (NUM_RE.test(line) || HEB_RE.test(line)) return;
+      const cells = line.split(/\s{3,}|\|/).map(c => c.trim()).filter(Boolean);
+      if (cells.length < 2) return;
+      // Find which cell is hours and which is the topic name
+      let hours = 0, namePart = '';
+      cells.forEach(c => { const h = parseHours(c); if (h > 0) hours = h; });
+      namePart = cells.find(c => parseHours(c) === 0 && c.length > 2) || '';
+      const name = cleanName(stripHours(namePart));
+      if (name.length >= 2 && hours > 0)
+        candidates.push({ name, hours, strategy: 'table', score: 2 });
     });
   }
 
-  // Deduplicate by name similarity
+  // ── 4C. Strategy: any line with hours ───────────────
+  // Fallback: any line that mentions hours
+  if (candidates.length < 3) {
+    lines.forEach(line => {
+      if (NUM_RE.test(line) || HEB_RE.test(line)) return;
+      const hours = parseHours(line);
+      if (!hours) return;
+      const name = cleanName(stripHours(line));
+      if (name.length >= 3 && name.length <= 100)
+        candidates.push({ name, hours, strategy: 'inline', score: 1 });
+    });
+  }
+
+  // ── 4D. Strategy: look-ahead (hours on next line) ───
+  if (candidates.length < 3) {
+    raw.forEach((line, i) => {
+      if (isNoise(line) || parseHours(line)) return;
+      const next = raw[i+1] || '';
+      const hours = parseHours(next);
+      if (!hours) return;
+      // Current line is probably the topic name, next line has hours
+      const name = cleanName(line);
+      if (name.length >= 3 && name.length <= 80)
+        candidates.push({ name, hours, strategy: 'lookahead', score: 1 });
+    });
+  }
+
+  // ── 5. Deduplicate & finalize ────────────────────────
   const seen = new Set();
-  return found.filter(t => {
-    const key = t.name.slice(0,20);
+  const unique = candidates.filter(t => {
+    // Normalize for dedup: remove spaces, take first 22 chars
+    const key = t.name.replace(/\s+/g, '').slice(0, 22);
     if (seen.has(key)) return false;
-    seen.add(key); return true;
-  }).map((t,i) => ({...t, id: i+1}));
+    seen.add(key);
+    return true;
+  });
+
+  // Sort by original order (strategy priority already keeps order)
+  return unique.map((t, i) => ({ id: i + 1, name: t.name, hours: t.hours }));
+}
+
+// ── Clean up a topic name string ──────────────────────
+function cleanName(s) {
+  return s
+    .replace(/^[-\d\s.):״'"]+/, '')   // leading numbers/punctuation (- first to avoid range)
+    .replace(/[-–—|:,.]+$/, '')        // trailing punctuation
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 // ── Topic editor ───────────────────────────────────────
@@ -745,9 +797,10 @@ function renderTopicEditor() {
         <span class="material-icons" style="font-size:16px">delete</span></button></td>
     </tr>`).join('') : '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--muted);font-size:13px">לא זוהו נושאים — הוסף ידנית</td></tr>';
 
+  const withHours = topics.filter(t => t.hours > 0).length;
   const msg = topics.length
-    ? `זוהו ${topics.length} נושאים אוטומטית — ניתן לערוך`
-    : 'לא זוהו נושאים אוטומטית';
+    ? `זוהו ${topics.length} נושאים · ${withHours} עם שעות — ניתן לערוך`
+    : 'לא זוהו נושאים — הוסף ידנית';
   document.getElementById('extractMsg').textContent = msg;
   updateSummary();
 }
@@ -784,12 +837,13 @@ function updateSummary() {
 // ── Step 4: Prepare & generate ────────────────────────
 function prepareStep4() {
   goToStep(4);
-  // Pre-fill course name from folder
-  if (!document.getElementById('courseNameField').value && dirHandle)
-    document.getElementById('courseNameField').value = dirHandle.name;
+  // Pre-fill course name from folder (webkitRelativePath gives "folderName/file.pdf")
+  if (!document.getElementById('courseNameField').value && allFiles.length) {
+    const folderName = allFiles[0]?.file?.webkitRelativePath?.split('/')[0] || '';
+    document.getElementById('courseNameField').value = folderName;
+  }
   updatePreview();
-  ['courseNameField','courseInstField','courseYearField','courseColorField']
-    .forEach(id => document.getElementById(id).addEventListener('input', updatePreview));
+  // Listeners set via oninput in HTML — no addEventListener needed
 }
 
 function updatePreview() {
