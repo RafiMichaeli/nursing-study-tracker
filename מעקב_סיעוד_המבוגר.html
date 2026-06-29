@@ -2305,6 +2305,35 @@ function buildQuizHTML(topicName, questions) {
 '        renderQuestion();\n' +
 '    <\/script>\n' +
 '
+function openHelp() {
+  document.getElementById('helpOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeHelp() {
+  document.getElementById('helpOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeHelp(); });
+
+</script>
+
+<!-- ═══ COURSE WIZARD OVERLAY ═══ -->
+<div class="wizard-overlay" id="wizardOverlay">
+  <div class="wizard-sheet">
+    <div class="wizard-sheet-bar">
+      <span class="wizard-sheet-title">
+        <span class="material-icons" style="font-size:21px;vertical-align:middle;margin-left:4px;color:var(--primary)">add_circle_outline</span>
+        בניית מעקב לקורס חדש
+      </span>
+      <button class="wizard-close-btn" onclick="closeCourseWizard()">
+        <span class="material-icons" style="font-size:26px">close</span>
+      </button>
+    </div>
+    <iframe class="wizard-frame" id="wizardFrame" src="" allow="file-system"></iframe>
+  </div>
+</div>
+
+
 <!-- ══ HELP OVERLAY ══════════════════════════════════════ -->
 <div class="help-overlay" id="helpOverlay" onclick="if(event.target===this)closeHelp()">
   <div class="help-sheet">
@@ -2323,14 +2352,12 @@ function buildQuizHTML(topicName, questions) {
       <p>דשבורד אישי למעקב לימודים בקורס סיעוד המבוגר. המערכת עוקבת אחר ההתקדמות שלך ב-18 נושאי לימוד, מאורגנים בחלק א׳ וחלק ב׳.</p>
 
       <h2>התמצאות בממשק</h2>
-
       <h3><span class="material-icons">menu</span> סרגל ניווט שמאלי</h3>
       <ul>
         <li>מציג את <strong>אחוז ההתקדמות הכולל</strong> ופירוט לפי חלק א׳ וחלק ב׳.</li>
         <li>לחיצה על <strong>"חלק א׳"</strong> או <strong>"חלק ב׳"</strong> מסננת את הטבלה. לחיצה שנייה מבטלת.</li>
         <li>קישורים מהירים לקטגוריות: כירורגיה, לב, נשימה וכו׳.</li>
       </ul>
-
       <h3><span class="material-icons">view_headline</span> סרגל עליון</h3>
       <ul>
         <li><strong>מונה עמודים</strong>: כמה עמודי ברונר הושלמו מתוך הסך הכולל.</li>
@@ -2348,33 +2375,26 @@ function buildQuizHTML(topicName, questions) {
 
       <h2>עבודה עם נושא</h2>
       <p>לחיצה על שורה פותחת פאנל מורחב עם שלושה עמודות:</p>
-
       <h3><span class="material-icons">checklist</span> 1 — סעיפי לימוד</h3>
       <p>סמן V ליד כל סעיף שסיימת. בתחתית — <strong>"קראתי ברונר"</strong>: סמן לאחר קריאת הפרקים.</p>
-
       <h3><span class="material-icons">menu_book</span> 2 — חומר לימוד</h3>
       <p>קישורים ישירים לשקפי ההרצאות ופרקי ברונר ב-Google Drive. קישורי הקלטות (🎬) כאשר קיימים.</p>
-
       <h3><span class="material-icons">quiz</span> 3 — בחינות</h3>
-      <p><strong>"העתק פרומפט ליצירת מבחן במערכת AI"</strong> — מעתיק פרומפט מוכן לקליפבורד. הדבק ב-Claude, ChatGPT וכו׳ לקבלת 20 שאלות אמריקאיות בעברית עם הסברים.</p>
+      <p><strong>"העתק פרומפט ליצירת מבחן במערכת AI"</strong> — מעתיק פרומפט מוכן לקליפבורד. הדבק ב-Claude / ChatGPT לקבלת 20 שאלות אמריקאיות בעברית עם הסברים.</p>
       <div class="help-step"><div class="help-step-num">1</div><span>לחץ על נושא לפתיחת הפאנל</span></div>
       <div class="help-step"><div class="help-step-num">2</div><span>לחץ "העתק פרומפט ליצירת מבחן"</span></div>
       <div class="help-step"><div class="help-step-num">3</div><span>פתח Claude / ChatGPT והדבק (Cmd+V)</span></div>
-      <div class="help-step"><div class="help-step-num">4</div><span>המערכת תיצור 20 שאלות אמריקאיות ברמת סיעוד</span></div>
+      <div class="help-step"><div class="help-step-num">4</div><span>המערכת תיצור 20 שאלות ברמת סיעוד</span></div>
 
       <h2>שמירה וטעינה</h2>
-
       <div class="help-tip">
         <span class="material-icons">info</span>
-        ההתקדמות נשמרת אוטומטית ב-localStorage של הדפדפן, אך מומלץ לשמור גיבוי חיצוני.
+        ההתקדמות נשמרת אוטומטית ב-localStorage, אך מומלץ לשמור גיבוי חיצוני.
       </div>
-
       <h3><span class="material-icons">save</span> שמירה ידנית</h3>
       <p>לחץ <strong>"שמור התקדמות"</strong>. בפעם הראשונה תבחר מיקום לקובץ <code>progress.json</code>. בפעמים הבאות נשמר אוטומטית לאותו מיקום.</p>
-
       <h3><span class="material-icons">autorenew</span> שמירה אוטומטית</h3>
       <p>לאחר שמירה ידנית ראשונה — המערכת שומרת <strong>כל 5 דקות</strong>. ה-chip בסרגל יהפוך לירוק ויציג את שעת השמירה האחרונה.</p>
-
       <h3><span class="material-icons">folder_open</span> טעינה</h3>
       <p>לחץ <strong>"טען התקדמות"</strong> לטעינת קובץ שנשמר קודם — שימושי בעת מעבר למחשב אחר.</p>
 
@@ -2382,69 +2402,6 @@ function buildQuizHTML(topicName, questions) {
       <p>לחץ <strong>☀️ / 🌙</strong> בפינה הימנית העליונה לעבור בין מצב כהה ובהיר.</p>
 
     </div>
-  </div>
-</div>
-
-</body>\n' +
-'</html>';
-}
-
-// ── INIT ───────────────────────────────────────────────────
-initTheme();
-loadState();
-renderAll();
-// Resume auto-save if a handle was previously stored
-getStoredHandle().then(h => { if (h) { startAutoSave(); updateAutoSaveStatus(null); } else { updateAutoSaveStatus(null); } });
-
-// ── Course wizard overlay ──────────────────────────────
-function openCourseWizard() {
-  document.getElementById('wizardOverlay').classList.add('open');
-  document.getElementById('wizardFrame').src = '../course-setup-wizard/course-setup.html';
-  document.body.style.overflow = 'hidden';
-}
-function closeCourseWizard() {
-  document.getElementById('wizardOverlay').classList.remove('open');
-  document.getElementById('wizardFrame').src = '';
-  document.body.style.overflow = '';
-}
-// Close on backdrop click
-document.getElementById('wizardOverlay').addEventListener('click', function(e) {
-  if (e.target === this) closeCourseWizard();
-});
-// Close on Escape
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeCourseWizard();
-});
-// Listen for postMessage from iframe (e.g. after download)
-window.addEventListener('message', e => {
-  if (e.data === 'closeWizard') closeCourseWizard();
-});
-
-function openHelp() {
-  document.getElementById('helpOverlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closeHelp() {
-  document.getElementById('helpOverlay').classList.remove('open');
-  document.body.style.overflow = '';
-}
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHelp(); });
-
-</script>
-
-<!-- ═══ COURSE WIZARD OVERLAY ═══ -->
-<div class="wizard-overlay" id="wizardOverlay">
-  <div class="wizard-sheet">
-    <div class="wizard-sheet-bar">
-      <span class="wizard-sheet-title">
-        <span class="material-icons" style="font-size:21px;vertical-align:middle;margin-left:4px;color:var(--primary)">add_circle_outline</span>
-        בניית מעקב לקורס חדש
-      </span>
-      <button class="wizard-close-btn" onclick="closeCourseWizard()">
-        <span class="material-icons" style="font-size:26px">close</span>
-      </button>
-    </div>
-    <iframe class="wizard-frame" id="wizardFrame" src="" allow="file-system"></iframe>
   </div>
 </div>
 
