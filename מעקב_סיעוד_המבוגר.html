@@ -664,6 +664,18 @@ body {
 [data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); }
 
 /* ── MOBILE ──────────────────────────────────────────── */
+/* ── SIDEBAR MOBILE CLOSE BUTTON ─────────────────────── */
+.sidebar-close-btn {
+  display: none;
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); padding: 4px; border-radius: 6px;
+  margin-right: auto; transition: all .15s;
+}
+.sidebar-close-btn:hover { color: #fff; background: rgba(255,255,255,0.1); }
+@media (max-width: 900px) {
+  .sidebar-close-btn { display: flex; align-items: center; }
+}
+
 /* ── MOBILE BOTTOM NAV ───────────────────────────────── */
 .mobile-bottom-nav {
   display: none;
@@ -688,12 +700,12 @@ body {
 
 /* ── TABLET (900px) ──────────────────────────────────── */
 @media (max-width: 900px) {
-  .sidebar { margin-right: calc(var(--sidebar-w) * -1); transition: margin-right 0.25s ease; }
+  .sidebar { margin-right: calc(var(--sidebar-w) * -1); transition: margin-right 0.25s ease; z-index: 400; }
   .sidebar.open { margin-right: 0; }
   .main { margin-right: 0 !important; }
   .sidebar-overlay {
     display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.5); z-index: 199;
+    background: rgba(0,0,0,0.5); z-index: 399;
   }
   .sidebar.open ~ .main .sidebar-overlay { display: block; }
 
@@ -946,13 +958,16 @@ body {
 
   <!-- ═══════════ SIDEBAR ═══════════ -->
   <nav class="sidebar" id="sidebar">
-    <a class="sidebar-brand" href="#">
+    <div class="sidebar-brand">
       <div class="sidebar-brand-icon">🏥</div>
       <div>
         <span class="sidebar-brand-text">סיעוד המבוגר</span>
         <span class="sidebar-brand-sub">336 ש"א · 24 נ"ז · תשפ"ו</span>
       </div>
-    </a>
+      <button class="sidebar-close-btn" onclick="closeSidebar()" title="סגור תפריט">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
 
     <!-- Overall progress -->
     <div class="sidebar-overall">
@@ -1251,6 +1266,10 @@ body {
 
 <!-- ═══════════ MOBILE BOTTOM NAV ═══════════ -->
 <nav class="mobile-bottom-nav" id="mobileBottomNav">
+  <button class="mob-nav-btn" id="mobBtnMenu" onclick="toggleSidebar()" title="תפריט">
+    <span class="material-icons">menu</span>
+    <span>תפריט</span>
+  </button>
   <button class="mob-nav-btn active" id="mobBtnAll" onclick="mobFilter('all')" title="הכל">
     <span class="material-icons">grid_view</span>
     <span>הכל</span>
@@ -1494,7 +1513,10 @@ function toggleSidebar() {
   const isMobile = window.innerWidth <= 900;
   if (isMobile) {
     sb.classList.toggle('open');
-    overlay.style.display = sb.classList.contains('open') ? 'block' : 'none';
+    const isOpen = sb.classList.contains('open');
+    overlay.style.display = isOpen ? 'block' : 'none';
+    const menuBtn = document.getElementById('mobBtnMenu');
+    if (menuBtn) menuBtn.classList.toggle('active', isOpen);
   } else {
     sb.classList.toggle('collapsed');
     main.classList.toggle('expanded');
@@ -1503,6 +1525,8 @@ function toggleSidebar() {
 function closeSidebar() {
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('sidebarOverlay').style.display = 'none';
+  const menuBtn = document.getElementById('mobBtnMenu');
+  if (menuBtn) menuBtn.classList.remove('active');
 }
 
 // ── Category filter ────────────────────────────────────────
@@ -1514,6 +1538,7 @@ function filterCat(cat) {
   if (link) link.classList.add('active');
   renderTable();
   renderBarChart();
+  if (window.innerWidth <= 900) closeSidebar();
 }
 
 // ── Part filter ────────────────────────────────────────────
