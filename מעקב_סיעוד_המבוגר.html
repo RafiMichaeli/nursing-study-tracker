@@ -280,7 +280,11 @@ body {
 /* ── CONTENT ──────────────────────────────────────────── */
 .content {
   flex: 1;
-  padding: 12px 16px 20px;
+  padding: 24px 40px 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* ── PAGE HEADER ─────────────────────────────────────── */
@@ -364,7 +368,7 @@ body {
 /* ── CHARTS ROW ──────────────────────────────────────── */
 .charts-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 260px;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
   margin-bottom: 12px;
 }
@@ -473,7 +477,7 @@ body {
 /* Category cell */
 .cat-cell { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
 .cat-cell .cat-icon { font-size: 16px; }
-.cat-cell .cat-name { font-size: 13px; color: var(--muted); max-width: 100px; overflow: hidden; text-overflow: ellipsis; }
+.cat-cell .cat-name { font-size: 13px; color: var(--muted); white-space: nowrap; }
 
 /* Badges in table */
 .badge {
@@ -507,9 +511,45 @@ body {
 .sub-tr { border-bottom: 1px solid rgba(255,255,255,0.05); }
 .sub-tr td { background: #1a1c2a; padding: 0 !important; }
 .sub-content { padding: 14px 20px 16px 20px; }
+
+/* 3-column sub layout */
+.sub-cols {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 0;
+  margin-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+[data-theme="light"] .sub-cols { border-top: 1px solid rgba(0,0,0,0.06); }
+.sub-cols > div {
+  padding: 12px 16px;
+  border-right: 1px solid rgba(255,255,255,0.07);
+}
+.sub-cols > div:last-child { border-right: none; }
+[data-theme="light"] .sub-cols > div { border-right: 1px solid rgba(0,0,0,0.06); }
+[data-theme="light"] .sub-cols > div:last-child { border-right: none; }
+.sub-col-header {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.5px; color: var(--muted);
+  margin-bottom: 6px; padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+[data-theme="light"] .sub-col-header { border-bottom: 1px solid rgba(0,0,0,0.06); }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.exam-gen-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 13px; border-radius: 6px; font-size: 13px;
+  font-weight: 600; cursor: pointer; font-family: inherit;
+  background: rgba(79,128,255,0.12); color: var(--primary);
+  border: 1px solid rgba(79,128,255,0.28); transition: all .15s;
+}
+.exam-gen-btn:hover { background: rgba(79,128,255,0.25); border-color: var(--primary); }
+.exam-gen-btn:disabled { opacity: .5; cursor: not-allowed; }
+
 .sub-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 4px; margin-bottom: 10px;
+  display: flex; flex-direction: column;
+  gap: 2px;
 }
 .sub-item {
   display: flex; align-items: flex-start; gap: 8px;
@@ -720,7 +760,7 @@ body {
 
   /* Expand rows */
   .sub-content { padding: 10px 12px 12px; }
-  .sub-grid { grid-template-columns: 1fr; }
+  .sub-cols { grid-template-columns: 1fr; gap: 10px; }
   .sub-item label { font-size: 13px; }
 
   /* Card headers */
@@ -742,6 +782,77 @@ body {
   .content { padding: 10px 8px; }
   .topics-table td { padding: 6px 6px; }
 }
+
+/* ── AUTO-SAVE STATUS ────────────────────────────────────── */
+.autosave-chip {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 12px;
+  margin: 8px 8px 2px;
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  transition: background .3s, border-color .3s, color .3s;
+}
+.autosave-chip.active {
+  color: var(--success);
+  background: rgba(28,187,140,0.08);
+  border-color: rgba(28,187,140,0.22);
+}
+.autosave-chip.inactive {
+  color: var(--muted);
+}
+.autosave-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+  background: var(--muted);
+  transition: background .3s;
+}
+.autosave-chip.active .autosave-dot {
+  background: var(--success);
+  box-shadow: 0 0 0 0 rgba(28,187,140,0.6);
+  animation: autosave-pulse 2.4s ease-in-out infinite;
+}
+@keyframes autosave-pulse {
+  0%   { box-shadow: 0 0 0 0   rgba(28,187,140,0.55); }
+  60%  { box-shadow: 0 0 0 6px rgba(28,187,140,0); }
+  100% { box-shadow: 0 0 0 0   rgba(28,187,140,0); }
+}
+.autosave-text { flex: 1; line-height: 1.3; }
+.autosave-text strong { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.2px; }
+.autosave-text span   { display: block; font-size: 11px; opacity: 0.75; margin-top: 1px; }
+
+/* ── TOOLTIPS ──────────────────────────────────────────── */
+[data-tooltip]{position:relative}
+[data-tooltip]::after{
+  content:attr(data-tooltip);
+  position:absolute;
+  bottom:calc(100% + 8px);
+  right:50%;
+  transform:translateX(50%);
+  background:#0d0f1a;
+  color:#e8eaf0;
+  font-size:12px;
+  line-height:1.55;
+  padding:6px 11px;
+  border-radius:7px;
+  white-space:normal;
+  max-width:240px;
+  width:max-content;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .18s ease;
+  z-index:10000;
+  border:1px solid rgba(255,255,255,0.13);
+  box-shadow:0 4px 18px rgba(0,0,0,0.55);
+  direction:rtl;
+  text-align:right;
+}
+[data-tooltip]:hover::after{opacity:1}
+[data-tooltip][data-tip-pos="below"]::after{bottom:auto;top:calc(100% + 8px)}
+[data-tooltip][data-tip-pos="left"]::after{bottom:auto;top:50%;right:calc(100% + 8px);transform:translateY(-50%)}
+[data-tooltip][data-tip-pos="right-edge"]::after{right:0;transform:none}
+[data-tooltip][data-tip-pos="left-edge"]::after{right:auto;left:0;transform:none}
 </style>
 </head>
 
@@ -769,11 +880,11 @@ body {
 
     <!-- Part A/B chips -->
     <div class="sidebar-parts">
-      <div class="sidebar-part-chip pa" id="chipA" onclick="filterPart('א')" title="סנן לפי חלק א׳">
+      <div class="sidebar-part-chip pa" id="chipA" onclick="filterPart('א')" data-tooltip="לחץ לסינון נושאי חלק א׳ בלבד — לחץ שוב לביטול הסינון">
         <span class="pct" id="sidebarPartA">0%</span>
         <span class="lbl">חלק א׳</span>
       </div>
-      <div class="sidebar-part-chip pb" id="chipB" onclick="filterPart('ב')" title="סנן לפי חלק ב׳">
+      <div class="sidebar-part-chip pb" id="chipB" onclick="filterPart('ב')" data-tooltip="לחץ לסינון נושאי חלק ב׳ בלבד — לחץ שוב לביטול הסינון">
         <span class="pct" id="sidebarPartB">0%</span>
         <span class="lbl">חלק ב׳</span>
       </div>
@@ -817,7 +928,7 @@ body {
       </li>
       <li class="sidebar-item" id="sb-endocrine">
         <button class="sidebar-link" data-cat="endocrine" onclick="filterCat('endocrine')">
-          <span class="link-icon">⚗️</span> הורמונאלית
+          <span class="link-icon">⚗️</span> הורמונלית
           <span class="link-badge" id="sb-badge-endocrine"></span>
         </button>
       </li>
@@ -830,7 +941,7 @@ body {
       </li>
       <li class="sidebar-item" id="sb-immune_rheum">
         <button class="sidebar-link" data-cat="immune_rheum" onclick="filterCat('immune_rheum')">
-          <span class="link-icon">🛡️</span> חיסון וראומה
+          <span class="link-icon">🛡️</span> חיסון וראומטולוגיה
           <span class="link-badge" id="sb-badge-immune_rheum"></span>
         </button>
       </li>
@@ -868,21 +979,26 @@ body {
 
     <!-- Footer controls -->
     <div class="sidebar-footer">
-      <button class="sb-btn" id="filterSbBtn" onclick="toggleFilter()">
+      <!-- Auto-save status chip -->
+      <div class="autosave-chip inactive" id="autoSaveChip" data-tooltip="שמירה אוטומטית שומרת כל 5 דקות לאחר שמירה ידנית ראשונה">
+        <div class="autosave-dot"></div>
+        <div class="autosave-text">
+          <strong id="autoSaveLabel">שמירה אוטומטית לא פעילה</strong>
+          <span id="autoSaveTime">לחץ "שמור" להפעלה</span>
+        </div>
+      </div>
+      <button class="sb-btn" id="filterSbBtn" onclick="toggleFilter()" data-tooltip="הצג רק נושאים שטרם הושלמו">
         <span class="material-icons">filter_list</span> לא-גמורים בלבד
       </button>
-      <button class="sb-btn" onclick="saveProgress()">
+      <button class="sb-btn" onclick="saveProgress()" data-tooltip="שמור התקדמות לקובץ JSON. לאחר שמירה ראשונה — שמירה אוטומטית כל 5 דקות">
         <span class="material-icons">save</span> שמור התקדמות
       </button>
-      <button class="sb-btn" onclick="loadProgress()">
+      <button class="sb-btn" onclick="loadProgress()" data-tooltip="טען קובץ התקדמות שנשמר קודם — שימושי בעת מעבר למחשב אחר">
         <span class="material-icons">folder_open</span> טען התקדמות
       </button>
       <input type="file" id="loadInput" accept=".json" style="display:none" onchange="loadProgress(event)">
-      <button class="sb-btn danger" onclick="resetAll()">
+      <button class="sb-btn danger" onclick="resetAll()" data-tooltip="⚠ מחק את כל ההתקדמות לצמיתות — לא ניתן לשחזר">
         <span class="material-icons">delete</span> אפס הכל
-      </button>
-      <button class="sb-btn" onclick="openCourseWizard()">
-        <span class="material-icons">add_circle_outline</span> קורס חדש
       </button>
     </div>
   </nav>
@@ -901,7 +1017,7 @@ body {
         </div>
         <span class="topbar-pct" id="pctLabel">0%</span>
       </div>
-      <span class="topbar-label" id="subLabel">0 / 0 עמ'</span>
+      <span class="topbar-label" id="subLabel" data-tooltip="עמודי ברונר שהושלמו מתוך סך כל עמודי הקורס" data-tip-pos="below">0 / 0 עמ'</span>
       <div class="topbar-spacer"></div>
       <span style="font-size:13px;color:var(--muted);">336 ש"א · תשפ"ו</span>
       <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="החלף ערכת נושא">
@@ -918,10 +1034,10 @@ body {
           <h1>סיעוד המבוגר — <strong>מעקב התקדמות לימודים</strong></h1>
         </div>
         <div class="page-header-btns">
-          <button class="btn btn-outline-secondary" onclick="expandAllRows()">
+          <button class="btn btn-outline-secondary" onclick="expandAllRows()" data-tooltip="פתח את פאנל הסעיפים לכל הנושאים" data-tip-pos="below">
             <span class="material-icons">unfold_more</span> פתח הכל
           </button>
-          <button class="btn btn-outline-secondary" onclick="collapseAllRows()">
+          <button class="btn btn-outline-secondary" onclick="collapseAllRows()" data-tooltip="סגור את כל פאנלי הסעיפים" data-tip-pos="below">
             <span class="material-icons">unfold_less</span> סגור הכל
           </button>
         </div>
@@ -1006,39 +1122,6 @@ body {
           </div>
         </div>
 
-        <!-- Donut + part table — Browser Usage style -->
-        <div class="chart-wrap">
-          <div class="chart-header">
-            <div>
-              <div class="chart-title">חלוקה לפי מבחן</div>
-            </div>
-          </div>
-          <div class="chart-body">
-            <div style="position:relative;height:150px;">
-              <canvas id="donutChart"></canvas>
-            </div>
-            <table class="part-table">
-              <tbody>
-                <tr>
-                  <td><span class="part-dot a"></span>חלק א׳</td>
-                  <td class="part-num" id="donutPartAPct" style="text-align:left;">0%</td>
-                  <td style="text-align:left;color:var(--muted);font-size:12px;" id="donutPartAHours">0/176 ש"א</td>
-                </tr>
-                <tr>
-                  <td><span class="part-dot b"></span>חלק ב׳</td>
-                  <td class="part-num" id="donutPartBPct" style="text-align:left;">0%</td>
-                  <td style="text-align:left;color:var(--muted);font-size:12px;" id="donutPartBHours">0/160 ש"א</td>
-                </tr>
-                <tr>
-                  <td style="color:var(--muted);">נותר</td>
-                  <td class="part-num" id="donutRestPct" style="text-align:left;color:var(--muted);">100%</td>
-                  <td style="text-align:left;color:var(--muted);font-size:12px;"></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
       </div><!-- /charts-row -->
 
       <!-- ── Latest Projects table ── -->
@@ -1056,9 +1139,9 @@ body {
                 <th style="width:36px;"></th>
                 <th>נושא</th>
                 <th class="col-hide">קטגוריה</th>
-                <th>ש"א / עמ'</th>
-                <th>סעיפים</th>
-                <th>סטטוס</th>
+                <th data-tooltip="שעות אקדמיות ועמודי ברונר לנושא" data-tip-pos="below">ש"א / עמ'</th>
+                <th data-tooltip="מספר סעיפי הלימוד שסומנו כהושלמו" data-tip-pos="below">סעיפים</th>
+                <th data-tooltip="טרם החל | בתהליך | הושלם (כל הסעיפים + ברונר)" data-tip-pos="below">סטטוס</th>
                 <th class="col-hide">חלק</th>
                 <th style="width:40px;"></th>
               </tr>
@@ -1111,25 +1194,25 @@ body {
 // ═══════════════════════════════════════════════════════════
 const TOPICS = [
   // ── חלק א ──
-  {cat:"surgery_shock",catLabel:"כירורגיה ומצבי הלם",icon:"🏥",part:"א",id:"periop",name:"טיפול סביב ניתוחי",hours:22,pages:314,meta:"Pre-op · Intra-op · Post-op · סיבוכים · צנתר שתן",brunner:"פרקים 14-16",subs:["סוגי ניתוחים — סיווג לפי מטרה, היקף ודחיפות","Preoperative: הערכת סיכון ניתוחי לפי מערכות גוף","Preoperative: הסכמה מדעת (חוק זכויות החולה) + הכנת המטופל","Intraoperative: צוות חדר ניתוח — תפקידים וסביבה","Intraoperative: סוגי הרדמה, תרופות וסיבוכים, תנוחות","Postoperative: עקרונות טיפול לאחר ניתוח","Postoperative: סיבוכים מוקדמים ומאוחרים","שחרור מטופל, הכנה ושיקום","החדרת והוצאת צנתר שלפוחית השתן — חוזרים"]},
-  {cat:"surgery_shock",catLabel:"כירורגיה ומצבי הלם",icon:"🏥",part:"א",id:"shock",name:"מצבי הלם",hours:8,pages:214,meta:"Hypovolemic · Cardiogenic · Septic · Anaphylactic · Obstructive",brunner:"פרק 11",subs:["Hypovolemic Shock — גורמים, שלבים, טיפול","Cardiogenic Shock — גורמים ועקרונות טיפול","Anaphylactic Shock — זיהוי, אפינפרין, מניעה","Septic Shock — SIRS, Sepsis, גורמים, טיפול","Neurogenic Shock + Obstructive Shock","שלבי ההלם: Compensated → Progressive → Irreversible","ניהול סיעודי — ניטור, גישה ורידית, תרופות"]},
-  {cat:"respiratory",catLabel:"מערכת הנשימה",icon:"🫁",part:"א",id:"respiratory",name:"מערכת הנשימה",hours:42,pages:288,meta:"COPD · Asthma · Pneumonia · ARDS · PE · Mechanical Ventilation",brunner:"פרקים 17-20",subs:["אנטומיה, פיזיולוגיה ואומדן מערכת הנשימה","בדיקות: PFT, ABG, Pulse Oximetry, Bronchoscopy, Thoracentesis","הפרעות מאזן חומצי-בסיסי: Respiratory & Metabolic Acidosis/Alkalosis","Asthma + Status Asthmaticus","COPD: Chronic Bronchitis & Emphysema — שלבי GOLD","Pulmonary Fibrosis, Pulmonary Arterial Hypertension, Lung Cancer","Atelectasis, Pneumonia, Pulmonary TB, Lung Abscess","ARF, ARDS, Pulmonary Embolism","חבלות חזה: Flail Chest, Pneumothorax, Hemothorax, Cardiac Tamponade","טיפול בחמצן: Low Flow / High Flow Systems","NIV: CPAP, BiPAP","Invasive: Intubation, Tracheostomy, Mechanical Ventilation & Weaning"]},
-  {cat:"cardio",catLabel:"לב וכלי דם",icon:"🫀",part:"א",id:"cardio",name:"מערכת הלב וכלי הדם",hours:40,pages:582,meta:"ECG · ACS · MI · HF · Arrhythmias · Endocarditis · HTN",brunner:"פרקים 21-25",subs:["אנטומיה, פיזיולוגיה ואומדן הלב","בדיקות: ECG, Echo, Cardiac Cath, Stress Test, Hemodynamic Monitoring","פענוח אק\"ג: קצב סינוס תקין, ציר, גל P-QRS-T","הפרעות קצב: Sinus, Atrial (Afib/Flutter), Junctional, Ventricular (VT/VF)","Heart Blocks: 1st, 2nd (Type I/II), 3rd Degree — טיפול וקוצבים","Defib + AED — חוזר מנהל האחיות","מחלות כליליות: Stable Angina, ACS, NSTEMI, STEMI","PCI & CABG — טיפול סיעודי","מחלות מסתמיות: Mitral Valve, Aortic Valve — Stenosis & Regurgitation","Heart Failure: Left/Right/Congestive, Pulmonary Edema","מחלות דלקתיות: Endocarditis, Pericarditis, Myocarditis, Rheumatic Carditis","יתר לחץ דם: אבחון, סיבוכים רב-מערכתיים, טיפול"]},
-  {cat:"cardio",catLabel:"לב וכלי דם",icon:"🫀",part:"א",id:"vascular",name:"מחלות כלי דם פריפריים",hours:14,pages:253,meta:"PAD · DVT · Aneurysm · Lymphedema · Raynaud's",brunner:"פרקים 26-27",subs:["בדיקות: Doppler, Duplex US, CT, MRA, Angiography, Venography","הפרעות עורקיות: PAD, Aortic Aneurysm & Dissection","Arterial Embolism & Thrombosis, Raynaud's Phenomenon","הפרעות ורידיות: VTE/DVT, Chronic Venous Insufficiency, Leg Ulcer","Varicose Veins — טיפול ומניעה","הפרעות לימפתיות: Lymphedema, Cellulitis, Lymphangitis"]},
-  {cat:"gastro",catLabel:"מערכת העיכול",icon:"🫃",part:"א",id:"gastro",name:"מערכת העיכול",hours:52,pages:724,meta:"GERD · Peptic Ulcer · Cirrhosis · IBD · Colorectal Cancer · Pancreatitis",brunner:"פרקים 38-44",subs:["אנטומיה, פיזיולוגיה ואומדן מערכת העיכול","בדיקות: אנדוסקופיה (Gastroscopy, Colonoscopy, ERCP), CT, MRI","מחלות ושט: Achalasia, GERD, Barrett Esophagus, Hiatal Hernia, Cancer","מחלות קיבה ותריסריון: Gastritis, Peptic Ulcer Disease, Gastric Cancer","Bariatric Surgery — טיפול סיעודי","מחלות כבד: Viral/Nonviral Hepatitis, Cirrhosis, Liver Cancer","מחלות מרה: Cholecystitis, Cholelithiasis","מחלות לבלב: Acute/Chronic Pancreatitis, Pancreatic Cancer","מחלות מעיים: IBS, Peritonitis, Appendicitis, Intestinal Obstruction","IBD: Crohn's Disease, Ulcerative Colitis — הבדלים, טיפול","Colorectal Cancer, Polyps + Ileostomy/Colostomy — עקרונות טיפול","Hemorrhoids, Anal Fissure, Anorectal Abscess"]},
-  {cat:"endocrine",catLabel:"מערכת הורמונאלית",icon:"⚗️",part:"א",id:"endocrine",name:"מערכת הורמונאלית",hours:20,pages:212,meta:"DM Type 1&2 · Thyroid · Adrenal · Pituitary · SIADH",brunner:"פרקים 45-46",subs:["אנטומיה, פיזיולוגיה ואומדן המערכת ההורמונלית","היפופיזה: Hypopituitarism, Hyperpituitarism, Diabetes Insipidus, SIADH","בלוטת התריס: Hypothyroidism, Hyperthyroidism, Thyroiditis, Thyroid Cancer","בלוטת יותרת הכליה: Addison's Disease, Cushing's, Hyperaldosteronism","בלוטת יותרת התריס: Hypoparathyroidism, Hyperparathyroidism","Diabetes Mellitus Type 1 — פתופיזיולוגיה, אינסולין","Diabetes Mellitus Type 2 — גורמי סיכון, ניהול תרופתי","סיבוכי סוכרת: DKA, HHS, היפוגליקמיה, כף רגל סוכרתית"]},
+  {cat:"surgery_shock",catLabel:"כירורגיה ומצבי הלם",icon:"🏥",part:"א",id:"periop",name:"טיפול סביב ניתוחי",hours:22,pages:165,meta:"Pre-op · Intra-op · Post-op · סיבוכים · צנתר שתן",brunner:"פרקים 14-16",subs:["סוגי ניתוחים — סיווג לפי מטרה, היקף ודחיפות","Preoperative: הערכת סיכון ניתוחי לפי מערכות גוף","Preoperative: הסכמה מדעת (חוק זכויות החולה) + הכנת המטופל","Intraoperative: צוות חדר ניתוח — תפקידים וסביבה","Intraoperative: סוגי הרדמה, תרופות וסיבוכים, תנוחות","Postoperative: עקרונות טיפול לאחר ניתוח","Postoperative: סיבוכים מוקדמים ומאוחרים","שחרור מטופל, הכנה ושיקום","החדרת והוצאת צנתר שלפוחית השתן — חוזרים"]},
+  {cat:"surgery_shock",catLabel:"כירורגיה ומצבי הלם",icon:"🏥",part:"א",id:"shock",name:"מצבי הלם",hours:8,pages:76,meta:"Hypovolemic · Cardiogenic · Septic · Anaphylactic · Obstructive",brunner:"פרק 11",subs:["Hypovolemic Shock — גורמים, שלבים, טיפול","Cardiogenic Shock — גורמים ועקרונות טיפול","Anaphylactic Shock — זיהוי, אפינפרין, מניעה","Septic Shock — SIRS, Sepsis, גורמים, טיפול","Neurogenic Shock + Obstructive Shock","שלבי ההלם: Compensated → Progressive → Irreversible","ניהול סיעודי — ניטור, גישה ורידית, תרופות"]},
+  {cat:"respiratory",catLabel:"מערכת הנשימה",icon:"🫁",part:"א",id:"respiratory",name:"מערכת הנשימה",hours:42,pages:473,meta:"COPD · Asthma · Pneumonia · ARDS · PE · Mechanical Ventilation",brunner:"פרקים 17-20",subs:["אנטומיה, פיזיולוגיה ואומדן מערכת הנשימה","בדיקות: PFT, ABG, Pulse Oximetry, Bronchoscopy, Thoracentesis","הפרעות מאזן חומצי-בסיסי: Respiratory & Metabolic Acidosis/Alkalosis","Asthma + Status Asthmaticus","COPD: Chronic Bronchitis & Emphysema — שלבי GOLD","Pulmonary Fibrosis, Pulmonary Arterial Hypertension, Lung Cancer","Atelectasis, Pneumonia, Pulmonary TB, Lung Abscess","ARF, ARDS, Pulmonary Embolism","חבלות חזה: Flail Chest, Pneumothorax, Hemothorax, Cardiac Tamponade","טיפול בחמצן: Low Flow / High Flow Systems","NIV: CPAP, BiPAP","Invasive: Intubation, Tracheostomy, Mechanical Ventilation & Weaning"]},
+  {cat:"cardio",catLabel:"לב וכלי דם",icon:"🫀",part:"א",id:"cardio",name:"מערכת הלב וכלי הדם",hours:40,pages:438,meta:"ECG · ACS · MI · HF · Arrhythmias · Endocarditis · HTN",brunner:"פרקים 21-25",subs:["אנטומיה, פיזיולוגיה ואומדן הלב","בדיקות: ECG, Echo, Cardiac Cath, Stress Test, Hemodynamic Monitoring","פענוח אק\"ג: קצב סינוס תקין, ציר, גל P-QRS-T","הפרעות קצב: Sinus, Atrial (Afib/Flutter), Junctional, Ventricular (VT/VF)","Heart Blocks: 1st, 2nd (Type I/II), 3rd Degree — טיפול וקוצבים","Defib + AED — חוזר מנהל האחיות","מחלות כליליות: Stable Angina, ACS, NSTEMI, STEMI","PCI & CABG — טיפול סיעודי","מחלות מסתמיות: Mitral Valve, Aortic Valve — Stenosis & Regurgitation","Heart Failure: Left/Right/Congestive, Pulmonary Edema","מחלות דלקתיות: Endocarditis, Pericarditis, Myocarditis, Rheumatic Carditis","יתר לחץ דם: אבחון, סיבוכים רב-מערכתיים, טיפול"]},
+  {cat:"cardio",catLabel:"לב וכלי דם",icon:"🫀",part:"א",id:"vascular",name:"מחלות כלי דם פריפריים",hours:14,pages:175,meta:"PAD · DVT · Aneurysm · Lymphedema · Raynaud's",brunner:"פרקים 26-27",subs:["בדיקות: Doppler, Duplex US, CT, MRA, Angiography, Venography","הפרעות עורקיות: PAD, Aortic Aneurysm & Dissection","Arterial Embolism & Thrombosis, Raynaud's Phenomenon","הפרעות ורידיות: VTE/DVT, Chronic Venous Insufficiency, Leg Ulcer","Varicose Veins — טיפול ומניעה","הפרעות לימפתיות: Lymphedema, Cellulitis, Lymphangitis"]},
+  {cat:"gastro",catLabel:"מערכת העיכול",icon:"🫃",part:"א",id:"gastro",name:"מערכת העיכול",hours:52,pages:628,meta:"GERD · Peptic Ulcer · Cirrhosis · IBD · Colorectal Cancer · Pancreatitis",brunner:"פרקים 38-44",subs:["אנטומיה, פיזיולוגיה ואומדן מערכת העיכול","בדיקות: אנדוסקופיה (Gastroscopy, Colonoscopy, ERCP), CT, MRI","מחלות ושט: Achalasia, GERD, Barrett Esophagus, Hiatal Hernia, Cancer","מחלות קיבה ותריסריון: Gastritis, Peptic Ulcer Disease, Gastric Cancer","Bariatric Surgery — טיפול סיעודי","מחלות כבד: Viral/Nonviral Hepatitis, Cirrhosis, Liver Cancer","מחלות מרה: Cholecystitis, Cholelithiasis","מחלות לבלב: Acute/Chronic Pancreatitis, Pancreatic Cancer","מחלות מעיים: IBS, Peritonitis, Appendicitis, Intestinal Obstruction","IBD: Crohn's Disease, Ulcerative Colitis — הבדלים, טיפול","Colorectal Cancer, Polyps + Ileostomy/Colostomy — עקרונות טיפול","Hemorrhoids, Anal Fissure, Anorectal Abscess"]},
+  {cat:"endocrine",catLabel:"מערכת הורמונלית",icon:"⚗️",part:"א",id:"endocrine",name:"מערכת הורמונלית",hours:20,pages:211,meta:"DM Type 1&2 · Thyroid · Adrenal · Pituitary · SIADH",brunner:"פרקים 45-46",subs:["אנטומיה, פיזיולוגיה ואומדן המערכת ההורמונלית","היפופיזה: Hypopituitarism, Hyperpituitarism, Diabetes Insipidus, SIADH","בלוטת התריס: Hypothyroidism, Hyperthyroidism, Thyroiditis, Thyroid Cancer","בלוטת יותרת הכליה: Addison's Disease, Cushing's, Hyperaldosteronism","בלוטת יותרת התריס: Hypoparathyroidism, Hyperparathyroidism","Diabetes Mellitus Type 1 — פתופיזיולוגיה, אינסולין","Diabetes Mellitus Type 2 — גורמי סיכון, ניהול תרופתי","סיבוכי סוכרת: DKA, HHS, היפוגליקמיה, כף רגל סוכרתית"]},
   // ── חלק ב ──
-  {cat:"urology",catLabel:"מערכת השתן",icon:"🫘",part:"ב",id:"urology",name:"מערכת השתן",hours:32,meta:"CKD · AKI · Dialysis · UTI · BPH · Prostate Cancer",brunner:"פרקים 47-49",subs:["אנטומיה, פיזיולוגיה ואומדן מערכת השתן","בדיקות: BUN, Creatinine, GFR, ניתוח שתן, Cystoscopy, Renal Biopsy","נפרולוגיה: Chronic Kidney Disease (CKD) — שלבים","Acute Kidney Injury (AKI) — גורמים, שלבים, טיפול","Glomerulonephritis, Nephrotic Syndrome, Polycystic Kidney","Hemodialysis — גישה ורידית, עקרונות, סיבוכים","Peritoneal Dialysis — עקרונות וסיבוכים","UTI — עליון ותחתון, גורמים, טיפול, מניעה","Urinary Incontinence, Retention, Neurogenic Bladder","Urolithiasis (אבני כליה) + Bladder Cancer","BPH — אבחון, TURP, טיפול תרופתי","Prostate Cancer, Testicular Cancer, Orchitis"]},
-  {cat:"immune_rheum",catLabel:"מערכת חיסונית וראומה",icon:"🛡️",part:"ב",id:"immune",name:"מערכת חיסונית",hours:12,meta:"HIV · Anaphylaxis · RA · SLE · Gout",brunner:"פרקים 31-34",subs:["כשל חיסוני ראשוני + HIV/AIDS — סיווג, מעקב, ART","Anaphylaxis — פתופיזיולוגיה, טיפול מיידי, מניעה (חוזר 204/2023)","Urticaria, Angioedema, Food Allergy, Latex Allergy","Rheumatoid Arthritis — אבחון (RF, Anti-CCP), טיפול DMARD","Osteoarthritis — הבדל מ-RA, טיפול, החלפת מפרק","SLE — קריטריוני SLICC, איברי מטרה, טיפול","Scleroderma, Sjögren's, Polymyositis, Polymyalgia Rheumatica","Gout + Fibromyalgia"]},
-  {cat:"skin_burns",catLabel:"עור וכוויות",icon:"🔥",part:"ב",id:"skin",name:"מחלות עור",hours:8,meta:"Dermatitis · Psoriasis · Herpes · Melanoma · SCC",brunner:"פרקים 55-56",subs:["בדיקות אבחון: Skin Biopsy, Wood Lamp","מחלות אלרגיות/דלקתיות: Pruritus, Dermatitis (Seborrheic, Contact, Atopic)","Psoriasis, Stevens-Johnson Syndrome, Toxic Epidermal Necrolysis","זיהומים ויראליים: Herpes Simplex, Herpes Zoster","זיהומים חיידקיים: Folliculitis, Furuncles, Cellulitis","זיהומים פטרייתיים: Tinea, Candidiasis","זיהומים טפיליים: Scabies, Pediculosis","גידולים ממאירים: Melanoma, SCC, BCC, Kaposi Sarcoma"]},
-  {cat:"skin_burns",catLabel:"עור וכוויות",icon:"🔥",part:"ב",id:"burns",name:"כוויות",hours:4,meta:"שלבים · Parkland Formula · Phases · שיקום",brunner:"פרק 57",subs:["פתופיזיולוגיה ושינויים רב-מערכתיים בפגיעת כוויות","סוגי כוויות ושיטות סיווג חומרה (TBSA, Rule of Nines, Lund-Browder)","Emergent/Resuscitation Phase — נוזלים, Parkland Formula","Acute/Healing Phase — טיפול בפצע, הדבקה","Rehabilitative Phase — שיקום, מניעת כיווץ, פסיכולוגיה"]},
-  {cat:"senses",catLabel:"עיניים ואף-אוזן-גרון",icon:"👁️",part:"ב",id:"eyes",name:"מחלות עיניים",hours:8,meta:"Cataract · Glaucoma · Macular Degeneration · Retinal Detachment",brunner:"פרק 58",subs:["אנטומיה, פיזיולוגיה ואומדן הראייה","בדיקות: Tonometry, Ophthalmoscopy, Fluorescein Angiography, OCT","Cataract — אבחון, פיאקואמולסיפיקציה, טיפול סיעודי","Glaucoma — open-angle vs angle-closure, טיפול תרופתי וכירורגי","הפרעות ברשתית: Age-Related Macular Degeneration, Retinal Detachment","Conjunctivitis — זיהומי ואלרגי, מניעת הדבקה","שגיאות שבירה: Myopia, Hyperopia, Astigmatism","חבלות ומצבי חירום: Foreign Body, Penetrating Injury"]},
-  {cat:"senses",catLabel:"עיניים ואף-אוזן-גרון",icon:"👂",part:"ב",id:"ent",name:"מחלות אף-אוזן-גרון",hours:10,meta:"Otitis Media · Hearing Loss · Rhinitis · Sinusitis · Laryngeal Cancer",brunner:"פרק 59",subs:["אנטומיה, פיזיולוגיה ואומדן אף-אוזן-גרון","בדיקות: Audiometry, Tympanogram, CT, MRI","מחלות אף: Allergic/Viral Rhinitis, Sinusitis, Epistaxis, Nasal Fracture","אובדן שמיעה — סוגים, אבחון, שיקום (מכשיר שמיעה, שתל קוכלארי)","הפרעות אוזן חיצונית/תיכונה: Otitis Externa/Media, Tympanic Membrane Perf.","הפרעות אוזן פנימית: Meniere's Disease, BPPV, Tinnitus","צוואר וגרון: Pharyngitis, Tonsillitis, Obstructive Sleep Apnea","Laryngitis, Laryngeal Obstruction, Cancer of the Larynx"]},
-  {cat:"neuro",catLabel:"מערכת העצבים",icon:"🧠",part:"ב",id:"neuro",name:"מערכת העצבים (נוירולוגיה)",hours:32,meta:"Stroke · Epilepsy · MS · Parkinson's · Meningitis · GBS",brunner:"פרקים 60-65",subs:["אנטומיה, פיזיולוגיה ואומדן נוירולוגי (כולל GCS)","בדיקות: CT, MRI, EEG, EMG, Lumbar Puncture, Cerebral Angiography","Altered Level of Consciousness — גורמים, ניהול","Seizures & Epilepsy — סיווג, Status Epilepticus, טיפול","Migraine Headache","TIA + Ischemic Stroke — FAST, tPA, חלון טיפול","Hemorrhagic Stroke — SAH, ICH (חוזרים 190-193)","מחלות זיהומיות: Meningitis, Encephalitis, Brain Abscess","מחלות אוטואימוניות: Multiple Sclerosis (MS), Myasthenia Gravis, GBS","מחלות ניווניות: Parkinson's Disease, ALS, Huntington Disease","גידולי מוח וחוט שדרה — Primary & Secondary","מוות מוחי — הגדרה, קריטריונים, תהליך"]},
-  {cat:"musculoskeletal",catLabel:"שלד ושרירים",icon:"🦴",part:"ב",id:"musculoskeletal",name:"מערכת השלד והשרירים",hours:20,meta:"Osteoporosis · Fractures · Osteomyelitis · Amputation · Low Back Pain",brunner:"פרקים 35-37",subs:["אנטומיה, פיזיולוגיה ואומדן שלד-שרירים","בדיקות: Bone Density (DXA), CT, MRI, Bone Scan, Arthroscopy","Osteoporosis + Osteomalacia — גורמי סיכון, מניעה, טיפול","Osteoarthritis — Total Hip/Knee Replacement, טיפול סיעודי","Osteomyelitis + Septic Arthritis + Bone Tumors","טראומה: שברים — סיווג, שלבי ריפוי, סיבוכים מוקדמים/מאוחרים","Compartment Syndrome, Fat Embolism, DVT — מניעה","פריקות, פציעות גידים וסחוסים","Amputation — Elective & Traumatic, שיקום","Low Back Pain, Herniated Cervical/Lumbar Disk"]},
-  {cat:"onco_hematology",catLabel:"אונקולוגיה, המטולוגיה ושד",icon:"🎗️",part:"ב",id:"oncology",name:"מחלה ממארת (אונקולוגיה)",hours:14,meta:"Staging · Chemo · Immunotherapy · Palliative Care · מצבי חירום",brunner:"פרקים 12-13",subs:["פתופיזיולוגיה: Grading, Ploidy, Staging (TNM), גורמי סיכון","טיפול כירורגי — Debulking, Prophylactic Surgery","טיפול קרינתי — סוגים, תופעות לוואי","כימותרפיה — מנגנוני פעולה, תופעות לוואי, ניהול סיעודי","Targeted Therapy & Immunotherapy","Hematopoietic Stem Cell Transplantation","מצבי חירום: Sepsis, DIC, SIADH, Spinal Cord Compression","Hypercalcemia, Superior Vena Cava Syndrome, Tumor Lysis Syndrome","טיפול פליאטיבי: עקרונות, ניהול כאב (WHO Ladder), תסמינים","Palliative Care: תמיכה פסיכו-סוציאלית, חוק החולה הנוטה למות"]},
-  {cat:"onco_hematology",catLabel:"אונקולוגיה, המטולוגיה ושד",icon:"🩸",part:"ב",id:"hematology",name:"מערכת הדם והלימפה",hours:14,meta:"Anemia · Leukemia · Lymphoma · DIC · Hemophilia",brunner:"פרקים 28-30",subs:["אנטומיה, פיזיולוגיה ואומדן מערכת הדם","בדיקות: CBC, Reticulocytes, Coagulation (PT/INR/PTT), Bone Marrow","אנמיות: Iron Deficiency, Anemia of Chronic Disease, Aplastic Anemia","אנמיות: Megaloblastic (B12/Folate), Sickle Cell Disease, Thalassemia","Polycythemia Vera + Neutropenia","ממאירויות: AML, CML, CLL — Leukemia","Hodgkin Lymphoma, Non-Hodgkin Lymphoma, Multiple Myeloma","הפרעות קרישה: Thrombocytopenia (ITP), Hemophilia, Von Willebrand","DIC — פתופיזיולוגיה, ניטור, טיפול","Stem Cell Transplantation & Therapeutic Apheresis"]},
-  {cat:"onco_hematology",catLabel:"אונקולוגיה, המטולוגיה ושד",icon:"🎀",part:"ב",id:"breast",name:"הפרעות בשד",hours:6,meta:"Breast Cancer · Mastectomy · BRCA · Fibrocystic · שחזור",brunner:"פרק 52",subs:["בדיקת שד עצמית + Mammography, US, MRI, Biopsy, BRCA1/BRCA2","סרטן השד — סוגים, שלבי TNM, גורמי סיכון","טיפול כירורגי: Lumpectomy, Mastectomy, Sentinel Node Biopsy","טיפולים משלימים: קרינה, כימותרפיה, Hormonal, Targeted (Herceptin)","שחזור שד — סוגים ומועד ביצוע","מצבים שפירים: Fibrocystic Changes, Fibroadenoma, LCIS"]},
+  {cat:"urology",catLabel:"מערכת השתן",icon:"🫘",part:"ב",id:"urology",name:"מערכת השתן",hours:32,pages:279,meta:"CKD · AKI · Dialysis · UTI · BPH · Prostate Cancer",brunner:"פרקים 47-49",subs:["אנטומיה, פיזיולוגיה ואומדן מערכת השתן","בדיקות: BUN, Creatinine, GFR, ניתוח שתן, Cystoscopy, Renal Biopsy","נפרולוגיה: Chronic Kidney Disease (CKD) — שלבים","Acute Kidney Injury (AKI) — גורמים, שלבים, טיפול","Glomerulonephritis, Nephrotic Syndrome, Polycystic Kidney","Hemodialysis — גישה ורידית, עקרונות, סיבוכים","Peritoneal Dialysis — עקרונות וסיבוכים","UTI — עליון ותחתון, גורמים, טיפול, מניעה","Urinary Incontinence, Retention, Neurogenic Bladder","Urolithiasis (אבני כליה) + Bladder Cancer","BPH — אבחון, TURP, טיפול תרופתי","Prostate Cancer, Testicular Cancer, Orchitis"]},
+  {cat:"immune_rheum",catLabel:"מערכת חיסונית וראומטולוגיה",icon:"🛡️",part:"ב",id:"immune",name:"מערכת חיסונית",hours:12,pages:291,meta:"HIV · Anaphylaxis · RA · SLE · Gout",brunner:"פרקים 31-34",subs:["כשל חיסוני ראשוני + HIV/AIDS — סיווג, מעקב, ART","Anaphylaxis — פתופיזיולוגיה, טיפול מיידי, מניעה (חוזר 204/2023)","Urticaria, Angioedema, Food Allergy, Latex Allergy","Rheumatoid Arthritis — אבחון (RF, Anti-CCP), טיפול DMARD","Osteoarthritis — הבדל מ-RA, טיפול, החלפת מפרק","SLE — קריטריוני SLICC, איברי מטרה, טיפול","Scleroderma, Sjögren's, Polymyositis, Polymyalgia Rheumatica","Gout + Fibromyalgia"]},
+  {cat:"skin_burns",catLabel:"עור וכוויות",icon:"🔥",part:"ב",id:"skin",name:"מחלות עור",hours:8,pages:187,meta:"Dermatitis · Psoriasis · Herpes · Melanoma · SCC",brunner:"פרקים 55-56",subs:["בדיקות אבחון: Skin Biopsy, Wood Lamp","מחלות אלרגיות/דלקתיות: Pruritus, Dermatitis (Seborrheic, Contact, Atopic)","Psoriasis, Stevens-Johnson Syndrome, Toxic Epidermal Necrolysis","זיהומים ויראליים: Herpes Simplex, Herpes Zoster","זיהומים חיידקיים: Folliculitis, Furuncles, Cellulitis","זיהומים פטרייתיים: Tinea, Candidiasis","זיהומים טפיליים: Scabies, Pediculosis","גידולים ממאירים: Melanoma, SCC, BCC, Kaposi Sarcoma"]},
+  {cat:"skin_burns",catLabel:"עור וכוויות",icon:"🔥",part:"ב",id:"burns",name:"כוויות",hours:4,pages:88,meta:"שלבים · Parkland Formula · Phases · שיקום",brunner:"פרק 57",subs:["פתופיזיולוגיה ושינויים רב-מערכתיים בפגיעת כוויות","סוגי כוויות ושיטות סיווג חומרה (TBSA, Rule of Nines, Lund-Browder)","Emergent/Resuscitation Phase — נוזלים, Parkland Formula","Acute/Healing Phase — טיפול בפצע, הדבקה","Rehabilitative Phase — שיקום, מניעת כיווץ, פסיכולוגיה"]},
+  {cat:"senses",catLabel:"עיניים ואף-אוזן-גרון",icon:"👁️",part:"ב",id:"eyes",name:"מחלות עיניים",hours:8,pages:107,meta:"Cataract · Glaucoma · Macular Degeneration · Retinal Detachment",brunner:"פרק 58",subs:["אנטומיה, פיזיולוגיה ואומדן הראייה","בדיקות: Tonometry, Ophthalmoscopy, Fluorescein Angiography, OCT","Cataract — אבחון, פיאקואמולסיפיקציה, טיפול סיעודי","Glaucoma — open-angle vs angle-closure, טיפול תרופתי וכירורגי","הפרעות ברשתית: Age-Related Macular Degeneration, Retinal Detachment","Conjunctivitis — זיהומי ואלרגי, מניעת הדבקה","שגיאות שבירה: Myopia, Hyperopia, Astigmatism","חבלות ומצבי חירום: Foreign Body, Penetrating Injury"]},
+  {cat:"senses",catLabel:"עיניים ואף-אוזן-גרון",icon:"👂",part:"ב",id:"ent",name:"מחלות אף-אוזן-גרון",hours:10,pages:72,meta:"Otitis Media · Hearing Loss · Rhinitis · Sinusitis · Laryngeal Cancer",brunner:"פרק 59",subs:["אנטומיה, פיזיולוגיה ואומדן אף-אוזן-גרון","בדיקות: Audiometry, Tympanogram, CT, MRI","מחלות אף: Allergic/Viral Rhinitis, Sinusitis, Epistaxis, Nasal Fracture","אובדן שמיעה — סוגים, אבחון, שיקום (מכשיר שמיעה, שתל קוכלארי)","הפרעות אוזן חיצונית/תיכונה: Otitis Externa/Media, Tympanic Membrane Perf.","הפרעות אוזן פנימית: Meniere's Disease, BPPV, Tinnitus","צוואר וגרון: Pharyngitis, Tonsillitis, Obstructive Sleep Apnea","Laryngitis, Laryngeal Obstruction, Cancer of the Larynx"]},
+  {cat:"neuro",catLabel:"מערכת העצבים",icon:"🧠",part:"ב",id:"neuro",name:"מערכת העצבים (נוירולוגיה)",hours:32,pages:440,meta:"Stroke · Epilepsy · MS · Parkinson's · Meningitis · GBS",brunner:"פרקים 60-65",subs:["אנטומיה, פיזיולוגיה ואומדן נוירולוגי (כולל GCS)","בדיקות: CT, MRI, EEG, EMG, Lumbar Puncture, Cerebral Angiography","Altered Level of Consciousness — גורמים, ניהול","Seizures & Epilepsy — סיווג, Status Epilepticus, טיפול","Migraine Headache","TIA + Ischemic Stroke — FAST, tPA, חלון טיפול","Hemorrhagic Stroke — SAH, ICH (חוזרים 190-193)","מחלות זיהומיות: Meningitis, Encephalitis, Brain Abscess","מחלות אוטואימוניות: Multiple Sclerosis (MS), Myasthenia Gravis, GBS","מחלות ניווניות: Parkinson's Disease, ALS, Huntington Disease","גידולי מוח וחוט שדרה — Primary & Secondary","מוות מוחי — הגדרה, קריטריונים, תהליך"]},
+  {cat:"musculoskeletal",catLabel:"שלד ושרירים",icon:"🦴",part:"ב",id:"musculoskeletal",name:"מערכת השלד והשרירים",hours:20,pages:316,meta:"Osteoporosis · Fractures · Osteomyelitis · Amputation · Low Back Pain",brunner:"פרקים 35-37",subs:["אנטומיה, פיזיולוגיה ואומדן שלד-שרירים","בדיקות: Bone Density (DXA), CT, MRI, Bone Scan, Arthroscopy","Osteoporosis + Osteomalacia — גורמי סיכון, מניעה, טיפול","Osteoarthritis — Total Hip/Knee Replacement, טיפול סיעודי","Osteomyelitis + Septic Arthritis + Bone Tumors","טראומטולוגיה: שברים — סיווג, שלבי ריפוי, סיבוכים מוקדמים/מאוחרים","Compartment Syndrome, Fat Embolism, DVT — מניעה","פריקות, פציעות גידים וסחוסים","Amputation — Elective & Traumatic, שיקום","Low Back Pain, Herniated Cervical/Lumbar Disk"]},
+  {cat:"onco_hematology",catLabel:"אונקולוגיה, המטולוגיה ושד",icon:"🎗️",part:"ב",id:"oncology",name:"מחלה ממארת (אונקולוגיה)",hours:14,pages:241,meta:"Staging · Chemo · Immunotherapy · Palliative Care · מצבי חירום",brunner:"פרקים 12-13",subs:["פתופיזיולוגיה: Grading, Ploidy, Staging (TNM), גורמי סיכון","טיפול כירורגי — Debulking, Prophylactic Surgery","טיפול קרינתי — סוגים, תופעות לוואי","כימותרפיה — מנגנוני פעולה, תופעות לוואי, ניהול סיעודי","Targeted Therapy & Immunotherapy","Hematopoietic Stem Cell Transplantation","מצבי חירום: Sepsis, DIC, SIADH, Spinal Cord Compression","Hypercalcemia, Superior Vena Cava Syndrome, Tumor Lysis Syndrome","טיפול פליאטיבי: עקרונות, ניהול כאב (WHO Ladder), תסמינים","Palliative Care: תמיכה פסיכו-סוציאלית, חוק החולה הנוטה למות"]},
+  {cat:"onco_hematology",catLabel:"אונקולוגיה, המטולוגיה ושד",icon:"🩸",part:"ב",id:"hematology",name:"מערכת הדם והלימפה",hours:14,pages:265,meta:"Anemia · Leukemia · Lymphoma · DIC · Hemophilia",brunner:"פרקים 28-30",subs:["אנטומיה, פיזיולוגיה ואומדן מערכת הדם","בדיקות: CBC, Reticulocytes, Coagulation (PT/INR/PTT), Bone Marrow","אנמיות: Iron Deficiency, Anemia of Chronic Disease, Aplastic Anemia","אנמיות: Megaloblastic (B12/Folate), Sickle Cell Disease, Thalassemia","Polycythemia Vera + Neutropenia","ממאירויות: AML, CML, CLL — Leukemia","Hodgkin Lymphoma, Non-Hodgkin Lymphoma, Multiple Myeloma","הפרעות קרישה: Thrombocytopenia (ITP), Hemophilia, Von Willebrand","DIC — פתופיזיולוגיה, ניטור, טיפול","Stem Cell Transplantation & Therapeutic Apheresis"]},
+  {cat:"onco_hematology",catLabel:"אונקולוגיה, המטולוגיה ושד",icon:"🎀",part:"ב",id:"breast",name:"הפרעות בשד",hours:6,pages:76,meta:"Breast Cancer · Mastectomy · BRCA · Fibrocystic · שחזור",brunner:"פרק 52",subs:["בדיקת שד עצמית + Mammography, US, MRI, Biopsy, BRCA1/BRCA2","סרטן השד — סוגים, שלבי TNM, גורמי סיכון","טיפול כירורגי: Lumpectomy, Mastectomy, Sentinel Node Biopsy","טיפולים משלימים: קרינה, כימותרפיה, Hormonal, Targeted (Herceptin)","שחזור שד — סוגים ומועד ביצוע","מצבים שפירים: Fibrocystic Changes, Fibroadenoma, LCIS"]},
 ];
 
 const D = id => `https://drive.google.com/file/d/${id}/view`;
@@ -1141,17 +1224,108 @@ const TOPIC_LINKS = {
   "vascular":["1c0upj-F9OxXaZ6IN8Ee5cnX6evQOTLTK|📖 ברונר 26-27","1j3x3ZeslaPwy0y1L8D-wMONG-w00w_Tn|📄 אבחון כלי דם","1MSfoQ8BeES1ZI4dhUC5cVr9p5uWGXZF0|📄 Arterial","12A78lGaVC8f5oqolmzdLzBLyBx9ZuPPL|📄 Venous","1N1VS8AWdL5vl5PgyG55VBQHKUZ0Fc5Xl|📄 Lymphatic"].map(s=>{const[id,label]=s.split('|');return{url:D(id),label};}),
   "gastro":["1RdkxUVOay46Vq72ei_9nxuFJF4uqPV0Y|📖 ברונר 38-44","1oWpvdAUIHRZ5kEzzHsWTQqAhSTnWYr7B|📄 מבוא","1doLgdRwKO7cuzuL1qVNc4BiEs36vbtw6|📄 ושט","1mHoOJ6hs-ZZuypVu6MS6XrD2b61T3zRi|📄 קיבה","1Ve4VJ66yvPgxR_-xhdg3W4rfBCWoIwXS|📄 Obesity","1ieiqAfySkorSuEnB3ZfQnxJq5ChiWi0s|📄 Hepatitis","1V63TPbCwNxUMbIU_X610wL9wCeLvn3v3|📄 Cirrhosis","1BPp9IAh9sPCN4PzB6tLBTIz9H9eopfZ5|📄 כיס מרה","1sEYQqwFaMkVr8f0_ndLAHTvHdg2vgsG-|📄 לבלב","1w0n_LkBI2suXbdlOITskjk3Lqbrx9_h0|📄 מעיים","15ygzkVK-tx8Q0DCgehh6E1yDcFaZsxte|📄 IBD & IBS","1Wmijg_EmNzEn0_-dTHm4a5Yj_tsaUwtg|📄 CRC ברונר","1htj6N8djtdJIt3Q6fN1ewDRjesoONl-p|📄 CRC+Polyps","1N9p7o2J0m3QjJMkaZxBP2z6CvcstZqko|📄 Anorectum","1_gqhuO_8h85y9cr-e0YGF8Hu8xF6UvV1|📄 בקעים","1dixkinGm9MGSjsS785epTo3T4s7wwB2E|📄 סטומה-טיפול","1a94c-qiwY_WM4VVQjaDCPQD_gRGk7cVo|📄 סטומה-סיבוכים"].map(s=>{const[id,label]=s.split('|');return{url:D(id),label};}),
   "endocrine":["1j5LppkkiqG1tsbdbPeR7oST9WtaoiKxO|📖 ברונר 45-46","14rnpvkVX_ePDmvgX0MqArhpE9ytUK1PX|📄 היפופיזה","1BTHrRYxHffgY7BXdHRpvkT0-kvFEwQsF|📄 יותרת הכליה","1kWZRcV7InD6UmbfRA0EBgLT-SDl3fXfZ|📄 תריס","1faLioGvdrW2ZCZNwIqHyaAEzi2Fg3Wpq|📄 יותרת התריס","11T1PYY1fnS5CSQBy-4Holx881gnFfERc|📄 סוכרת"].map(s=>{const[id,label]=s.split('|');return{url:D(id),label};}),
-  "urology":[{url:D("1ogBkPoAvUP-FC9ATQt_5-tS750rDZgB1"),label:"📖 ברונר 47-49"}],
-  "immune":[{url:D("1uV6BbQyFQMggADHuc_40OzgvLEjZqfxJ"),label:"📖 ברונר 31-34"}],
-  "skin":[{url:D("1Yy3XmOuKxHsn1fj3GmsXoJXaSVnxAX13"),label:"📖 ברונר 55-56"}],
+    "urology":[
+    {url:D("1ogBkPoAvUP-FC9ATQt_5-tS750rDZgB1"),label:"📖 ברונר 47-49"},
+    {url:D("1K9OVkaHV-yTuHzO6yDf8zsvxmCYiYz0j"),label:"📄 אנטומיה ובדיקות הדמייה"},
+    {url:D("1_yqoqfDrDUTe90tIbDr0Bt5cznBfkSnD"),label:"📄 Urology"},
+    {url:D("1enfmOCL0bMQDaaKB7ivxxdFpRThQ4yXp"),label:"📄 Urinary Incontinence"},
+    {url:D("1N31D_4Vk1XDE03si-_FvfrPrzfAo5ufy"),label:"📄 סרטן שלפוחית"},
+    {url:D("1UtQFG8FxNjWVpvVxSR7I40-yuIi35Zq5"),label:"📄 Renal Cancer"},
+    {url:D("1w5fu60kYhLdaqpcfMxVLzW84J7L0EDU1"),label:"📄 פרוסטטה"},
+    {url:D("1cQkuoMt2mUYzq_NI7WdK_gq4rhgy-DSs"),label:"📄 UTI"},
+    {url:D("13mruwJzXnsQgOdlpFLx_VF53v-ugdGQm"),label:"📄 אבנים בדרכי השתן"},
+    {url:D("1jHOk8-zCprrpVhmuxQ1ognZHyKvLUTB9"),label:"📄 האשך"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=55216",label:"🎬 הקלטה 24.5"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=55958",label:"🎬 הקלטה 14.6"},
+  ],
+  "immune":[
+    {url:D("1uV6BbQyFQMggADHuc_40OzgvLEjZqfxJ"),label:"📖 ברונר 31-34"},
+    {url:D("1BPAFrBMY4VpkhJf6yNv5CWS71b8kh5of"),label:"📄 מבוא למערכת חיסונית"},
+    {url:D("12srfkb9bTuddOYQsH-kjim-EA8CqbrBT"),label:"📄 AIDS"},
+    {url:D("1QaXQR8Looh5Ywg3u61ahlnw_4ZzBUKWj"),label:"📄 מחלות רקמת חיבור"},
+    {url:D("1Ogo2_7ZYmvs5C3ZiS4JT5E9M2tRZhrTH"),label:"📄 תגובה אלרגית"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=53328",label:"🎬 הקלטה 12.4"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=53896",label:"🎬 הקלטה 26.4"},
+  ],
+  "skin":[
+    {url:D("1Yy3XmOuKxHsn1fj3GmsXoJXaSVnxAX13"),label:"📖 ברונר 55-56"},
+    {url:D("10hV1MDebRIwPQ4blzACwQ8nYvdog7De4"),label:"📄 בדיקות אבחון בעור"},
+    {url:D("1PnOoBfMyj9n9Bko49MXatNaVGEDujb3G"),label:"📄 מחלות דלקתיות ואלרגיה"},
+    {url:D("1eotESJ8TFCKM_C8GCa9jqvmWXj37Z3Vb"),label:"📄 מחלות זיהומיות"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=56275",label:"🎬 הקלטה 25.6"},
+  ],
   "burns":[{url:D("1gPEDxAbPxMWQEnLBPoGkM0g-9OCPcRPL"),label:"📖 ברונר 57"}],
-  "eyes":[{url:D("1dZXTsYCCzUieoGjQlXeUP766MOOpr401"),label:"📖 ברונר 58"}],
-  "ent":[{url:D("1TefxnbnPQmkyFTE2UidfTOAKxYvC2V9J"),label:"📖 ברונר 59"}],
-  "neuro":[{url:D("1tc98vpPJplSGHsRayaHjDdLGFswyXn1e"),label:"📖 ברונר 60-65"}],
-  "musculoskeletal":[{url:D("1mvpklDzd4qJLnbhpD_3Cri3Ax46UdU0L"),label:"📖 ברונר 35-37"}],
-  "oncology":[{url:D("1ep4y5yTajntUCYiWPXEi9OltBwmnWOZz"),label:"📖 ברונר 12-13"}],
-  "hematology":[{url:D("1cPtiIGCcNZuERx8iq3tpjQKt4R2IxPGD"),label:"📖 ברונר 28-30"}],
-  "breast":[{url:D("1_cQasyKXKAP-TvcwDaCvnAl094wklHPI"),label:"📖 ברונר 52"}],
+  "eyes":[
+    {url:D("1dZXTsYCCzUieoGjQlXeUP766MOOpr401"),label:"📖 ברונר 58"},
+    {url:D("1ZRHEpVUuC1IUoho2ncTecFZNmJR8LvHa"),label:"📄 אנטומיה ואומדן ראייה"},
+    {url:D("13hgHC4XvgAPIr18eTRv0VKDdaI6jWUnF"),label:"📄 גלאוקומה, קטרקט"},
+    {url:D("1LlZmjPiECTPTAh6uJQ25qDjNKHfZQXr2"),label:"📄 הפרעות ברשתית"},
+    {url:D("1SNpEC0nEHOvCYuXO-4Rgyov55rWxtRz4"),label:"📄 מחלות קרנית"},
+    {url:D("1-l9SA9sKudZ135QQ2g8qv1RL5kgH50kQ"),label:"📄 חבלות ומצבי חירום"},
+    {url:D("14HExA5xnBEE83OYSxVy27jms0OzTMQCg"),label:"📄 Conjunctivitis"},
+    {url:D("1T5Lm7RaelOK83XyN2_XdChPGri_xJtFp"),label:"📄 Refraction Errors"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=55652",label:"🎬 הקלטה 7.6"},
+  ],
+  "ent":[
+    {url:D("1TefxnbnPQmkyFTE2UidfTOAKxYvC2V9J"),label:"📖 ברונר 59"},
+    {url:D("1aPF8rxnCefLl2gpLL8P2YYZkumzxSnN9"),label:"📄 הקדמה לאאג"},
+    {url:D("1e027xFEb0reDiNHhvbrT1b29F0TIicm4"),label:"📄 האוזן"},
+    {url:D("1LVtsUdazOidQQTIPBnz-VXRMKSLbYACO"),label:"📄 האף"},
+    {url:D("1pHPmldMJMiOpRXSjuz0h86JmUbxQRXcd"),label:"📄 הצוואר"},
+    {url:D("1t0BdKDF99f12trZM38Xp5XXzpX6bsUPd"),label:"📄 הצוואר + סיכום (PPTX)"},
+    {url:D("15sVykRmgQzvQH1Z9ziMrbsZ7wI2v9wf4"),label:"📄 בדיקות שמיעה"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=54730",label:"🎬 הקלטה 19.5"},
+  ],
+  "neuro":[
+    {url:D("1tc98vpPJplSGHsRayaHjDdLGFswyXn1e"),label:"📖 ברונר 60-65"},
+    {url:D("1ufI-nDwSFPapBMgrbns4Q21Cjosa86OE"),label:"📄 מבוא למערכת העצבים"},
+    {url:D("1hEzV52KSf-0cwxfl05jkJH5-WcNArTg2"),label:"📄 הערכה נוירולוגית ובדיקות"},
+    {url:D("1QmDoAkaC3xeI-dq4PZNX3dXJAry8Li3y"),label:"📄 הערכה נוירופסיכולוגית"},
+    {url:D("1HlaRp6J6DL4i53YvUhNFDyZQKtajo3r_"),label:"📄 שבץ מוחי דימומי"},
+    {url:D("1BtiGduLajVqhvrMDeY_-gkZwo35qA3cK"),label:"📄 שבץ מוחי איסכמי"},
+    {url:D("1yzezCD1uL1kgKKW_U46BAxWbcp-eYuCe"),label:"📄 מיאסטניה וגיאן ברה"},
+    {url:D("13bhuqFKUBHAmXQJQ7QKbgK0Tv9suPwHj"),label:"📄 כאבי ראש"},
+    {url:D("1KjP4RdYjazwSAdeQVQVKRUdgYerFMi8S"),label:"📄 טרשת נפוצה"},
+    {url:D("1A3M6YlSXa3bajRz-ec7RBQCczrYgsjgx"),label:"📄 אפילפסיה ופרכוסים"},
+    {url:D("1iMA1LdiBrA-Itkd33FsJCUd00ln1f7B6"),label:"📄 זיהומים במעמ"},
+    {url:D("1iYD1CtqNuVnjsGqmgQEvc62vO_ZiH12j"),label:"📄 מחלות זיהומיות CJD"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=56037",label:"🎬 הקלטה 16.6"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=56116",label:"🎬 הקלטה 18.6"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=56183",label:"🎬 הקלטה 21.6"},
+  ],
+  "musculoskeletal":[
+    {url:D("1mvpklDzd4qJLnbhpD_3Cri3Ax46UdU0L"),label:"📖 ברונר 35-37"},
+    {url:D("1XwUsykp2DP0fjD6mhGmRWz1e8-LXKy2H"),label:"📄 מבוא לאורטופדיה"},
+    {url:D("1bnCqxwTJfS6m9nDJufTCqQS7cPiJcX6O"),label:"📄 אומדן ובדיקה פיזיקלית"},
+    {url:D("16nyNnEOENyZY37CB0qhZJtyDWPFiN9oD"),label:"📄 הדמייה"},
+    {url:D("18yCCWd-ZlMaWcnMzPswh71jcIAjkoIcH"),label:"📄 טרואמה וכירורגיה"},
+    {url:D("1f96v5Tk50KUzVDjs2B7nKs7MzXx8W7L2"),label:"📄 סיעוד אורטופדי"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=55537",label:"🎬 הקלטה 2.6"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=56252",label:"🎬 הקלטה 23.6"},
+  ],
+  "oncology":[
+    {url:D("1ep4y5yTajntUCYiWPXEi9OltBwmnWOZz"),label:"📖 ברונר 12-13"},
+    {url:D("1xL-gTqSwGAVkaEknWqzG5bOgsGwwwegx"),label:"📄 מבוא לאונקולוגיה"},
+    {url:D("16HWI4NwoJYhw01hE7MhOIhPnE6ZRPYTf"),label:"📄 הטיפול האונקולוגי"},
+    {url:D("1NNgLpOk9tKVMDxukhjb41CuqiHUotSmU"),label:"📄 מצבי חירום באונקולוגיה"},
+    {url:D("1PJdpxMa4tleSUFDjCvcD0X-ZRdXOeIF1"),label:"📄 טיפול תומך"},
+  ],
+  "hematology":[
+    {url:D("1cPtiIGCcNZuERx8iq3tpjQKt4R2IxPGD"),label:"📖 ברונר 28-30"},
+    {url:D("1a3LwBzYAmoKbzmWZkfIVyJrwRZcdokXa"),label:"📄 Hematology - Br15"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=55245",label:"🎬 הקלטה 26.5"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=55535",label:"🎬 הקלטה 2.6"},
+  ],
+  "breast":[
+    {url:D("1_cQasyKXKAP-TvcwDaCvnAl094wklHPI"),label:"📖 ברונר 52"},
+    {url:D("1yOHTs_y0BSq7FdJ3zt-8-uYnr1CpmwZU"),label:"📄 מחלות שד - ברונר 2025"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=56251",label:"🎬 הקלטה 23.6"},
+  ],
+};
+
+// Exam file links — add Google Drive IDs per topic
+const EXAM_LINKS = {
+  // "periop": [{url: D("DRIVE_ID"), label: "📝 בחינה 2024"}],
 };
 
 const CAT_ORDER = ["surgery_shock","respiratory","cardio","gastro","endocrine","urology","immune_rheum","skin_burns","senses","neuro","musculoskeletal","onco_hematology"];
@@ -1173,12 +1347,7 @@ function toggleTheme() {
   // Re-render charts for correct colors
   if (barChartA) { barChartA.destroy(); barChartA = null; }
   if (barChartB) { barChartB.destroy(); barChartB = null; }
-  if (donutChart) { donutChart.destroy(); donutChart = null; }
   renderBarChart();
-  renderDonutChart(
-    calcWeightedProgress(TOPICS.filter(t=>t.part==='א')).pct,
-    calcWeightedProgress(TOPICS.filter(t=>t.part==='ב')).pct
-  );
 }
 function updateThemeIcon(theme) {
   const icon = document.getElementById('themeIcon');
@@ -1390,10 +1559,6 @@ function updateStats() {
   const overall = calcWeightedProgress(viewTopics);
   const partA   = calcWeightedProgress(TOPICS.filter(t=>t.part==='א'));
   const partB   = calcWeightedProgress(TOPICS.filter(t=>t.part==='ב'));
-  const hoursA  = TOPICS.filter(t=>t.part==='א').reduce((a,t)=>a+t.hours,0);
-  const hoursB  = TOPICS.filter(t=>t.part==='ב').reduce((a,t)=>a+t.hours,0);
-  const doneHoursA = TOPICS.filter(t=>t.part==='א'&&getTopicState(t.id).done).reduce((a,t)=>a+t.hours,0);
-  const doneHoursB = TOPICS.filter(t=>t.part==='ב'&&getTopicState(t.id).done).reduce((a,t)=>a+t.hours,0);
 
   // Topbar
   document.getElementById('mainBar').style.width = overall.pct + '%';
@@ -1414,13 +1579,6 @@ function updateStats() {
   document.getElementById('sidebarPartA').textContent = partA.pct + '%';
   document.getElementById('sidebarPartB').textContent = partB.pct + '%';
 
-  // Donut table
-  document.getElementById('donutPartAPct').textContent   = partA.pct + '%';
-  document.getElementById('donutPartBPct').textContent   = partB.pct + '%';
-  document.getElementById('donutRestPct').textContent    = (100 - Math.round((partA.pct + partB.pct)/2)) + '%';
-  document.getElementById('donutPartAHours').textContent = `${doneHoursA}/${hoursA} ש"א`;
-  document.getElementById('donutPartBHours').textContent = `${doneHoursB}/${hoursB} ש"א`;
-
   // Footer
   const footerEl = document.getElementById('footerStats');
   if (footerEl) footerEl.textContent = `${doneTopics}/${totalTopics} נושאים · ${doneSubs}/${totalSubs} סעיפים · ${doneHours} ש"א הושלמו`;
@@ -1438,9 +1596,6 @@ function updateStats() {
   const allBadge = document.getElementById('sb-badge-all');
   if (allBadge) allBadge.textContent = `${doneTopics}/${totalTopics}`;
 
-  // Update donut chart
-  renderDonutChart(partA.pct, partB.pct);
-
   // Table count label
   const countEl = document.getElementById('tableCountLabel');
   if (countEl) {
@@ -1449,116 +1604,78 @@ function updateStats() {
   }
 }
 
-// ── BAR CHARTS (per part) ─────────────────────────────────
+// ── PIE CHARTS (per part) ─────────────────────────────────
 let barChartA = null, barChartB = null;
 
-function buildPartChartData(part) {
-  const partTopics = TOPICS.filter(t => t.part === part);
-  const partProgress = calcWeightedProgress(partTopics);
-  const partPct = partProgress.pct;
-  const barColor = part === 'א' ? '#3b7ddd' : '#6f42c1';
-  const doneColor = '#1cbb8c';
-  const emptyColor = '#e2e8f0';
-
-  const seenCats = [];
-  const catData = [];
-  partTopics.forEach(t => {
-    if (!seenCats.includes(t.cat)) {
-      seenCats.push(t.cat);
-      const catTopics = TOPICS.filter(x => x.cat === t.cat);
-      const totalS = catTopics.reduce((a,x) => a + x.subs.length, 0);
-      const doneS  = catTopics.reduce((a,x) => {
-        const ts = getTopicState(x.id);
-        return a + x.subs.filter((_,i) => ts.subs[i]).length;
-      }, 0);
-      const pct = totalS ? Math.round(doneS / totalS * 100) : 0;
-      const done = catTopics.filter(x => getTopicState(x.id).done).length === catTopics.length;
-      catData.push({
-        label: t.catLabel.length > 10 ? t.catLabel.substring(0,10) + '…' : t.catLabel,
-        pct, done
-      });
-    }
-  });
-
-  return {
-    labels: catData.map(c => c.label),
-    catPcts: catData.map(c => c.pct),
-    catColors: catData.map(c => c.done ? doneColor : c.pct > 0 ? barColor : emptyColor),
-    partPct,
-    barColor
-  };
+function isDark() {
+  return document.documentElement.getAttribute('data-theme') !== 'light';
 }
 
 function renderPartChart(part, canvasId, existingChart) {
   const ctx = document.getElementById(canvasId);
   if (!ctx) return existingChart;
 
-  const { labels, catPcts, catColors, partPct, barColor } = buildPartChartData(part);
-  const lineData = catPcts.map(() => partPct);
+  const dark = isDark();
+  const mainColor   = part === 'א' ? '#4f80ff' : '#a78bfa';
+  const doneColor   = '#1cbb8c';
+  const warnColor   = '#fcb92c';
+  const emptyColor  = dark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)';
+  const textColor   = dark ? '#c8cdd8' : '#495057';
+  const tooltipBg   = dark ? '#1a1c2a' : '#fff';
+  const tooltipTitle = dark ? '#e8eaf0' : '#343a40';
+
+  const seenCats = [];
+  const labels = [], data = [], colors = [], catPcts = [];
+
+  TOPICS.filter(t => t.part === part).forEach(t => {
+    if (seenCats.includes(t.cat)) return;
+    seenCats.push(t.cat);
+    const catTopics = TOPICS.filter(x => x.cat === t.cat);
+    const totalS = catTopics.reduce((a,x) => a + x.subs.length, 0);
+    const doneS  = catTopics.reduce((a,x) => {
+      const ts = getTopicState(x.id);
+      return a + x.subs.filter((_,i) => ts.subs[i]).length;
+    }, 0);
+    const pct = totalS ? Math.round(doneS / totalS * 100) : 0;
+    const totalHours = catTopics.reduce((a,x) => a + x.hours, 0);
+    labels.push(t.catLabel.length > 13 ? t.catLabel.substring(0,13) + '…' : t.catLabel);
+    data.push(totalHours || totalS);
+    catPcts.push(pct);
+    colors.push(pct === 100 ? doneColor : pct >= 50 ? mainColor : pct > 0 ? warnColor : emptyColor);
+  });
 
   if (existingChart) { existingChart.destroy(); }
   return new Chart(ctx, {
-    type: 'bar',
+    type: 'pie',
     data: {
       labels,
-      datasets: [
-        {
-          type: 'bar',
-          label: 'התקדמות לימוד',
-          data: catPcts,
-          backgroundColor: catColors,
-          borderColor: catColors,
-          borderWidth: 1,
-          borderRadius: 4,
-          borderSkipped: false,
-          order: 2,
-        },
-        {
-          type: 'line',
-          label: `סה״כ חלק ${part === 'א' ? 'א׳' : 'ב׳'} — ${partPct}%`,
-          data: lineData,
-          borderColor: barColor,
-          pointBackgroundColor: barColor,
-          pointBorderColor: '#fff',
-          pointBorderWidth: 2,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-          borderWidth: 2,
-          borderDash: [5, 4],
-          tension: 0,
-          fill: false,
-          order: 1,
-        }
-      ]
+      datasets: [{
+        data,
+        backgroundColor: colors,
+        borderColor: dark ? 'rgba(255,255,255,0.06)' : '#fff',
+        borderWidth: 2,
+        hoverOffset: 10,
+      }]
     },
     options: {
-      indexAxis: 'x',
       responsive: true,
       maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
       plugins: {
-        legend: { display: true, position: 'top', labels: { font: { size: 10 }, boxWidth: 10, padding: 8, color: '#c8cdd8' } },
+        legend: {
+          display: true,
+          position: 'bottom',
+          labels: { font: { size: 10 }, boxWidth: 10, padding: 6, color: textColor }
+        },
         tooltip: {
           rtl: true,
-          backgroundColor: '#1a1c2a',
-          titleColor: '#e8eaf0',
-          bodyColor: '#c8cdd8',
-          borderColor: 'rgba(255,255,255,0.1)',
+          backgroundColor: tooltipBg,
+          titleColor: tooltipTitle,
+          bodyColor: textColor,
+          borderColor: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
           borderWidth: 1,
-          callbacks: { label: c => ` ${c.dataset.label.split('—')[0].trim()}: ${c.raw}%` }
-        }
-      },
-      scales: {
-        x: {
-          grid: { display: false },
-          ticks: { font: { size: 10 }, color: '#7a8394' },
-          border: { color: 'rgba(255,255,255,0.08)' }
-        },
-        y: {
-          min: 0, max: 100,
-          grid: { color: 'rgba(255,255,255,0.06)' },
-          ticks: { callback: v => v + '%', font: { size: 10 }, color: '#7a8394' },
-          border: { color: 'rgba(255,255,255,0.08)' }
+          callbacks: {
+            label: c => ` ${c.label}: ${catPcts[c.dataIndex]}% הושלם`
+          }
         }
       }
     }
@@ -1568,49 +1685,6 @@ function renderPartChart(part, canvasId, existingChart) {
 function renderBarChart() {
   barChartA = renderPartChart('א', 'progressChartA', barChartA);
   barChartB = renderPartChart('ב', 'progressChartB', barChartB);
-}
-
-// ── DONUT CHART (Browser Usage) ────────────────────────────
-let donutChart = null;
-function renderDonutChart(pctA, pctB) {
-  const ctx = document.getElementById('donutChart');
-  if (!ctx) return;
-
-  const remainPct = Math.max(0, 100 - Math.round((pctA + pctB) / 2));
-
-  if (donutChart) {
-    donutChart.data.datasets[0].data = [pctA, pctB, remainPct];
-    donutChart.update('none');
-    return;
-  }
-  donutChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: ['חלק א׳', 'חלק ב׳', 'נותר'],
-      datasets: [{
-        data: [pctA, pctB, remainPct],
-        backgroundColor: ['#4f80ff', '#a78bfa', 'rgba(255,255,255,0.08)'],
-        borderWidth: 0,
-        hoverOffset: 4
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      cutout: '72%',
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#1a1c2a',
-          titleColor: '#e8eaf0',
-          bodyColor: '#c8cdd8',
-          borderColor: 'rgba(255,255,255,0.1)',
-          borderWidth: 1,
-          callbacks: { label: ctx => ` ${ctx.raw}%` }
-        }
-      }
-    }
-  });
 }
 
 // ── TABLE (Latest Projects) ────────────────────────────────
@@ -1645,10 +1719,10 @@ function renderTable() {
     const isInProg = !isDone && subsDone > 0;
 
     const statusBadge = isDone
-      ? `<span class="badge badge-success">הושלם</span>`
+      ? `<span class="badge badge-success" data-tooltip="כל הסעיפים וברונר הושלמו">הושלם</span>`
       : isInProg
-        ? `<span class="badge badge-warning">בתהליך</span>`
-        : `<span class="badge badge-secondary">טרם החל</span>`;
+        ? `<span class="badge badge-warning" data-tooltip="חלק מהסעיפים הושלמו — המשך ללמוד">בתהליך</span>`
+        : `<span class="badge badge-secondary" data-tooltip="טרם התחלת ללמוד נושא זה">טרם החל</span>`;
 
     const partBadge = t.part === 'א'
       ? `<span class="badge badge-primary">חלק א׳</span>`
@@ -1663,7 +1737,7 @@ function renderTable() {
     tr.innerHTML = `
       <td onclick="event.stopPropagation()">
         <input type="checkbox" class="topic-cb" ${isDone ? 'checked' : ''}
-          onchange="toggleTopic('${t.id}', event)">
+          onchange="toggleTopic('${t.id}', event)" data-tooltip="סמן לסיום מהיר של הנושא כולו">
       </td>
       <td>
         <div class="topic-name-wrap">
@@ -1681,8 +1755,8 @@ function renderTable() {
         </div>
       </td>
       <td>
-        <span class="badge badge-hours">${t.hours} ש"א</span>
-        ${t.pages ? `<br><span class="badge badge-pages" style="margin-top:3px;">${t.pages} עמ'</span>` : ''}
+        <span class="badge badge-hours" data-tooltip="שעות אקדמיות מוקצות לנושא">${t.hours} ש"א</span>
+        ${t.pages ? `<br><span class="badge badge-pages" style="margin-top:3px;" data-tooltip="עמודי ברונר לנושא זה">${t.pages} עמ'</span>` : ''}
       </td>
       <td>
         <span class="subs-count">${subsDone}</span>
@@ -1691,7 +1765,7 @@ function renderTable() {
       <td>${statusBadge}</td>
       <td class="col-hide">${partBadge}</td>
       <td onclick="event.stopPropagation()">
-        <button class="expand-btn" onclick="toggleSubRow('${t.id}')">
+        <button class="expand-btn" onclick="toggleSubRow('${t.id}')" data-tooltip="פתח/סגור סעיפי הנושא" data-tip-pos="left-edge">
           <span class="material-icons" id="chev-${t.id}">expand_more</span>
         </button>
       </td>
@@ -1711,11 +1785,16 @@ function renderTable() {
         <div class="sub-prog-bg">
           <div class="sub-prog-fill" style="width:${subsPct}%"></div>
         </div>
-        <span class="sub-prog-txt">${subsDone} / ${t.subs.length} סעיפים · ${subsPct}%</span>
+        <span class="sub-prog-txt" data-tooltip="סעיפים שסימנת כהושלמו מתוך סך הסעיפים בנושא">${subsDone} / ${t.subs.length} סעיפים · ${subsPct}%</span>
       </div>
     `;
 
-    // Sub-items grid
+    // 3-column layout
+    subHTML += `<div class="sub-cols">`;
+
+    // ── Column 1: sub-items + brunner ──
+    subHTML += `<div class="sub-col-items">`;
+    subHTML += `<div class="sub-col-header" data-tooltip="רשימת הסעיפים לסימון — V ליד כל סעיף שלמדת">📋 סעיפי לימוד</div>`;
     subHTML += `<div class="sub-grid">`;
     t.subs.forEach((sub, i) => {
       const done = !!ts.subs[i];
@@ -1727,27 +1806,49 @@ function renderTable() {
         </div>`;
     });
     subHTML += `</div>`;
-
-    // Brunner
     if (t.brunner) {
       subHTML += `
-        <div class="brunner-row" onclick="toggleBrunner('${t.id}')">
+        <div class="brunner-row" onclick="toggleBrunner('${t.id}')" data-tooltip="סמן לאחר קריאת פרקי הברונר — נדרש להשלמת הנושא">
           <input type="checkbox" ${ts.brunner ? 'checked' : ''} onclick="event.stopPropagation();toggleBrunner('${t.id}')">
           <label class="${ts.brunner ? 'done' : ''}" onclick="event.stopPropagation()">
             📖 קראתי ברונר — ${t.brunner}
           </label>
         </div>`;
     }
+    subHTML += `</div>`;
 
-    // Links
+    // ── Column 2: study links ──
     const links = TOPIC_LINKS[t.id] || [];
+    subHTML += `<div class="sub-col-links">`;
+    subHTML += `<div class="sub-col-header" data-tooltip="קישורים לשקפי ההרצאות ולפרקי הברונר ב-Google Drive">📄 חומר לימוד</div>`;
     if (links.length) {
       subHTML += `<div class="sub-links">`;
       links.forEach(link => {
         subHTML += `<a href="${link.url}" target="_blank" class="topic-link-btn" onclick="event.stopPropagation()">${link.label}</a>`;
       });
       subHTML += `</div>`;
+    } else {
+      subHTML += `<span style="font-size:12px;color:var(--muted);">—</span>`;
     }
+    subHTML += `</div>`;
+
+    // ── Column 3: exam links + Gemini generate button ──
+    const exams = EXAM_LINKS[t.id] || [];
+    subHTML += `<div class="sub-col-exams">`;
+    subHTML += `<div class="sub-col-header" data-tooltip="צור מבחן אמריקאי על הנושא בעזרת AI">📝 בחינות</div>`;
+    subHTML += `<button class="exam-gen-btn" onclick="event.stopPropagation();copyExamPrompt('${t.id}',this)" data-tooltip="מעתיק פרומפט מוכן — הדבק ב-Claude, ChatGPT וכו' לקבלת 20 שאלות אמריקאיות בעברית">
+      <span class="material-icons" style="font-size:14px;vertical-align:middle">content_copy</span> העתק פרומפט ליצירת מבחן במערכת AI
+    </button>`;
+    if (exams.length) {
+      subHTML += `<div class="sub-links" style="margin-top:8px">`;
+      exams.forEach(link => {
+        subHTML += `<a href="${link.url}" target="_blank" class="topic-link-btn" onclick="event.stopPropagation()">${link.label}</a>`;
+      });
+      subHTML += `</div>`;
+    }
+    subHTML += `</div>`;
+
+    subHTML += `</div>`; // /sub-cols
 
     subHTML += `</div></td>`;
     subTr.innerHTML = subHTML;
@@ -1794,6 +1895,64 @@ async function storeHandle(handle) {
     });
   } catch {}
 }
+// ── AUTO-SAVE ──────────────────────────────────────────────
+let autoSaveInterval = null;
+const AUTO_SAVE_MS = 5 * 60 * 1000; // 5 minutes
+
+function showSaveToast(msg, isAuto = false) {
+  let toast = document.getElementById('saveToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'saveToast';
+    toast.style.cssText = [
+      'position:fixed','bottom:20px','left:20px','z-index:9999',
+      'background:var(--card-bg)','border:1px solid var(--card-border)',
+      'border-radius:8px','padding:9px 16px','font-size:13px',
+      'color:var(--text)','box-shadow:0 4px 20px rgba(0,0,0,0.4)',
+      'opacity:0','transition:opacity 0.25s','pointer-events:none',
+    ].join(';');
+    document.body.appendChild(toast);
+  }
+  toast.innerHTML = msg;
+  toast.style.opacity = '1';
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => { toast.style.opacity = '0'; }, isAuto ? 2500 : 2000);
+}
+
+function updateAutoSaveStatus(lastTime) {
+  const chip  = document.getElementById('autoSaveChip');
+  const label = document.getElementById('autoSaveLabel');
+  const time  = document.getElementById('autoSaveTime');
+  if (!chip) return;
+  if (autoSaveInterval) {
+    chip.className = 'autosave-chip active';
+    label.textContent = 'שמירה אוטומטית פעילה';
+    time.textContent  = lastTime ? 'נשמר לאחרונה · ' + lastTime : 'כל 5 דקות';
+  } else {
+    chip.className = 'autosave-chip inactive';
+    label.textContent = 'שמירה אוטומטית לא פעילה';
+    time.textContent  = 'לחץ "שמור" להפעלה';
+  }
+}
+
+function startAutoSave() {
+  if (autoSaveInterval) return; // already running
+  autoSaveInterval = setInterval(async () => {
+    const handle = await getStoredHandle();
+    if (!handle) return;
+    try {
+      const perm = await handle.queryPermission({mode:'readwrite'});
+      if (perm !== 'granted') return; // don't prompt in background
+      const w = await handle.createWritable();
+      await w.write(JSON.stringify(state, null, 2));
+      await w.close();
+      const t = new Date().toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit'});
+      showSaveToast(`<span style="color:var(--success)">✓</span> נשמר אוטומטית · ${t}`, true);
+      updateAutoSaveStatus(t);
+    } catch {}
+  }, AUTO_SAVE_MS);
+}
+
 async function saveProgress() {
   const data = JSON.stringify(state, null, 2);
   const fallback = () => {
@@ -1804,6 +1963,7 @@ async function saveProgress() {
     URL.revokeObjectURL(url);
   };
   if (!window.showSaveFilePicker) { fallback(); return; }
+
   let handle = await getStoredHandle();
   if (handle) {
     try {
@@ -1813,16 +1973,29 @@ async function saveProgress() {
   }
   if (!handle) {
     try {
-      handle = await window.showSaveFilePicker({suggestedName:'progress.json',types:[{description:'JSON',accept:{'application/json':['.json']}}]});
+      handle = await window.showSaveFilePicker({
+        suggestedName: 'progress.json',
+        types: [{description:'JSON',accept:{'application/json':['.json']}}]
+      });
       await storeHandle(handle);
+      startAutoSave(); // begin auto-save after first successful pick
+      updateAutoSaveStatus(null);
     } catch(e) { if (e.name==='AbortError') return; fallback(); return; }
   }
+
   try {
     const w = await handle.createWritable();
     await w.write(data); await w.close();
     const btn = document.querySelector('[onclick="saveProgress()"]');
-    if (btn) { const orig = btn.innerHTML; btn.innerHTML = '<span class="material-icons" style="font-size:18px;vertical-align:middle">check</span> נשמר!'; setTimeout(()=>{btn.innerHTML=orig;},1800); }
-  } catch(e) { alert('שגיאה בשמירה: '+e.message); }
+    if (btn) {
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<span class="material-icons" style="font-size:18px;vertical-align:middle">check</span> נשמר!';
+      setTimeout(() => { btn.innerHTML = orig; }, 1800);
+    }
+    const _st = new Date().toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit'});
+    showSaveToast(`<span style="color:var(--success)">✓</span> נשמר בהצלחה · ${_st}`);
+    updateAutoSaveStatus(_st);
+  } catch(e) { alert('שגיאה בשמירה: ' + e.message); }
 }
 async function loadProgress(e) {
   const file = e?.target?.files?.[0];
@@ -1840,11 +2013,219 @@ async function loadProgress(e) {
   } catch(e) { if (e.name !== 'AbortError') alert('שגיאה בטעינה'); }
 }
 
+// ── EXAM GENERATOR (Claude API) ────────────────────────────
+const CLAUDE_KEY_STORE = 'anthropic_api_key_v1';
+
+async function generateExam(topicId, btnEl) {
+  const topic = TOPICS.find(t => t.id === topicId);
+  if (!topic) return;
+
+  let apiKey = localStorage.getItem(CLAUDE_KEY_STORE);
+  if (!apiKey) {
+    apiKey = prompt('הכנס Anthropic API Key (יישמר מקומית בדפדפן בלבד):\nניתן לקבל ב: console.anthropic.com/settings/keys');
+    if (!apiKey || !apiKey.trim()) return;
+    localStorage.setItem(CLAUDE_KEY_STORE, apiKey.trim());
+    apiKey = apiKey.trim();
+  }
+
+  const orig = btnEl.innerHTML;
+  btnEl.innerHTML = '<span class="material-icons" style="font-size:14px;vertical-align:middle;display:inline-block;animation:spin 1s linear infinite">refresh</span> מייצר...';
+  btnEl.disabled = true;
+
+  try {
+    const subsText = topic.subs.map(function(s, i) { return (i+1) + '. ' + s; }).join('\n');
+    const promptText =
+      'אתה מרצה לסיעוד. צור 20 שאלות אמריקאיות בעברית רפואית על הנושא: "' + topic.name + '" (' + topic.meta + ').\n\n' +
+      'הסעיפים לכסות:\n' + subsText + '\n\n' +
+      'כללים:\n' +
+      '- כל שאלה: 4 אפשרויות תשובה (א, ב, ג, ד), תשובה נכונה אחת\n' +
+      '- שאלות הבנה קלינית, לא רק שינון\n' +
+      '- גוון: תרחישים קליניים, הגדרות, השוואות, מנגנונים\n' +
+      '- הסבר קצר (2-3 משפטים) לתשובה הנכונה\n\n' +
+      'החזר JSON בלבד ללא markdown:\n' +
+      '[{"q":"טקסט שאלה","opts":["א. ...","ב. ...","ג. ...","ד. ..."],"ans":0,"exp":"הסבר"}]\n' +
+      '"ans" = אינדקס 0-3 של התשובה הנכונה.';
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-calls': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-5',
+        max_tokens: 8192,
+        messages: [{ role: 'user', content: promptText }]
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(function() { return {}; });
+      if (res.status === 401 || res.status === 403) localStorage.removeItem(CLAUDE_KEY_STORE);
+      throw new Error((err.error && err.error.message) || 'HTTP ' + res.status);
+    }
+
+    const data = await res.json();
+    const raw = (data.content && data.content[0] && data.content[0].text) || '';
+    const clean = raw.replace(/^```json?\s*/i, '').replace(/```\s*$/, '').trim();
+    const qs = JSON.parse(clean);
+    if (!Array.isArray(qs) || !qs.length) throw new Error('לא התקבלו שאלות תקינות');
+
+    openQuizTab(topic.name, qs);
+  } catch(e) {
+    console.error(e);
+    alert('שגיאה ביצירת המבחן:\n' + e.message);
+  } finally {
+    btnEl.innerHTML = orig;
+    btnEl.disabled = false;
+  }
+}
+
+function copyExamPrompt(topicId, btnEl) {
+  const topic = TOPICS.find(t => t.id === topicId);
+  if (!topic) return;
+  const subsText = topic.subs.map((s, i) => `${i+1}. ${s}`).join('\n');
+  const brunnerRef = topic.brunner ? `\nחומר מקור: ברונר ${topic.brunner}` : '';
+  const prompt =
+    `אתה מרצה לסיעוד. צור 20 שאלות אמריקאיות בעברית רפואית על הנושא: "${topic.name}" (${topic.meta}).${brunnerRef}\n\n` +
+    `הסעיפים לכסות:\n${subsText}\n\n` +
+    `כללים:\n` +
+    `- כל שאלה: 4 אפשרויות תשובה (א, ב, ג, ד), תשובה נכונה אחת\n` +
+    `- שאלות הבנה קלינית, לא רק שינון\n` +
+    `- גוון: תרחישים קליניים, הגדרות, השוואות, מנגנונים\n` +
+    `- הסבר קצר (2-3 משפטים) לתשובה הנכונה\n` +
+    `- רמת קושי מתאימה לבחינת סיעוד`;
+
+  const orig = btnEl.innerHTML;
+  const ok = () => {
+    btnEl.innerHTML = '<span class="material-icons" style="font-size:14px;vertical-align:middle">check</span> הועתק!';
+    btnEl.style.background = 'var(--green,#1cbb8c)';
+    setTimeout(() => { btnEl.innerHTML = orig; btnEl.style.background = ''; }, 2000);
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(prompt).then(ok).catch(() => fallbackCopy(prompt, ok));
+  } else {
+    fallbackCopy(prompt, ok);
+  }
+}
+
+function fallbackCopy(text, callback) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try { document.execCommand('copy'); callback(); } catch(e) { alert('העתקה נכשלה — אנא העתק ידנית'); }
+  document.body.removeChild(ta);
+}
+
+function openQuizTab(topicName, questions) {
+  const html = buildQuizHTML(topicName, questions);
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+  setTimeout(function() { URL.revokeObjectURL(url); }, 120000);
+}
+
+function buildQuizHTML(topicName, questions) {
+  // Convert Gemini format {q, opts, ans, exp} → quiz format {id, question, options, correct_answer}
+  const converted = questions.map(function(q, i) {
+    var opts = q.opts.map(function(o) { return o.replace(/^[אבגד]\.\s*/, ''); });
+    return {
+      id: i + 1,
+      question: q.q,
+      options: opts,
+      correct_answer: opts[q.ans],
+      explanation: q.exp || ''
+    };
+  });
+  const qsJSON = JSON.stringify(converted);
+  const total = converted.length;
+
+  return '<!DOCTYPE html>\n' +
+'<html lang="he" dir="rtl">\n' +
+'<head>\n' +
+'    <meta charset="UTF-8">\n' +
+'    <title>מבחן — ' + topicName + '</title>\n' +
+'    <style>\n' +
+'        body { font-family: Arial, sans-serif; margin: 40px; background: #fff; color: #333; }\n' +
+'        .quiz-container { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }\n' +
+'        .option-btn { display: block; width: 100%; padding: 10px; margin: 10px 0; background: #f0f0f0; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; text-align: right; font-size: 16px; }\n' +
+'        .option-btn:hover { background: #e0e0e0; }\n' +
+'        .progress { font-weight: bold; margin-bottom: 20px; color: #666; }\n' +
+'        .explanation-box { margin-top: 14px; padding: 10px 14px; background: #f0f7ff; border-right: 3px solid #4f80ff; border-radius: 5px; font-size: 14px; color: #444; line-height: 1.5; }\n' +
+'    </style>\n' +
+'</head>\n' +
+'<body>\n' +
+'    <div class="quiz-container">\n' +
+'        <div class="progress">שאלה <span id="currentQuestionNum">1</span> מתוך ' + total + '</div>\n' +
+'        <h2 id="questionText">טוען שאלה...</h2>\n' +
+'        <div id="optionsContainer"></div>\n' +
+'        <div id="explanationContainer"></div>\n' +
+'    </div>\n' +
+'    <script>\n' +
+'        var geminiQuestions = ' + qsJSON + ';\n' +
+'        var currentIdx = 0;\n' +
+'        var correctCount = 0;\n' +
+'        var totalQuestions = geminiQuestions.length;\n' +
+'        var errorsReport = [];\n' +
+'        function renderQuestion() {\n' +
+'            if (currentIdx >= totalQuestions) { finishQuiz(); return; }\n' +
+'            var q = geminiQuestions[currentIdx];\n' +
+'            document.getElementById("currentQuestionNum").innerText = currentIdx + 1;\n' +
+'            document.getElementById("questionText").innerText = q.question;\n' +
+'            document.getElementById("explanationContainer").innerHTML = "";\n' +
+'            var container = document.getElementById("optionsContainer");\n' +
+'            container.innerHTML = "";\n' +
+'            q.options.forEach(function(option) {\n' +
+'                var btn = document.createElement("button");\n' +
+'                btn.className = "option-btn";\n' +
+'                btn.innerText = option;\n' +
+'                btn.onclick = function() { handleAnswer(option, q); };\n' +
+'                container.appendChild(btn);\n' +
+'            });\n' +
+'        }\n' +
+'        function handleAnswer(selectedOption, questionObj) {\n' +
+'            var isCorrect = selectedOption === questionObj.correct_answer;\n' +
+'            if (isCorrect) {\n' +
+'                correctCount++;\n' +
+'            } else {\n' +
+'                errorsReport.push({ question: questionObj.question, userAnswer: selectedOption, correctAnswer: questionObj.correct_answer });\n' +
+'            }\n' +
+'            // Show feedback briefly before moving on\n' +
+'            var btns = document.getElementById("optionsContainer").querySelectorAll("button");\n' +
+'            btns.forEach(function(b) {\n' +
+'                b.disabled = true;\n' +
+'                if (b.innerText === questionObj.correct_answer) b.style.background = "#c8f7e4";\n' +
+'                else if (b.innerText === selectedOption) b.style.background = "#ffd6d6";\n' +
+'            });\n' +
+'            if (questionObj.explanation) {\n' +
+'                document.getElementById("explanationContainer").innerHTML =\n' +
+'                    \'<div class="explanation-box">💡 \' + questionObj.explanation + \'</div>\';\n' +
+'            }\n' +
+'            setTimeout(function() { currentIdx++; renderQuestion(); }, questionObj.explanation ? 2500 : 1200);\n' +
+'        }\n' +
+'        function finishQuiz() {\n' +
+'            var score = Math.round((correctCount / totalQuestions) * 100);\n' +
+'            var resultData = { type: "QUIZ_FINISHED", score: score, successRate: score, errors: errorsReport };\n' +
+'            if (window.opener) { window.opener.postMessage(resultData, "*"); }\n' +
+'            window.close();\n' +
+'        }\n' +
+'        renderQuestion();\n' +
+'    <\/script>\n' +
+'</body>\n' +
+'</html>';
+}
+
 // ── INIT ───────────────────────────────────────────────────
 initTheme();
 loadState();
 renderAll();
-// Initial donut (will be created by updateStats → renderDonutChart)
+// Resume auto-save if a handle was previously stored
+getStoredHandle().then(h => { if (h) { startAutoSave(); updateAutoSaveStatus(null); } else { updateAutoSaveStatus(null); } });
 
 // ── Course wizard overlay ──────────────────────────────
 function openCourseWizard() {
