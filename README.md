@@ -1,37 +1,113 @@
 # 🏥 מעקב סיעוד המבוגר
 
-דשבורד לימוד אינטראקטיבי לקורס סיעוד המבוגר — אייכילוב שיינברון, תשפ"ו.
+Interactive study tracker for the Adult Nursing course — Ichilov Sheinbrunn, 2025–2026.
 
-## תכונות
-
-- **מעקב נושאים** — סימון סאב-נושאים ותת-נושאי ברונר לכל פרק
-- **גרפי התקדמות** — גרפי עמודות לחלק א׳ וחלק ב׳ + גרף דונאט כולל
-- **סינון חכם** — לפי חלק, קטגוריה, או נושאים שלא הושלמו
-- **סטטיסטיקות** — שעות, עמודים, ונושאים לפי חלק
-- **ערכת נושא** — מצב כהה/בהיר עם שמירה אוטומטית
-- **מותאם למובייל** — ניווט תחתון, פריסה רספונסיבית מלאה
-
-## שימוש
-
-פתח את `מעקב_סיעוד_המבוגר.html` ישירות בדפדפן — אין צורך בשרת.
-
-ההתקדמות נשמרת אוטומטית ב-`localStorage` של הדפדפן.
-
-## מבנה הקורס
-
-| חלק | נושא | שעות |
-|-----|------|-------|
-| א׳ | פנימי | 176 ש"א |
-| ב׳ | כירורגי | 160 ש"א |
-| **סה"כ** | | **336 ש"א · 24 נ"ז** |
-
-## טכנולוגיות
-
-- HTML/CSS/JS — קובץ יחיד, ללא תלויות חיצוניות
-- [Chart.js 4.4.1](https://www.chartjs.org/) — גרפים
-- [Material Icons](https://fonts.google.com/icons) — אייקונים (Google)
-- [Heebo](https://fonts.google.com/specimen/Heebo) — גופן עברי (Google Fonts)
+> **Quick start:** open `מעקב_סיעוד_המבוגר.html` in any browser. No server needed.
 
 ---
 
-אייכילוב-שיינברון · תשפ"ו
+## Features
+
+- **Topic tracking** — check off sub-topics and Brunner reading for each of 18 chapters
+- **Progress charts** — bar charts per part + overall donut chart
+- **Smart filtering** — by part (א/ב), category, or incomplete topics only
+- **Study material links** — direct links to lecture slides and Brunner chapters on Google Drive
+- **AI exam generator** — one-click prompt copy for Claude / ChatGPT to generate 20 MCQs
+- **Auto-save** — saves progress to a local `progress.json` every 5 minutes
+- **Dark / light theme** — persisted via localStorage
+- **Mobile-ready** — bottom nav, fully responsive layout
+
+---
+
+## How to Use
+
+### Opening the dashboard
+
+Open `מעקב_סיעוד_המבוגר.html` directly in Chrome, Safari, or Firefox. No installation or server required.
+
+---
+
+### Interface overview
+
+**Left sidebar**
+- Shows overall progress percentage, broken down by Part א and Part ב.
+- Clicking **"חלק א'"** or **"חלק ב'"** filters the table to that part only; click again to clear.
+- Quick-links jump to each category (Surgery, Cardiology, Respiratory, etc.).
+- The auto-save status chip shows whether auto-save is active and when the last save occurred.
+
+**Top bar**
+- Shows a Brunner page counter (pages completed / total) and an overall progress bar.
+
+**Topic table**
+- Each row is one study topic with its category, page count, estimated hours, status, and progress %.
+- Status is calculated automatically:
+
+| Status | Condition |
+|--------|-----------|
+| Not Started | No sub-topics checked |
+| In Progress | At least one sub-topic checked |
+| Done | All sub-topics + Brunner reading completed |
+
+---
+
+### Working with a topic
+
+Click any row to expand a panel with three columns:
+
+**1 — Study items**
+Check off each sub-topic as you complete it. At the bottom, mark **"קראתי ברונר"** after reading the Brunner chapters for that topic.
+
+**2 — Study materials**
+Direct links to lecture slides and Brunner PDF chapters on Google Drive. Lecture recordings (🎬) are linked where available.
+
+**3 — Exams**
+- **"העתק פרומפט ליצירת מבחן במערכת AI"** — copies a ready-made prompt to your clipboard. Paste it into Claude, ChatGPT, or any other AI to get 20 Hebrew multiple-choice questions with explanations at nursing-level difficulty.
+- Links to existing practice exams for the topic (where available).
+
+---
+
+### Saving and loading progress
+
+> Progress is saved automatically in the browser's localStorage, but an external backup is recommended.
+
+**Manual save**
+Click **"שמור התקדמות"** in the left sidebar. The first time, you'll be asked to choose a location for `progress.json`. Subsequent saves go to the same file automatically.
+
+**Auto-save**
+After the first manual save, the dashboard saves automatically every 5 minutes. The sidebar chip turns green and shows the last save time when auto-save is active.
+
+**Load**
+Click **"טען התקדמות"** to load a previously saved `progress.json` — useful when switching computers or after clearing browser storage.
+
+---
+
+### Theme
+
+Click **☀️ / 🌙** (top-right corner) to toggle between dark and light mode.
+
+---
+
+## Course structure
+
+| Part | Track | Hours |
+|------|-------|-------|
+| א | Internal medicine (פנימי) | 176 academic hours |
+| ב | Surgical (כירורגי) | 160 academic hours |
+| **Total** | | **336 hours · 24 credits** |
+
+18 topics across 12 categories: Surgery & Shock · Respiratory · Cardiology · Gastroenterology · Endocrinology · Urology · Immune & Rheumatology · Skin & Burns · Eyes & ENT · Neurology · Musculoskeletal · Oncology & Hematology
+
+---
+
+## Tech stack
+
+- Single-file HTML/CSS/JS — zero build step, zero dependencies to install
+- [Chart.js 4.4.1](https://www.chartjs.org/) — charts
+- [Material Icons](https://fonts.google.com/icons) — icons
+- [Heebo](https://fonts.google.com/specimen/Heebo) — Hebrew font
+- File System Access API — local `progress.json` save/load
+- IndexedDB — persists the file handle between sessions for auto-save
+
+---
+
+Ichilov-Sheinbrunn · תשפ"ו
