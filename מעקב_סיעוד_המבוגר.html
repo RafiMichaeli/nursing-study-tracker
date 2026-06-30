@@ -609,12 +609,12 @@ body {
 
 /* ── LIGHT THEME OVERRIDES ───────────────────────────── */
 [data-theme="light"] {
-  --sidebar-bg: #1b2a4a;
-  --sidebar-link: #adb5bd;
-  --sidebar-hover: rgba(255,255,255,0.075);
-  --sidebar-active: rgba(255,255,255,0.10);
-  --sidebar-active-border: rgba(255,255,255,0.5);
-  --sidebar-head: rgba(255,255,255,0.3);
+  --sidebar-bg: #fff;
+  --sidebar-link: #6c757d;
+  --sidebar-hover: rgba(0,0,0,0.05);
+  --sidebar-active: rgba(59,125,221,0.10);
+  --sidebar-active-border: #3b7ddd;
+  --sidebar-head: rgba(0,0,0,0.4);
   --topbar-bg: #fff;
   --topbar-shadow: 0 0 2rem 0 rgba(33,37,41,.1);
   --page-bg: #f5f7fb;
@@ -662,6 +662,31 @@ body {
 [data-theme="light"] .footer { border-top: 1px solid rgba(0,0,0,0.06); background: #fff; }
 [data-theme="light"] .sidebar-link.active { border-right: 3px solid var(--sidebar-active-border); padding-right: 11px; }
 [data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); }
+/* ── LIGHT THEME SIDEBAR OVERRIDES ──────────────────── */
+[data-theme="light"] .sidebar { border-left: 1px solid rgba(0,0,0,0.08); }
+[data-theme="light"] .sidebar-brand { border-bottom-color: rgba(0,0,0,0.08); color: #343a40; }
+[data-theme="light"] .sidebar-brand-sub { color: rgba(0,0,0,0.4); }
+[data-theme="light"] .sidebar-overall { border-bottom-color: rgba(0,0,0,0.08); }
+[data-theme="light"] .sidebar-overall-pct { color: #343a40; }
+[data-theme="light"] .sidebar-bar-bg { background: rgba(0,0,0,0.1); }
+[data-theme="light"] .sidebar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); }
+[data-theme="light"] .sidebar-part-chip.pa { background: rgba(59,125,221,0.12); border-color: rgba(59,125,221,0.25); }
+[data-theme="light"] .sidebar-part-chip.pb { background: rgba(111,66,193,0.10); border-color: rgba(111,66,193,0.22); }
+[data-theme="light"] .sidebar-part-chip.pa:hover { background: rgba(59,125,221,0.22); }
+[data-theme="light"] .sidebar-part-chip.pb:hover { background: rgba(111,66,193,0.18); }
+[data-theme="light"] .sidebar-part-chip.pa.active { background: rgba(59,125,221,0.28); border-color: #3b7ddd; box-shadow: 0 0 0 2px rgba(59,125,221,0.25); }
+[data-theme="light"] .sidebar-part-chip.pb.active { background: rgba(111,66,193,0.25); border-color: #6f42c1; box-shadow: 0 0 0 2px rgba(111,66,193,0.2); }
+[data-theme="light"] .sidebar-part-chip .lbl { color: rgba(0,0,0,0.45); }
+[data-theme="light"] .sidebar-link:hover { color: #343a40; }
+[data-theme="light"] .sidebar-link.active { color: #3b7ddd; }
+[data-theme="light"] .sidebar-link .link-badge { background: rgba(0,0,0,0.08); color: rgba(0,0,0,0.5); }
+[data-theme="light"] .sidebar-link .link-badge.done-badge { background: rgba(28,187,140,0.18); color: #1a9e76; }
+[data-theme="light"] .sidebar-footer { border-top-color: rgba(0,0,0,0.08); }
+[data-theme="light"] .sidebar-footer .sb-btn { border-color: rgba(0,0,0,0.12); background: rgba(0,0,0,0.04); color: #495057; }
+[data-theme="light"] .sidebar-footer .sb-btn:hover { background: rgba(0,0,0,0.08); color: #343a40; }
+[data-theme="light"] .sidebar-footer .sb-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+[data-theme="light"] .sidebar-close-btn { color: #6c757d; }
+[data-theme="light"] .sidebar-close-btn:hover { color: #343a40; background: rgba(0,0,0,0.07); }
 
 /* ── MOBILE ──────────────────────────────────────────── */
 /* ── SIDEBAR MOBILE CLOSE BUTTON ─────────────────────── */
