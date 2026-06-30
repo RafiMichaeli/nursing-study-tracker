@@ -982,7 +982,7 @@ body {
       <div class="sidebar-brand-icon">🏥</div>
       <div>
         <span class="sidebar-brand-text">סיעוד המבוגר</span>
-        <span class="sidebar-brand-sub">336 ש"א · 24 נ"ז · תשפ"ו</span>
+        <span class="sidebar-brand-sub">רפי מיכאלי · הסבה ט׳ · תשפ"ו</span>
       </div>
     </a>
 
@@ -1274,7 +1274,7 @@ body {
     </main><!-- /content -->
 
     <footer class="footer">
-      סיעוד המבוגר · תשפ"ו · אייכילוב-שיינברון &nbsp;·&nbsp;
+      סיעוד המבוגר · הסבה ט׳ לסיעוד · אייכילוב-שיינברון · תשפ"ו · רפי מיכאלי &nbsp;·&nbsp;
       <span id="footerStats"></span>
     </footer>
   </div><!-- /main -->
@@ -2130,6 +2130,7 @@ async function loadProgress(e) {
     await storeHandle(handle);
     const f = await handle.getFile();
     state = JSON.parse(await f.text()); saveState(); renderAll();
+    startAutoSave(); updateAutoSaveStatus(null);
   } catch(e) { if (e.name !== 'AbortError') alert('שגיאה בטעינה'); }
 }
 
@@ -2354,6 +2355,8 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeHelp
 initTheme();
 loadState();
 renderAll();
+// Resume auto-save if a file handle was stored from a previous session
+getStoredHandle().then(handle => { if (handle) { startAutoSave(); updateAutoSaveStatus(null); } });
 
 </script>
 
