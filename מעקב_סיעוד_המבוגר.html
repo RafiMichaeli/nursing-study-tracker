@@ -280,7 +280,7 @@ body {
 /* ── CONTENT ──────────────────────────────────────────── */
 .content {
   flex: 1;
-  padding: 12px 16px 20px;
+  padding: 24px 40px 40px;
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
@@ -368,7 +368,7 @@ body {
 /* ── CHARTS ROW ──────────────────────────────────────── */
 .charts-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 260px;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
   margin-bottom: 12px;
 }
@@ -477,7 +477,7 @@ body {
 /* Category cell */
 .cat-cell { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
 .cat-cell .cat-icon { font-size: 16px; }
-.cat-cell .cat-name { font-size: 13px; color: var(--muted); max-width: 100px; overflow: hidden; text-overflow: ellipsis; }
+.cat-cell .cat-name { font-size: 13px; color: var(--muted); white-space: nowrap; }
 
 /* Badges in table */
 .badge {
@@ -548,8 +548,8 @@ body {
 .exam-gen-btn:disabled { opacity: .5; cursor: not-allowed; }
 
 .sub-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 4px; margin-bottom: 10px;
+  display: flex; flex-direction: column;
+  gap: 2px;
 }
 .sub-item {
   display: flex; align-items: flex-start; gap: 8px;
@@ -662,6 +662,7 @@ body {
 [data-theme="light"] .footer { border-top: 1px solid rgba(0,0,0,0.06); background: #fff; }
 [data-theme="light"] .sidebar-link.active { border-right: 3px solid var(--sidebar-active-border); padding-right: 11px; }
 [data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); }
+
 /* ── LIGHT THEME SIDEBAR OVERRIDES ──────────────────── */
 [data-theme="light"] .sidebar { border-left: 1px solid rgba(0,0,0,0.08); }
 [data-theme="light"] .sidebar-brand { border-bottom-color: rgba(0,0,0,0.08); color: #343a40; }
@@ -677,6 +678,8 @@ body {
 [data-theme="light"] .sidebar-part-chip.pa.active { background: rgba(59,125,221,0.28); border-color: #3b7ddd; box-shadow: 0 0 0 2px rgba(59,125,221,0.25); }
 [data-theme="light"] .sidebar-part-chip.pb.active { background: rgba(111,66,193,0.25); border-color: #6f42c1; box-shadow: 0 0 0 2px rgba(111,66,193,0.2); }
 [data-theme="light"] .sidebar-part-chip .lbl { color: rgba(0,0,0,0.45); }
+[data-theme="light"] .sidebar-part-chip .pct { color: var(--text-dark); }
+[data-theme="light"] .sidebar-header { color: rgba(0,0,0,0.4); }
 [data-theme="light"] .sidebar-link:hover { color: #343a40; }
 [data-theme="light"] .sidebar-link.active { color: #3b7ddd; }
 [data-theme="light"] .sidebar-link .link-badge { background: rgba(0,0,0,0.08); color: rgba(0,0,0,0.5); }
@@ -689,22 +692,10 @@ body {
 [data-theme="light"] .sidebar-close-btn:hover { color: #343a40; background: rgba(0,0,0,0.07); }
 
 /* ── MOBILE ──────────────────────────────────────────── */
-/* ── SIDEBAR MOBILE CLOSE BUTTON ─────────────────────── */
-.sidebar-close-btn {
-  display: none;
-  background: none; border: none; cursor: pointer;
-  color: var(--muted); padding: 4px; border-radius: 6px;
-  margin-right: auto; transition: all .15s;
-}
-.sidebar-close-btn:hover { color: #fff; background: rgba(255,255,255,0.1); }
-@media (max-width: 900px) {
-  .sidebar-close-btn { display: flex; align-items: center; }
-}
-
 /* ── MOBILE BOTTOM NAV ───────────────────────────────── */
 .mobile-bottom-nav {
   display: none;
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 300;
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 500;
   background: var(--topbar-bg);
   border-top: 1px solid rgba(255,255,255,0.08);
   padding: 6px 0 env(safe-area-inset-bottom, 6px);
@@ -715,8 +706,8 @@ body {
 .mob-nav-btn {
   display: flex; flex-direction: column; align-items: center; gap: 2px;
   background: none; border: none; cursor: pointer;
-  color: var(--muted); font-size: 11px; padding: 4px 10px;
-  min-width: 54px; transition: color 0.15s;
+  color: var(--muted); font-size: 11px; padding: 4px 6px;
+  flex: 1; min-width: 0; transition: color 0.15s;
 }
 .mob-nav-btn i { font-size: 20px; }
 .mob-nav-btn.active { color: var(--primary); }
@@ -725,12 +716,12 @@ body {
 
 /* ── TABLET (900px) ──────────────────────────────────── */
 @media (max-width: 900px) {
-  .sidebar { margin-right: calc(var(--sidebar-w) * -1); transition: margin-right 0.25s ease; z-index: 400; }
+  .sidebar { margin-right: calc(var(--sidebar-w) * -1); transition: margin-right 0.25s ease; }
   .sidebar.open { margin-right: 0; }
   .main { margin-right: 0 !important; }
   .sidebar-overlay {
     display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.5); z-index: 399;
+    background: rgba(0,0,0,0.5); z-index: 199;
   }
   .sidebar.open ~ .main .sidebar-overlay { display: block; }
 
@@ -749,6 +740,9 @@ body {
 
   /* Show bottom nav */
   .mobile-bottom-nav { display: flex; }
+
+  /* Sidebar: add bottom padding so footer buttons aren't hidden under the bottom nav */
+  .sidebar { padding-bottom: 72px; }
 
   /* Topbar adjustments */
   .topbar { padding: 0 12px; }
@@ -769,7 +763,7 @@ body {
 
   /* Stats: 2×2 grid */
   .stats-row {
-    grid-template-columns: 1fr 1fr 260px;
+    grid-template-columns: 1fr 1fr;
     gap: 8px;
     margin-bottom: 10px;
   }
@@ -798,7 +792,6 @@ body {
   /* Expand rows */
   .sub-content { padding: 10px 12px 12px; }
   .sub-cols { grid-template-columns: 1fr; gap: 10px; }
-  .sub-grid { grid-template-columns: 1fr; }
   .sub-item label { font-size: 13px; }
 
   /* Card headers */
@@ -806,8 +799,9 @@ body {
   .table-card-title { font-size: 13px; }
   .chart-title { font-size: 13px; }
 
-  /* Part chips */
-  .sidebar-parts { gap: 6px; }
+  /* Hide sidebar elements duplicated by mobile bottom nav */
+  .sidebar-parts { display: none; }
+  #filterSbBtn { display: none; }
 
   /* Footer */
   .footer { display: none; }
@@ -984,16 +978,13 @@ body {
 
   <!-- ═══════════ SIDEBAR ═══════════ -->
   <nav class="sidebar" id="sidebar">
-    <div class="sidebar-brand">
+    <a class="sidebar-brand" href="#">
       <div class="sidebar-brand-icon">🏥</div>
       <div>
         <span class="sidebar-brand-text">סיעוד המבוגר</span>
         <span class="sidebar-brand-sub">336 ש"א · 24 נ"ז · תשפ"ו</span>
       </div>
-      <button class="sidebar-close-btn" onclick="closeSidebar()" title="סגור תפריט">
-        <span class="material-icons">close</span>
-      </button>
-    </div>
+    </a>
 
     <!-- Overall progress -->
     <div class="sidebar-overall">
@@ -1292,10 +1283,6 @@ body {
 
 <!-- ═══════════ MOBILE BOTTOM NAV ═══════════ -->
 <nav class="mobile-bottom-nav" id="mobileBottomNav">
-  <button class="mob-nav-btn" id="mobBtnMenu" onclick="toggleSidebar()" title="תפריט">
-    <span class="material-icons">menu</span>
-    <span>תפריט</span>
-  </button>
   <button class="mob-nav-btn active" id="mobBtnAll" onclick="mobFilter('all')" title="הכל">
     <span class="material-icons">grid_view</span>
     <span>הכל</span>
@@ -1539,10 +1526,7 @@ function toggleSidebar() {
   const isMobile = window.innerWidth <= 900;
   if (isMobile) {
     sb.classList.toggle('open');
-    const isOpen = sb.classList.contains('open');
-    overlay.style.display = isOpen ? 'block' : 'none';
-    const menuBtn = document.getElementById('mobBtnMenu');
-    if (menuBtn) menuBtn.classList.toggle('active', isOpen);
+    overlay.style.display = sb.classList.contains('open') ? 'block' : 'none';
   } else {
     sb.classList.toggle('collapsed');
     main.classList.toggle('expanded');
@@ -1551,8 +1535,6 @@ function toggleSidebar() {
 function closeSidebar() {
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('sidebarOverlay').style.display = 'none';
-  const menuBtn = document.getElementById('mobBtnMenu');
-  if (menuBtn) menuBtn.classList.remove('active');
 }
 
 // ── Category filter ────────────────────────────────────────
@@ -1564,7 +1546,6 @@ function filterCat(cat) {
   if (link) link.classList.add('active');
   renderTable();
   renderBarChart();
-  if (window.innerWidth <= 900) closeSidebar();
 }
 
 // ── Part filter ────────────────────────────────────────────
@@ -2359,32 +2340,6 @@ function buildQuizHTML(topicName, questions) {
 '</html>';
 }
 
-// ── INIT ───────────────────────────────────────────────────
-initTheme();
-loadState();
-renderAll();
-// Resume auto-save if a handle was previously stored
-getStoredHandle().then(h => { if (h) { startAutoSave(); updateAutoSaveStatus(null); } else { updateAutoSaveStatus(null); } });
-
-// ── Course wizard overlay ──────────────────────────────
-function openCourseWizard() {
-  document.getElementById('wizardOverlay').classList.add('open');
-  document.getElementById('wizardFrame').src = '../course-setup-wizard/course-setup.html';
-}
-function closeCourseWizard() {
-  document.getElementById('wizardOverlay').classList.remove('open');
-  document.getElementById('wizardFrame').src = '';
-}
-// Close wizard on backdrop click
-document.getElementById('wizardOverlay').addEventListener('click', function(e) {
-  if (e.target === this) closeCourseWizard();
-});
-// Listen for postMessage from iframe (e.g. after download)
-window.addEventListener('message', e => {
-  if (e.data === 'closeWizard') closeCourseWizard();
-});
-
-// ── Help overlay ──────────────────────────────────────
 function openHelp() {
   document.getElementById('helpOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -2393,9 +2348,12 @@ function closeHelp() {
   document.getElementById('helpOverlay').classList.remove('open');
   document.body.style.overflow = '';
 }
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') { closeHelp(); closeCourseWizard(); }
-});
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeHelp(); });
+
+// ── Startup ────────────────────────────────────────────────
+initTheme();
+loadState();
+renderAll();
 
 </script>
 
