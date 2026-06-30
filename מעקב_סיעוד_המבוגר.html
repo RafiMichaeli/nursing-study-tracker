@@ -280,7 +280,7 @@ body {
 /* ── CONTENT ──────────────────────────────────────────── */
 .content {
   flex: 1;
-  padding: 24px 40px 40px;
+  padding: 12px 16px 20px;
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
@@ -368,7 +368,7 @@ body {
 /* ── CHARTS ROW ──────────────────────────────────────── */
 .charts-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 260px;
   gap: 12px;
   margin-bottom: 12px;
 }
@@ -477,7 +477,7 @@ body {
 /* Category cell */
 .cat-cell { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
 .cat-cell .cat-icon { font-size: 16px; }
-.cat-cell .cat-name { font-size: 13px; color: var(--muted); white-space: nowrap; }
+.cat-cell .cat-name { font-size: 13px; color: var(--muted); max-width: 100px; overflow: hidden; text-overflow: ellipsis; }
 
 /* Badges in table */
 .badge {
@@ -548,8 +548,8 @@ body {
 .exam-gen-btn:disabled { opacity: .5; cursor: not-allowed; }
 
 .sub-grid {
-  display: flex; flex-direction: column;
-  gap: 2px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 4px; margin-bottom: 10px;
 }
 .sub-item {
   display: flex; align-items: flex-start; gap: 8px;
@@ -769,7 +769,7 @@ body {
 
   /* Stats: 2×2 grid */
   .stats-row {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 260px;
     gap: 8px;
     margin-bottom: 10px;
   }
@@ -798,6 +798,7 @@ body {
   /* Expand rows */
   .sub-content { padding: 10px 12px 12px; }
   .sub-cols { grid-template-columns: 1fr; gap: 10px; }
+  .sub-grid { grid-template-columns: 1fr; }
   .sub-item label { font-size: 13px; }
 
   /* Card headers */
