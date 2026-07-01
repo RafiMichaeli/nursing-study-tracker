@@ -109,6 +109,34 @@
 .sched-ontrack { background: rgba(79,128,255,0.15); color: var(--primary, #4f80ff); }
 .sched-behind  { background: var(--danger-lt, rgba(224,82,96,0.15)); color: var(--danger, #e05260); }
 
+/* ── שורת "סיימתי ריענון" (בתוך פאנל הסעיפים, ליד שורת הברונר) ── */
+.sched-review-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.sched-review-row .sched-chip { margin-top: 0; }
+
+/* ── דשבורד סיכום — מוזרק פעם אחת אחרי .stats-row הקיים ── */
+.sched-dashboard {
+  background: var(--card-bg, #252838);
+  border: 1px solid var(--card-border, rgba(255,255,255,0.12));
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin: 0 0 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sched-dash-header { font-size: 14px; font-weight: 600; color: var(--text-dark, #e8eaf0); }
+.sched-dash-part { display: flex; flex-direction: column; gap: 4px; padding-top: 8px; border-top: 1px solid rgba(127,127,127,0.15); }
+.sched-dash-part:first-of-type { border-top: none; padding-top: 0; }
+.sched-dash-part-title { font-size: 13px; font-weight: 600; color: var(--muted, #7a8394); }
+.sched-dash-row { display: flex; align-items: center; gap: 8px; font-size: 13px; flex-wrap: wrap; }
+.sched-dash-forecast { font-size: 12px; color: var(--muted, #7a8394); }
+.sched-mini-chip {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
 @media (max-width: 640px) {
   .sched-fab { left: 12px; bottom: 12px; width: 42px; height: 42px; font-size: 18px; }
 }

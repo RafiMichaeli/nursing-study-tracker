@@ -13,9 +13,10 @@
  * בלי לגעת בפונקציות השמירה/טעינה הקיימות בכלל.
  *
  * MVP הנוכחי כולל: הפעלה/כיבוי, תאריך התחלה לכל חלק, קצב יומי (שעות),
- * וצ'יפ סטטוס פר-נושא (מקדים / בלו"ז / מאחר) המבוסס על תאריך מתוכנן
- * שמחושב באופן יחסי לפי משקל השעות (t.hours) של כל נושא.
- * לא כלול עדיין (מתוכנן להמשך): מעבר ריענון נפרד, דשבורד סיכום כללי.
+ * צ'יפ סטטוס פר-נושא (מקדים / בלו"ז / מאחר) המבוסס על תאריך מתוכנן
+ * שמחושב באופן יחסי לפי משקל השעות (t.hours) של כל נושא, מעבר ריענון
+ * נפרד (צ'ק-בוקס + תאריך משלו לכל נושא, רץ אחרי שכל מעבר הלימוד הסתיים),
+ * ודשבורד סיכום כללי עם תחזית תאריך סיום.
  */
 (function () {
   'use strict';
@@ -26,14 +27,24 @@
   function ensureDefaults() {
     if (typeof state === 'undefined' || !state) return; // main app not ready yet
     if (!state._schedule) {
-      state._schedule = { enabled: false, startDates: {}, paceHoursPerDay: 2.5, subDates: {} };
+      state._schedule = {
+        enabled: false, startDates: {}, paceHoursPerDay: 2.5, subDates: {},
+        paceHoursPerDayReview: 1.5, reviewHoursFactor: 0.35, review: {},
+      };
     }
     const s = state._schedule;
     if (!s.startDates || typeof s.startDates !== 'object') s.startDates = {};
     if (typeof s.paceHoursPerDay !== 'number' || !isFinite(s.paceHoursPerDay) || s.paceHoursPerDay <= 0) {
       s.paceHoursPerDay = 2.5;
     }
+    if (typeof s.paceHoursPerDayReview !== 'number' || !isFinite(s.paceHoursPerDayReview) || s.paceHoursPerDayReview <= 0) {
+      s.paceHoursPerDayReview = 1.5;
+    }
+    if (typeof s.reviewHoursFactor !== 'number' || !isFinite(s.reviewHoursFactor) || s.reviewHoursFactor <= 0) {
+      s.reviewHoursFactor = 0.35;
+    }
     if (!s.subDates || typeof s.subDates !== 'object') s.subDates = {};
+    if (!s.review || typeof s.review !== 'object') s.review = {};
     if (typeof s.enabled !== 'boolean') s.enabled = false;
   }
 
@@ -95,6 +106,48 @@
     return addDays(dateFromStr(start), p.subOffsets[subIdx]);
   }
 
+  // ── Review-pass plan (מעבר ריענון) ────────────────────────
+  // רץ אחרי שמעבר הלימוד (pass 1) של כל החלק מסתיים, וחוזר על אותו סדר
+  // נושאים בקצב נפרד ובמשקל שעות מוקטן (reviewHoursFactor * t.hours).
+  function computeReviewPlan(part) {
+    ensureDefaults();
+    const s = state._schedule;
+    const pass1Plan = getPlanForPart(part);
+    const topics = TOPICS.filter(t => t.part === part);
+    const pass1TotalDays = topics.reduce((max, t) => Math.max(max, pass1Plan[t.id] ? pass1Plan[t.id].endOffset : 0), -1) + 1;
+    let cumHours = 0;
+    const plan = {};
+    topics.forEach(t => {
+      const startOffset = pass1TotalDays + Math.floor(cumHours / s.paceHoursPerDayReview);
+      cumHours += (t.hours || 1) * s.reviewHoursFactor;
+      const endOffset = Math.max(startOffset, pass1TotalDays + Math.ceil(cumHours / s.paceHoursPerDayReview) - 1);
+      plan[t.id] = { startOffset, endOffset };
+    });
+    return plan;
+  }
+
+  const reviewPlanCache = {};
+  function getReviewPlanForPart(part) {
+    ensureDefaults();
+    const s = state._schedule;
+    const key = `${s.paceHoursPerDay}|${s.paceHoursPerDayReview}|${s.reviewHoursFactor}`;
+    const topicsLen = TOPICS.filter(t => t.part === part).length;
+    const cached = reviewPlanCache[part];
+    if (cached && cached.key === key && cached.topicsLen === topicsLen) return cached.plan;
+    const plan = computeReviewPlan(part);
+    reviewPlanCache[part] = { key, topicsLen, plan };
+    return plan;
+  }
+
+  function getPlannedReviewDate(topic) {
+    const start = state._schedule.startDates[topic.part];
+    if (!start) return null;
+    const plan = getReviewPlanForPart(topic.part);
+    const p = plan[topic.id];
+    if (!p) return null;
+    return addDays(dateFromStr(start), p.endOffset);
+  }
+
   // ── Recording actual completion dates ─────────────────────
   function stampSub(topicId, subIdx, willBeDone) {
     ensureDefaults();
@@ -113,6 +166,30 @@
     t.subs.forEach((_, i) => {
       if (!ts.subs[i]) stampSub(topicId, i, true);
     });
+  }
+
+  function stampReview(topicId, willBeDone) {
+    ensureDefaults();
+    const r = state._schedule.review;
+    if (willBeDone) {
+      r[topicId] = { done: true, date: todayStr() };
+    } else {
+      r[topicId] = { done: false, date: null };
+    }
+  }
+  function getReviewState(topicId) {
+    ensureDefaults();
+    return state._schedule.review[topicId] || { done: false, date: null };
+  }
+  // פונקציה גלובלית חדשה — נקראת מה-onclick של צ'ק-בוקס הריענון שאנחנו מזריקים.
+  // לא עוטפת שום פונקציה קיימת (אין כזו במערכת המקורית), רק קוראת ל-saveState/renderAll
+  // הקיימים כדי להתנהג בדיוק כמו כל שאר הפעולות (toggleBrunner וכו').
+  function toggleScheduleReview(topicId) {
+    const willBeDone = !getReviewState(topicId).done;
+    stampReview(topicId, willBeDone);
+    if (typeof saveState === 'function') { try { saveState(); } catch (e) { /* noop */ } }
+    if (typeof renderAll === 'function') { try { renderAll(); } catch (e) { decorate(); } }
+    else { decorate(); }
   }
 
   // ── Status per topic (מקדים / בלו"ז / מאחר) ───────────────
@@ -147,6 +224,43 @@
     return `<span class="sched-chip sched-behind" data-tooltip="מאחורי הלו&quot;ז שקבעת">🔴 מאחר${status.delta > 1 ? ` (${status.delta})` : ''}</span>`;
   }
 
+  // ── סטטוס נקודתי למעבר הריענון (נושא שלם, לא סעיף-סעיף) ───
+  function computeReviewStatus(t) {
+    const plannedDate = getPlannedReviewDate(t);
+    if (!plannedDate) return null;
+    const today = dateFromStr(todayStr());
+    const rs = getReviewState(t.id);
+    if (rs.done && rs.date) {
+      const delta = Math.round((dateFromStr(rs.date) - plannedDate) / 86400000);
+      if (delta < 0) return { level: 'ahead', delta: -delta };
+      if (delta === 0) return { level: 'ontrack', delta: 0 };
+      return { level: 'behind', delta };
+    }
+    if (today > plannedDate) {
+      const delta = Math.round((today - plannedDate) / 86400000);
+      return { level: 'behind', delta };
+    }
+    return null; // עוד לא הגיע התור — אין צ'יפ
+  }
+
+  function reviewChipHTML(status) {
+    if (!status) return '';
+    if (status.level === 'ahead') return `<span class="sched-chip sched-ahead" data-tooltip="ריענון לפני הזמן">🟢 מקדים</span>`;
+    if (status.level === 'ontrack') return `<span class="sched-chip sched-ontrack" data-tooltip="ריענון בזמן">🔵 בזמן</span>`;
+    return `<span class="sched-chip sched-behind" data-tooltip="ריענון מאחר">🔴 מאחר${status.delta > 1 ? ` (${status.delta})` : ''}</span>`;
+  }
+
+  function reviewRowHTML(t) {
+    const rs = getReviewState(t.id);
+    const status = computeReviewStatus(t);
+    return `
+      <div class="brunner-row sched-review-row" data-topic-id="${t.id}" data-tooltip="סמן אחרי שעברת שוב על הנושא במעבר הריענון">
+        <input type="checkbox" ${rs.done ? 'checked' : ''}>
+        <label class="${rs.done ? 'done' : ''}">🔁 סיימתי ריענון</label>
+        ${reviewChipHTML(status)}
+      </div>`;
+  }
+
   // ── DOM: per-topic-row chip injection ──────────────────────
   function decorateRows() {
     TOPICS.forEach(t => {
@@ -167,14 +281,143 @@
     document.querySelectorAll('.sched-chip').forEach(el => el.remove());
   }
 
+  // ── DOM: review-row injection (בתוך פאנל הסעיפים המורחב) ───
+  function decorateReviewRows() {
+    TOPICS.forEach(t => {
+      const subRow = document.getElementById(`subrow-${t.id}`);
+      if (!subRow) return;
+      const container = subRow.querySelector('.sub-col-items');
+      if (!container) return;
+      const existing = container.querySelector('.sched-review-row');
+      if (existing) existing.remove();
+      container.insertAdjacentHTML('beforeend', reviewRowHTML(t));
+      const row = container.querySelector('.sched-review-row');
+      if (row) {
+        row.addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleScheduleReview(t.id);
+        });
+      }
+    });
+  }
+
+  function removeAllReviewRows() {
+    document.querySelectorAll('.sched-review-row').forEach(el => el.remove());
+  }
+
+  // ── Dashboard summary (כמות אחרי stats-row הקיים) ──────────
+  function computePartDashboard(part) {
+    const start = state._schedule.startDates[part];
+    if (!start) return null;
+    const topics = TOPICS.filter(t => t.part === part);
+    if (!topics.length) return null;
+    const plan = getPlanForPart(part);
+    const reviewPlan = getReviewPlanForPart(part);
+    const today = dateFromStr(todayStr());
+    const startDate = dateFromStr(start);
+
+    let totalSubs = 0, doneSubs = 0, expectedSubs = 0;
+    let totalTopics = 0, reviewedTopics = 0, expectedReviewedTopics = 0;
+    let lastPass1Offset = -1, lastReviewOffset = -1;
+
+    topics.forEach(t => {
+      const ts = getTopicState(t.id);
+      const p = plan[t.id];
+      totalSubs += t.subs.length;
+      lastPass1Offset = Math.max(lastPass1Offset, p.endOffset);
+      t.subs.forEach((_, i) => {
+        if (ts.subs[i]) doneSubs++;
+        if (addDays(startDate, p.subOffsets[i]) <= today) expectedSubs++;
+      });
+
+      totalTopics++;
+      const rp = reviewPlan[t.id];
+      lastReviewOffset = Math.max(lastReviewOffset, rp.endOffset);
+      if (getReviewState(t.id).done) reviewedTopics++;
+      if (addDays(startDate, rp.endOffset) <= today) expectedReviewedTopics++;
+    });
+
+    const daysElapsed = Math.max(1, Math.round((today - startDate) / 86400000));
+    const rate = doneSubs / daysElapsed; // subs/day
+    const remaining = totalSubs - doneSubs;
+    const projectedDaysLeft = rate > 0 ? Math.ceil(remaining / rate) : null;
+    const projectedFinishDate = projectedDaysLeft !== null ? addDays(today, projectedDaysLeft) : null;
+    const plannedFinishDate = addDays(startDate, lastPass1Offset);
+    const finishDeltaDays = projectedFinishDate ? Math.round((projectedFinishDate - plannedFinishDate) / 86400000) : null;
+
+    return {
+      part, totalSubs, doneSubs, expectedSubs,
+      totalTopics, reviewedTopics, expectedReviewedTopics,
+      plannedFinishDate, projectedFinishDate, finishDeltaDays,
+    };
+  }
+
+  function fmtDate(d) {
+    if (!d) return '—';
+    return d.toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+
+  function dashboardPartHTML(data) {
+    const subsAheadBehind = data.doneSubs - data.expectedSubs;
+    const subsLabel = subsAheadBehind > 0
+      ? `<span class="sched-mini-chip sched-ahead">מקדים (${subsAheadBehind})</span>`
+      : subsAheadBehind < 0
+        ? `<span class="sched-mini-chip sched-behind">מאחר (${-subsAheadBehind})</span>`
+        : `<span class="sched-mini-chip sched-ontrack">בלו"ז</span>`;
+    const finishLabel = data.finishDeltaDays === null
+      ? 'אין עדיין מספיק נתונים לתחזית'
+      : data.finishDeltaDays <= 0
+        ? `לפי הקצב הנוכחי: סיום ${fmtDate(data.projectedFinishDate)} (${-data.finishDeltaDays} ימים לפני המתוכנן)`
+        : `לפי הקצב הנוכחי: סיום ${fmtDate(data.projectedFinishDate)} (${data.finishDeltaDays} ימים אחרי המתוכנן)`;
+    return `
+      <div class="sched-dash-part">
+        <div class="sched-dash-part-title">חלק ${data.part}׳</div>
+        <div class="sched-dash-row">
+          <span>לימוד: ${data.doneSubs}/${data.totalSubs} סעיפים (ציפייה להיום: ${data.expectedSubs})</span>
+          ${subsLabel}
+        </div>
+        <div class="sched-dash-row">
+          <span>ריענון: ${data.reviewedTopics}/${data.totalTopics} נושאים (ציפייה להיום: ${data.expectedReviewedTopics})</span>
+        </div>
+        <div class="sched-dash-forecast">${finishLabel}</div>
+      </div>`;
+  }
+
+  function renderDashboard() {
+    const dataA = computePartDashboard('א');
+    const dataB = computePartDashboard('ב');
+    if (!dataA && !dataB) { removeDashboard(); return; }
+    let el = document.getElementById('sched-dashboard');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'sched-dashboard';
+      el.className = 'sched-dashboard';
+      const anchor = document.querySelector('.stats-row');
+      if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(el, anchor.nextSibling);
+      else document.body.insertBefore(el, document.body.firstChild);
+    }
+    el.innerHTML = `<div class="sched-dash-header">📅 מעקב לו"ז</div>` +
+      (dataA ? dashboardPartHTML(dataA) : '') +
+      (dataB ? dashboardPartHTML(dataB) : '');
+  }
+
+  function removeDashboard() {
+    const el = document.getElementById('sched-dashboard');
+    if (el) el.remove();
+  }
+
   function decorate() {
     ensureDefaults();
     ensureFloatingButton();
     if (!state._schedule.enabled) {
       removeAllChips();
+      removeAllReviewRows();
+      removeDashboard();
       return;
     }
     decorateRows();
+    decorateReviewRows();
+    renderDashboard();
   }
 
   // ── Settings UI (כפתור צף + מודל) ──────────────────────────
@@ -220,8 +463,11 @@
           <label>תאריך התחלה — חלק ב׳ <span class="sched-optional">(אופציונלי, אפשר למלא בהמשך)</span>
             <input type="date" id="sched-start-b" value="${s.startDates['ב'] || ''}">
           </label>
-          <label>קצב לימוד יומי (שעות)
+          <label>קצב לימוד יומי — מעבר ראשון (שעות)
             <input type="number" id="sched-pace" step="0.5" min="0.5" value="${s.paceHoursPerDay}">
+          </label>
+          <label>קצב לימוד יומי — ריענון (שעות)
+            <input type="number" id="sched-pace-review" step="0.5" min="0.5" value="${s.paceHoursPerDayReview}">
           </label>
         </div>
         <p class="sched-note">💡 אם תכבה את המעקב — הצ'יפים ייעלמו, אבל כל התאריכים שכבר נרשמו יישמרו, ויחזרו להופיע ברגע שתדליק שוב.</p>
@@ -243,8 +489,11 @@
       s2.startDates['ב'] = startB || null;
       const pace = parseFloat(document.getElementById('sched-pace').value);
       s2.paceHoursPerDay = isFinite(pace) && pace > 0 ? pace : 2.5;
-      // reset plan cache since pace/topics may have changed
+      const paceReview = parseFloat(document.getElementById('sched-pace-review').value);
+      s2.paceHoursPerDayReview = isFinite(paceReview) && paceReview > 0 ? paceReview : 1.5;
+      // reset plan caches since pace/topics may have changed
       Object.keys(planCache).forEach(k => delete planCache[k]);
+      Object.keys(reviewPlanCache).forEach(k => delete reviewPlanCache[k]);
       closeSettingsPanel();
       if (typeof saveState === 'function') { try { saveState(); } catch (e) { /* noop */ } }
       if (typeof renderAll === 'function') { try { renderAll(); } catch (e) { decorate(); } }
@@ -296,7 +545,7 @@
     ensureDefaults();
     decorate();
 
-    window.Schedule = { decorate, stampSub, stampAllSubs, openSettingsPanel };
+    window.Schedule = { decorate, stampSub, stampAllSubs, stampReview, toggleScheduleReview, openSettingsPanel };
   }
 
   install();
