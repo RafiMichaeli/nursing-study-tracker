@@ -22,6 +22,7 @@
   'use strict';
 
   const STORAGE_LOCAL_BACKUP_KEY = 'nursingSchedule_adult_settingsBackup';
+  const RECENT_PACE_WINDOW_DAYS = 14; // חלון נע לחישוב "הקצב הנוכחי" בדשבורד
 
   // ── Defaults / migration ──────────────────────────────────
   function ensureDefaults() {
@@ -337,8 +338,27 @@
       if (addDays(startDate, rp.endOffset) <= today) expectedReviewedTopics++;
     });
 
-    const daysElapsed = Math.max(1, Math.round((today - startDate) / 86400000));
-    const rate = doneSubs / daysElapsed; // subs/day
+    // "קצב נוכחי" = קצב סעיפים/יום בחלון נע של RECENT_PACE_WINDOW_DAYS הימים
+    // האחרונים (מבוסס על תאריכי ההשלמה בפועל ב-subDates), ולא ממוצע מצטבר
+    // מתחילת המעקב — כדי שהתחזית תשקף שיפור/האטה אמיתיים ולא תיטשטש עם הזמן.
+    // אם המעקב צעיר מ-14 יום, החלון מצטמצם לכל הימים שחלפו (=daysElapsed),
+    // כלומר מתנהג בדיוק כמו הממוצע המצטבר הישן עד שיש מספיק נתונים.
+    const windowStartRaw = addDays(today, -RECENT_PACE_WINDOW_DAYS);
+    const cutoff = windowStartRaw > startDate ? windowStartRaw : startDate;
+    const effectiveWindowDays = Math.max(1, Math.round((today - cutoff) / 86400000));
+    let recentDone = 0;
+    topics.forEach(t => {
+      const sd = state._schedule.subDates[t.id];
+      if (!sd) return;
+      t.subs.forEach((_, i) => {
+        const dstr = sd[i];
+        if (!dstr) return;
+        const d = dateFromStr(dstr);
+        if (d >= cutoff && d <= today) recentDone++;
+      });
+    });
+    const rate = recentDone / effectiveWindowDays; // subs/day, קצב אחרון
+
     const remaining = totalSubs - doneSubs;
     const projectedDaysLeft = rate > 0 ? Math.ceil(remaining / rate) : null;
     const projectedFinishDate = projectedDaysLeft !== null ? addDays(today, projectedDaysLeft) : null;
@@ -365,7 +385,9 @@
         ? `<span class="sched-mini-chip sched-behind">מאחר (${-subsAheadBehind})</span>`
         : `<span class="sched-mini-chip sched-ontrack">בלו"ז</span>`;
     const finishLabel = data.finishDeltaDays === null
-      ? 'אין עדיין מספיק נתונים לתחזית'
+      ? (data.doneSubs > 0
+          ? `אין התקדמות ב-${RECENT_PACE_WINDOW_DAYS} הימים האחרונים — אין תחזית זמינה`
+          : 'אין עדיין מספיק נתונים לתחזית')
       : data.finishDeltaDays <= 0
         ? `לפי הקצב הנוכחי: סיום ${fmtDate(data.projectedFinishDate)} (${-data.finishDeltaDays} ימים לפני המתוכנן)`
         : `לפי הקצב הנוכחי: סיום ${fmtDate(data.projectedFinishDate)} (${data.finishDeltaDays} ימים אחרי המתוכנן)`;
