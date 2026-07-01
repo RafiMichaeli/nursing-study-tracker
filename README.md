@@ -2,7 +2,7 @@
 
 דשבורד לימוד אינטראקטיבי לקורס סיעוד המבוגר — אייכילוב שיינברון, תשפ"ו.
 
-> **התחלה מהירה:** פתח את `מעקב_סיעוד_המבוגר.html` בדפדפן. אין צורך בהתקנה.
+> **התחלה מהירה:** [rafimichaeli.github.io/nursing-study-tracker](https://rafimichaeli.github.io/nursing-study-tracker/) — עובד גם מהטלפון. לחלופין, פתח את `מעקב_סיעוד_המבוגר.html` מקומית. אין צורך בהתקנה.
 
 ---
 
@@ -10,7 +10,7 @@
 
 ### פתיחת הדשבורד
 
-פתח את `מעקב_סיעוד_המבוגר.html` ישירות בדפדפן (Chrome, Safari, Firefox). אין צורך בהתקנה או שרת.
+היכנס ל-[rafimichaeli.github.io/nursing-study-tracker](https://rafimichaeli.github.io/nursing-study-tracker/) מכל מכשיר, או פתח את `מעקב_סיעוד_המבוגר.html` ישירות בדפדפן (Chrome, Safari, Firefox). אין צורך בהתקנה או שרת.
 
 ---
 
@@ -79,7 +79,7 @@
 
 Interactive study tracker for the Adult Nursing course — Ichilov Sheinbrunn, 2025–2026.
 
-> **Quick start:** open `מעקב_סיעוד_המבוגר.html` in any browser. No server needed.
+> **Quick start:** [rafimichaeli.github.io/nursing-study-tracker](https://rafimichaeli.github.io/nursing-study-tracker/) — works on mobile too. Or open `מעקב_סיעוד_המבוגר.html` locally in any browser. No server needed.
 
 ### Features
 
@@ -94,7 +94,7 @@ Interactive study tracker for the Adult Nursing course — Ichilov Sheinbrunn, 2
 
 ### How to Use
 
-Open `מעקב_סיעוד_המבוגר.html` directly in Chrome, Safari, or Firefox. Click any topic row to expand a panel with study items, Google Drive material links, and an AI exam prompt button. Use **"שמור התקדמות"** to save progress to a local `progress.json`; auto-save kicks in every 5 minutes after the first manual save.
+Open the [live site](https://rafimichaeli.github.io/nursing-study-tracker/), or `מעקב_סיעוד_המבוגר.html` directly in Chrome, Safari, or Firefox. Click any topic row to expand a panel with study items, Google Drive material links, and an AI exam prompt button. Use **"שמור התקדמות"** to save progress to a local `progress.json`; auto-save kicks in every 5 minutes after the first manual save. Note: auto-save-to-file only works in Chrome/Edge (File System Access API) — Safari/Firefox fall back to a manual download each time, though in-browser progress (localStorage) is always saved automatically regardless of browser. On mobile, the sidebar becomes a slide-out drawer (☰) plus a bottom nav for quick part/status filtering.
 
 ### Course structure
 

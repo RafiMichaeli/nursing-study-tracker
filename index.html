@@ -2396,12 +2396,24 @@ getStoredHandle().then(handle => { if (handle) { startAutoSave(); updateAutoSave
       <h2>מה זה?</h2>
       <p>דשבורד אישי למעקב לימודים בקורס סיעוד המבוגר. המערכת עוקבת אחר ההתקדמות שלך ב-18 נושאי לימוד, מאורגנים בחלק א׳ וחלק ב׳.</p>
 
+      <h2>איך פותחים</h2>
+      <ul>
+        <li>מכל מכשיר, כולל טלפון: <code>rafimichaeli.github.io/nursing-study-tracker</code></li>
+        <li>מקומית: פתיחת הקובץ ישירות בדפדפן, ללא צורך בהתקנה.</li>
+      </ul>
+
       <h2>התמצאות בממשק</h2>
-      <h3><span class="material-icons">menu</span> סרגל ניווט שמאלי</h3>
+      <h3><span class="material-icons">menu</span> סרגל ניווט שמאלי — מסך רחב</h3>
       <ul>
         <li>מציג את <strong>אחוז ההתקדמות הכולל</strong> ופירוט לפי חלק א׳ וחלק ב׳.</li>
         <li>לחיצה על <strong>"חלק א׳"</strong> או <strong>"חלק ב׳"</strong> מסננת את הטבלה. לחיצה שנייה מבטלת.</li>
         <li>קישורים מהירים לקטגוריות: כירורגיה, לב, נשימה וכו׳.</li>
+        <li>בתחתית הסרגל: כפתורי שמור / טען / אפס הכל / הוראות שימוש.</li>
+      </ul>
+      <h3><span class="material-icons">smartphone</span> ניווט במובייל</h3>
+      <ul>
+        <li>סמל ה-☰ פותח את סרגל הניווט המלא כתפריט נגלל, כולל כפתורי השמירה וההוראות בתחתיתו.</li>
+        <li>סרגל תחתון קבוע עם 5 כפתורים: הכל, חלק א׳, חלק ב׳, נותר, ומראה — לגישה מהירה.</li>
       </ul>
       <h3><span class="material-icons">view_headline</span> סרגל עליון</h3>
       <ul>
@@ -2440,11 +2452,17 @@ getStoredHandle().then(handle => { if (handle) { startAutoSave(); updateAutoSave
       <p>לחץ <strong>"שמור התקדמות"</strong>. בפעם הראשונה תבחר מיקום לקובץ <code>progress.json</code>. בפעמים הבאות נשמר אוטומטית לאותו מיקום.</p>
       <h3><span class="material-icons">autorenew</span> שמירה אוטומטית</h3>
       <p>לאחר שמירה ידנית ראשונה — המערכת שומרת <strong>כל 5 דקות</strong>. ה-chip בסרגל יהפוך לירוק ויציג את שעת השמירה האחרונה.</p>
+      <div class="help-tip">
+        <span class="material-icons">info</span>
+        שמירה/טעינה אוטומטית לקובץ עובדת רק ב-Chrome / Edge. ב-Safari וב-Firefox (כולל אייפון) כל שמירה תוריד קובץ ידנית — ההתקדמות עצמה עדיין נשמרת אוטומטית בדפדפן בכל מקרה.
+      </div>
       <h3><span class="material-icons">folder_open</span> טעינה</h3>
       <p>לחץ <strong>"טען התקדמות"</strong> לטעינת קובץ שנשמר קודם — שימושי בעת מעבר למחשב אחר.</p>
+      <h3><span class="material-icons">delete</span> איפוס</h3>
+      <p><strong>"אפס הכל"</strong> מוחק את כל הסימונים בדפדפן הזה. פעולה בלתי הפיכה — שמור גיבוי לפני שימוש.</p>
 
       <h2>שינוי מראה</h2>
-      <p>לחץ <strong>☀️ / 🌙</strong> בפינה הימנית העליונה לעבור בין מצב כהה ובהיר.</p>
+      <p>לחץ <strong>☀️ / 🌙</strong> בפינה הימנית העליונה, או בסרגל התחתון במובייל, לעבור בין מצב כהה ובהיר.</p>
 
     </div>
   </div>
