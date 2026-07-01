@@ -3,10 +3,14 @@
    משתמש במשתני ה-CSS הקיימים של המערכת (--card-bg, --primary וכו')
    כדי להתאים אוטומטית למצב כהה/בהיר. */
 
+/* ⚠️ מכוון-ימין (right) בכוונה, לא שמאל: הטוסט הקיים "נשמר בהצלחה"
+   (showSaveToast ב-index.html) יושב fixed;bottom:20px;left:20px;z-index:9999 —
+   אותה פינה בדיוק. אם היינו משתמשים ב-left היינו מתנגשים איתו חזותית בכל
+   פעם שלוחצים "שמור התקדמות". */
 .sched-fab {
   position: fixed;
-  left: 18px;
-  bottom: 18px;
+  right: 20px;
+  bottom: 20px;
   z-index: 9999;
   width: 46px;
   height: 46px;
@@ -138,5 +142,8 @@
 }
 
 @media (max-width: 640px) {
-  .sched-fab { left: 12px; bottom: 12px; width: 42px; height: 42px; font-size: 18px; }
+  /* index.html shows a fixed .mobile-bottom-nav (5 icons, ~60-72px incl.
+     safe-area) at bottom:0 below this width — lift the fab above it,
+     otherwise it sits on top of / overlaps the nav bar. */
+  .sched-fab { right: 12px; bottom: calc(72px + env(safe-area-inset-bottom, 0px)); width: 42px; height: 42px; font-size: 18px; }
 }
