@@ -799,7 +799,12 @@ mark.search-hit { background: var(--warning-lt); color: var(--text-dark); border
 
   /* Topbar adjustments */
   .topbar { padding: 0 12px; }
-  .topbar-progress { display: none; }
+  /* BUGFIX: this selector referenced a class that doesn't exist in the markup
+     (the real element is .topbar-progress-wrap) so it never actually hid the
+     progress bar on mobile — it sat there competing with the search box for
+     space, which is what was truncating it. Corrected, not commented out,
+     since the old rule never worked. */
+  .topbar-progress-wrap { display: none; }
   .topbar-meta { display: none; }
   .topbar-search { width: auto; flex: 1; max-width: none; }
 
