@@ -439,6 +439,38 @@
     if (el) el.remove();
   }
 
+  // ── Help modal: מוסיף סעיף תיעוד לפאנל "הוראות שימוש" הקיים ──
+  // מוזרק דרך JS (לא נערך בתוך index.html עצמו) כדי לשמור על אותו עיקרון
+  // הפרדה שהפיצ'ר כולו בנוי עליו. רץ פעם אחת בהתקנה, לא תלוי במצב enabled —
+  // זו תיעוד סטטי, לא UI דינמי, אז אין צורך להסתיר/להציג אותו לפי הכפתור.
+  function injectHelpSection() {
+    if (document.getElementById('sched-help-section')) return;
+    const body = document.querySelector('#helpOverlay .help-body');
+    if (!body) return; // המבנה הקיים לא נמצא — לא קריטי, רק מדלגים
+    body.insertAdjacentHTML('beforeend', `
+      <div id="sched-help-section">
+        <h2>מעקב לו"ז (חדש)</h2>
+        <p>תוסף אופציונלי — כבוי כברירת מחדל — שמוסיף תזמון וציוני דרך על גבי המעקב הקיים.</p>
+        <h3><span class="material-icons">event</span> הפעלה</h3>
+        <p>כפתור <strong>📅</strong> צף בפינת המסך פותח פאנל הגדרות: הפעל/כבה, תאריך התחלה לחלק א׳ (ואופציונלית לחלק ב׳), וקצב לימוד יומי בשעות — בנפרד למעבר הלמידה ולמעבר הריענון.</p>
+        <h3><span class="material-icons">flag</span> צ'יפ סטטוס לכל נושא</h3>
+        <ul>
+          <li>🟢 מקדים — עברת יותר סעיפים ממה שהיה מתוכנן עד היום.</li>
+          <li>🔵 בלו"ז — בדיוק בקצב שתכננת.</li>
+          <li>🔴 מאחר — פחות סעיפים ממה שהיה אמור להיות מוכן עד היום.</li>
+        </ul>
+        <h3><span class="material-icons">autorenew</span> מעבר ריענון</h3>
+        <p>בפאנל המורחב של כל נושא מופיעה שורת <strong>"סיימתי ריענון"</strong> — סימון נפרד למעבר חזרה שני, עם תאריך וצ'יפ סטטוס משלו.</p>
+        <h3><span class="material-icons">insights</span> דשבורד סיכום</h3>
+        <p>מעל הטבלה מופיע כרטיס שמסכם סעיפים/נושאים שהושלמו מול הצפי היומי, ותחזית תאריך סיום לפי הקצב הנוכחי שלך.</p>
+        <div class="help-tip">
+          <span class="material-icons">info</span>
+          כיבוי הפיצ'ר רק מסתיר את התצוגה — כל תאריך שכבר נרשם נשמר, ויחזור להופיע בהדלקה חוזרת. הנתונים חיים בתוך אותו progress.json הקיים.
+        </div>
+      </div>
+    `);
+  }
+
   function openSettingsPanel() {
     ensureDefaults();
     closeSettingsPanel();
@@ -544,6 +576,7 @@
     // אחת ידנית כדי "לתפוס" את המצב הנוכחי מיד.
     ensureDefaults();
     decorate();
+    injectHelpSection();
 
     window.Schedule = { decorate, stampSub, stampAllSubs, stampReview, toggleScheduleReview, openSettingsPanel };
   }

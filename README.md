@@ -2,7 +2,7 @@
 
 דשבורד לימוד אינטראקטיבי לקורס סיעוד המבוגר — אייכילוב שיינברון, תשפ"ו.
 
-> **התחלה מהירה:** [rafimichaeli.github.io/nursing-study-tracker](https://rafimichaeli.github.io/nursing-study-tracker/) — עובד גם מהטלפון. לחלופין, פתח את `מעקב_סיעוד_המבוגר.html` מקומית. אין צורך בהתקנה.
+> **התחלה מהירה:** [rafimichaeli.github.io/nursing-study-tracker](https://rafimichaeli.github.io/nursing-study-tracker/) — עובד גם מהטלפון. לחלופין, פתח את `index.html` מקומית. אין צורך בהתקנה.
 
 ---
 
@@ -10,7 +10,7 @@
 
 ### פתיחת הדשבורד
 
-היכנס ל-[rafimichaeli.github.io/nursing-study-tracker](https://rafimichaeli.github.io/nursing-study-tracker/) מכל מכשיר, או פתח את `מעקב_סיעוד_המבוגר.html` ישירות בדפדפן (Chrome, Safari, Firefox). אין צורך בהתקנה או שרת.
+היכנס ל-[rafimichaeli.github.io/nursing-study-tracker](https://rafimichaeli.github.io/nursing-study-tracker/) מכל מכשיר, או פתח את `index.html` ישירות בדפדפן (Chrome, Safari, Firefox). אין צורך בהתקנה או שרת.
 
 ---
 
@@ -75,6 +75,18 @@
 
 ---
 
+### מעקב לו"ז (חדש)
+
+תוסף אופציונלי — כבוי כברירת מחדל — שמוסיף תזמון וציוני דרך על גבי המעקב הקיים.
+
+- כפתור **📅** צף בפינת המסך פותח פאנל הגדרות: הפעלה/כיבוי, תאריך התחלה לכל חלק (א׳/ב׳), וקצב לימוד יומי בשעות — בנפרד למעבר הלמידה ולמעבר הריענון.
+- כשהמעקב פעיל, כל נושא מקבל **צ'יפ סטטוס**: 🟢 מקדים / 🔵 בלו"ז / 🔴 מאחר — לפי השוואה בין מה שתוכנן לתאריך הזה לבין מה שסומן בפועל.
+- בפאנל המורחב של כל נושא מופיעה שורת **"סיימתי ריענון"** — סימון נפרד למעבר חזרה שני, עם תאריך וצ'יפ סטטוס משלה.
+- מעל הטבלה מופיע **כרטיס דשבורד** שמסכם סעיפים/נושאים שהושלמו מול הצפי היומי, ותחזית תאריך סיום לפי הקצב הנוכחי.
+- כיבוי הפיצ'ר רק מסתיר את התצוגה — כל תאריך שכבר נרשם נשמר, ויחזור להופיע בהדלקה חוזרת. הנתונים חיים בתוך אותו `progress.json` הקיים, ולא דורשים גיבוי נפרד.
+
+---
+
 ### שינוי מראה
 
 לחץ על **☀️ / 🌙** בפינה הימנית העליונה לעבור בין מצב כהה ובהיר.
@@ -85,7 +97,7 @@
 
 Interactive study tracker for the Adult Nursing course — Ichilov Sheinbrunn, 2025–2026.
 
-> **Quick start:** [rafimichaeli.github.io/nursing-study-tracker](https://rafimichaeli.github.io/nursing-study-tracker/) — works on mobile too. Or open `מעקב_סיעוד_המבוגר.html` locally in any browser. No server needed.
+> **Quick start:** [rafimichaeli.github.io/nursing-study-tracker](https://rafimichaeli.github.io/nursing-study-tracker/) — works on mobile too. Or open `index.html` locally in any browser. No server needed.
 
 ### Features
 
@@ -101,10 +113,15 @@ Interactive study tracker for the Adult Nursing course — Ichilov Sheinbrunn, 2
 - **Auto-save** — saves progress to a local `progress.json` every 5 minutes
 - **Dark / light theme** — persisted via localStorage
 - **Mobile-ready** — bottom nav, fully responsive layout
+- **Progress schedule (optional, new)** — set a start date and daily study pace, get a per-topic ahead/on-track/behind chip, a separate review-pass checkbox with its own status, and a dashboard forecasting your finish date
 
 ### How to Use
 
-Open the [live site](https://rafimichaeli.github.io/nursing-study-tracker/), or `מעקב_סיעוד_המבוגר.html` directly in Chrome, Safari, or Firefox. Click any topic row to expand a panel with study items, Google Drive material links, and an AI exam prompt button. Use **"שמור התקדמות"** to save progress to a local `progress.json`; auto-save kicks in every 5 minutes after the first manual save. Note: auto-save-to-file only works in Chrome/Edge (File System Access API) — Safari/Firefox fall back to a manual download each time, though in-browser progress (localStorage) is always saved automatically regardless of browser. On mobile, the sidebar becomes a slide-out drawer (☰) plus a bottom nav for quick part/status filtering.
+Open the [live site](https://rafimichaeli.github.io/nursing-study-tracker/), or `index.html` directly in Chrome, Safari, or Firefox. Click any topic row to expand a panel with study items, Google Drive material links, and an AI exam prompt button. Use **"שמור התקדמות"** to save progress to a local `progress.json`; auto-save kicks in every 5 minutes after the first manual save. Note: auto-save-to-file only works in Chrome/Edge (File System Access API) — Safari/Firefox fall back to a manual download each time, though in-browser progress (localStorage) is always saved automatically regardless of browser. On mobile, the sidebar becomes a slide-out drawer (☰) plus a bottom nav for quick part/status filtering.
+
+### Progress schedule (new)
+
+An optional layer on top of the existing tracker, off by default. Click the floating **📅** button to set a start date (per part, א/ב) and a daily study-hour pace — separately for the first pass and the review pass. Once enabled: every topic gets a status chip (🟢 ahead / 🔵 on-track / 🔴 behind) comparing what was planned for today against what you've actually checked off; each topic's expanded panel gets a separate "review pass done" checkbox with its own status; and a summary card above the table shows aggregate progress plus a projected finish date. Turning it off only hides the display — every date already recorded stays saved (inside the same `progress.json`) and reappears if you turn it back on.
 
 ### Course structure
 
