@@ -1,0 +1,114 @@
+/* schedule.css — עיצוב לפיצ'ר "מעקב לו"ז" (MVP)
+   קובץ נפרד לגמרי, לא נוגע בשום כלל CSS קיים.
+   משתמש במשתני ה-CSS הקיימים של המערכת (--card-bg, --primary וכו')
+   כדי להתאים אוטומטית למצב כהה/בהיר. */
+
+.sched-fab {
+  position: fixed;
+  left: 18px;
+  bottom: 18px;
+  z-index: 9999;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid var(--card-border, rgba(255,255,255,0.12));
+  background: var(--card-bg, #252838);
+  color: var(--text-dark, #e8eaf0);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+  transition: transform 0.15s ease;
+}
+.sched-fab:hover { transform: scale(1.07); }
+
+.sched-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.sched-panel {
+  background: var(--card-bg, #252838);
+  color: var(--text-dark, #e8eaf0);
+  border-radius: 14px;
+  padding: 22px 24px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+  direction: rtl;
+  font-family: inherit;
+}
+.sched-panel h3 { margin: 0 0 14px; font-size: 18px; }
+
+.sched-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.sched-toggle-row input { width: 17px; height: 17px; cursor: pointer; }
+
+.sched-fields { display: flex; flex-direction: column; gap: 12px; margin-bottom: 14px; }
+.sched-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--muted, #7a8394);
+}
+.sched-fields input {
+  background: rgba(127,127,127,0.08);
+  border: 1px solid var(--card-border, rgba(255,255,255,0.12));
+  border-radius: 8px;
+  padding: 7px 9px;
+  color: var(--text-dark, #e8eaf0);
+  font-size: 14px;
+  font-family: inherit;
+}
+.sched-optional { font-weight: normal; opacity: 0.75; font-size: 11px; }
+
+.sched-note {
+  font-size: 12px;
+  color: var(--muted, #7a8394);
+  line-height: 1.5;
+  margin: 0 0 16px;
+}
+
+.sched-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.sched-btn-primary, .sched-btn-secondary {
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.sched-btn-primary { background: var(--primary, #4f80ff); color: #fff; }
+.sched-btn-secondary { background: rgba(127,127,127,0.15); color: var(--text-dark, #e8eaf0); }
+
+/* ── צ'יפ סטטוס בתוך שורת הנושא ── */
+.sched-chip {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.sched-ahead   { background: rgba(28,187,140,0.15); color: var(--success, #1cbb8c); }
+.sched-ontrack { background: rgba(79,128,255,0.15); color: var(--primary, #4f80ff); }
+.sched-behind  { background: var(--danger-lt, rgba(224,82,96,0.15)); color: var(--danger, #e05260); }
+
+@media (max-width: 640px) {
+  .sched-fab { left: 12px; bottom: 12px; width: 42px; height: 42px; font-size: 18px; }
+}
