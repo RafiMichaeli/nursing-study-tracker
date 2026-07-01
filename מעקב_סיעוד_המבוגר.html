@@ -117,7 +117,8 @@ body {
 /* ── SIDEBAR ─────────────────────────────────────────── */
 .sidebar {
   width: var(--sidebar-w);
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
   background: var(--sidebar-bg);
   position: fixed;
   top: 0;
@@ -747,6 +748,7 @@ body {
   /* Topbar adjustments */
   .topbar { padding: 0 12px; }
   .topbar-progress { display: none; }
+  .topbar-meta { display: none; }
 
   /* Push content above bottom nav */
   .main { padding-bottom: 64px; }
@@ -1139,7 +1141,7 @@ body {
       </div>
       <span class="topbar-label" id="subLabel" data-tooltip="עמודי ברונר שהושלמו מתוך סך כל עמודי הקורס" data-tip-pos="below">0 / 0 עמ'</span>
       <div class="topbar-spacer"></div>
-      <span style="font-size:13px;color:var(--muted);">336 ש"א · תשפ"ו</span>
+      <span class="topbar-meta" style="font-size:13px;color:var(--muted);">336 ש"א · תשפ"ו</span>
       <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="החלף ערכת נושא">
         <span class="material-icons" id="themeIcon">light_mode</span>
       </button>
