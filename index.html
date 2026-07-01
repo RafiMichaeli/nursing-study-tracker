@@ -300,6 +300,35 @@ body {
 .topbar-search-clear:hover { color: var(--text-dark); }
 mark.search-hit { background: var(--warning-lt); color: var(--text-dark); border-radius: 3px; padding: 0 2px; }
 
+/* ── SEARCH DROPDOWN (jump-to menu) ─────────────────────── */
+.search-dropdown {
+  position: absolute; top: calc(100% + 6px); right: 0; left: 0;
+  background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px;
+  box-shadow: var(--card-shadow); max-height: 360px; overflow-y: auto;
+  z-index: 200; display: none; padding: 6px;
+}
+.search-dropdown.show { display: block; }
+.search-dropdown-empty { padding: 14px; text-align: center; color: var(--muted); font-size: 13px; }
+.search-dropdown-group { margin-bottom: 4px; }
+.search-dropdown-group:last-child { margin-bottom: 0; }
+.search-dropdown-header {
+  display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: 6px;
+  cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text-dark);
+}
+.search-dropdown-header:hover { background: var(--sidebar-hover); }
+.search-dropdown-header .cat-tag { font-size: 11px; font-weight: 400; color: var(--muted); }
+.search-dropdown-sub {
+  display: block; padding: 6px 10px 6px 8px; margin-right: 20px; border-radius: 6px;
+  cursor: pointer; font-size: 12px; color: var(--text); line-height: 1.4;
+}
+.search-dropdown-sub:hover { background: var(--sidebar-hover); }
+.search-dropdown-more { padding: 4px 10px 4px 8px; margin-right: 20px; font-size: 11px; color: var(--muted); }
+@keyframes jumpFlash {
+  0% { background: var(--primary-lt); }
+  100% { background: transparent; }
+}
+.jump-flash { animation: jumpFlash 1.5s ease-out; }
+
 /* ── CONTENT ──────────────────────────────────────────── */
 .content {
   flex: 1;
@@ -1167,10 +1196,15 @@ mark.search-hit { background: var(--warning-lt); color: var(--text-dark); border
       <div class="topbar-search">
         <span class="material-icons search-icon">search</span>
         <input type="text" id="searchInput" placeholder="חיפוש נושא או סעיף..."
-          oninput="handleSearchInput(this.value)" autocomplete="off">
+          oninput="handleSearchInput(this.value)"
+          onfocus="handleSearchFocus()"
+          onblur="handleSearchBlur()"
+          onkeydown="handleSearchKeydown(event)"
+          autocomplete="off">
         <button class="topbar-search-clear" id="searchClearBtn" onclick="clearSearch()" data-tooltip="נקה חיפוש">
           <span class="material-icons" style="font-size:15px;">close</span>
         </button>
+        <div class="search-dropdown" id="searchDropdown"></div>
       </div>
       <div class="topbar-spacer"></div>
       <span class="topbar-meta" style="font-size:13px;color:var(--muted);">336 ש"א · תשפ"ו</span>
@@ -1682,11 +1716,16 @@ function resetAll() {
 }
 
 // ── Search ─────────────────────────────────────────────────
+// Search no longer filters the table in place — it drives a dropdown "jump to" menu
+// (see buildSearchResults / renderSearchDropdown / jumpToTopic below). handleSearchInput
+// and clearSearch used to call renderTable() directly; that line is disabled below rather
+// than removed.
 function handleSearchInput(value) {
   searchQuery = value.trim().toLowerCase();
   const clearBtn = document.getElementById('searchClearBtn');
   if (clearBtn) clearBtn.classList.toggle('show', searchQuery.length > 0);
-  renderTable();
+  // renderTable(); // old: filtered the table on every keystroke
+  renderSearchDropdown();
 }
 function clearSearch() {
   searchQuery = '';
@@ -1694,7 +1733,8 @@ function clearSearch() {
   if (input) input.value = '';
   const clearBtn = document.getElementById('searchClearBtn');
   if (clearBtn) clearBtn.classList.remove('show');
-  renderTable();
+  // renderTable(); // old: re-ran table filter after clearing
+  renderSearchDropdown();
 }
 function escapeHtml(str) {
   return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1708,12 +1748,138 @@ function highlightText(text, q) {
   const after = escapeHtml(text.slice(idx + q.length));
   return `${before}<mark class="search-hit">${match}</mark>${after}`;
 }
+// Legacy: originally used by renderTable() to decide table-row filtering + which single
+// sub-item to auto-expand. No longer called from renderTable() (see notes there), but
+// left here — untouched — in case that behavior is wanted again. The dropdown below uses
+// its own matching (buildSearchResults) since it needs *all* matching sub-items, not just
+// the first one.
 function topicMatchesSearch(t, q) {
   if (!q) return { matches: true, subIdx: -1 };
   const haystack = `${t.name} ${t.meta} ${t.catLabel}`.toLowerCase();
   if (haystack.includes(q)) return { matches: true, subIdx: -1 };
   const subIdx = t.subs.findIndex(s => s.toLowerCase().includes(q));
   return { matches: subIdx !== -1, subIdx };
+}
+
+// ── Search dropdown (jump-to menu) ──────────────────────────
+const MAX_DROPDOWN_GROUPS = 8;
+const MAX_SUBS_PER_GROUP = 5;
+
+function buildSearchResults(q) {
+  if (!q) return [];
+  const results = [];
+  for (const t of TOPICS) {
+    const haystack = `${t.name} ${t.meta} ${t.catLabel}`.toLowerCase();
+    const topicMatched = haystack.includes(q);
+    const matchedSubs = [];
+    t.subs.forEach((s, i) => { if (s.toLowerCase().includes(q)) matchedSubs.push(i); });
+    if (topicMatched || matchedSubs.length) {
+      results.push({ topic: t, topicMatched, matchedSubs });
+      if (results.length >= MAX_DROPDOWN_GROUPS) break;
+    }
+  }
+  return results;
+}
+
+function renderSearchDropdown() {
+  const dd = document.getElementById('searchDropdown');
+  if (!dd) return;
+  if (!searchQuery) { dd.classList.remove('show'); dd.innerHTML = ''; return; }
+
+  const results = buildSearchResults(searchQuery);
+  if (!results.length) {
+    dd.innerHTML = `<div class="search-dropdown-empty">אין תוצאות עבור "${escapeHtml(searchQuery)}"</div>`;
+    dd.classList.add('show');
+    return;
+  }
+
+  let html = '';
+  results.forEach(r => {
+    const t = r.topic;
+    html += `<div class="search-dropdown-group">`;
+    html += `
+      <div class="search-dropdown-header" onmousedown="event.preventDefault();jumpToTopic('${t.id}')">
+        <span style="font-size:14px;">${t.icon}</span>
+        <span>${highlightText(t.name, searchQuery)}</span>
+        <span class="cat-tag">${t.catLabel}</span>
+      </div>`;
+    const shown = r.matchedSubs.slice(0, MAX_SUBS_PER_GROUP);
+    shown.forEach(i => {
+      html += `<div class="search-dropdown-sub" onmousedown="event.preventDefault();jumpToTopic('${t.id}',${i})">${highlightText(t.subs[i], searchQuery)}</div>`;
+    });
+    const remaining = r.matchedSubs.length - shown.length;
+    if (remaining > 0) {
+      html += `<div class="search-dropdown-more">+${remaining} סעיפים נוספים</div>`;
+    }
+    html += `</div>`;
+  });
+  dd.innerHTML = html;
+  dd.classList.add('show');
+}
+
+function hideSearchDropdown() {
+  const dd = document.getElementById('searchDropdown');
+  if (dd) dd.classList.remove('show');
+}
+
+function handleSearchFocus() {
+  if (searchQuery) renderSearchDropdown();
+}
+function handleSearchBlur() {
+  // Delay so a click/mousedown on a dropdown entry (jumpToTopic, fired via onmousedown)
+  // has a chance to run before the dropdown disappears.
+  setTimeout(hideSearchDropdown, 150);
+}
+function handleSearchKeydown(e) {
+  if (e.key === 'Escape') {
+    hideSearchDropdown();
+    e.target.blur();
+  }
+}
+
+function jumpToTopic(topicId, subIdx = -1) {
+  hideSearchDropdown();
+
+  // Reset the other filters so the target topic is guaranteed to be visible, regardless
+  // of whatever part/category/incomplete filter was active — mirrors the reset already
+  // done by filterPart()/filterCat() when toggling those off.
+  activePart = null;
+  activeCat = null;
+  filterIncomplete = false;
+  document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active'));
+  const allLink = document.querySelector('.sidebar-link[data-cat="all"]');
+  if (allLink) allLink.classList.add('active');
+  const chipA = document.getElementById('chipA'); if (chipA) chipA.classList.remove('active');
+  const chipB = document.getElementById('chipB'); if (chipB) chipB.classList.remove('active');
+  const wrapA = document.getElementById('chartWrapA'); if (wrapA) wrapA.classList.remove('chart-dimmed');
+  const wrapB = document.getElementById('chartWrapB'); if (wrapB) wrapB.classList.remove('chart-dimmed');
+  const filterBtn = document.getElementById('filterSbBtn'); if (filterBtn) filterBtn.classList.remove('active');
+
+  renderAll();
+
+  // Force this topic's sub-panel open (all sub-items, not just the matched one).
+  const subRow = document.getElementById(`subrow-${topicId}`);
+  const chevron = document.getElementById(`chev-${topicId}`);
+  if (subRow) subRow.style.display = 'table-row';
+  if (chevron) chevron.textContent = 'expand_less';
+
+  const topicRow = document.getElementById(`topic-${topicId}`);
+  if (topicRow) {
+    topicRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    topicRow.classList.add('jump-flash');
+    setTimeout(() => topicRow.classList.remove('jump-flash'), 1500);
+  }
+
+  if (subIdx !== -1) {
+    setTimeout(() => {
+      const subItem = document.getElementById(`subitem-${topicId}-${subIdx}`);
+      if (subItem) {
+        subItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        subItem.classList.add('jump-flash');
+        setTimeout(() => subItem.classList.remove('jump-flash'), 1500);
+      }
+    }, 300);
+  }
 }
 
 // ── Stats computation ─────────────────────────────────────
@@ -1887,12 +2053,15 @@ function renderTable() {
   if (activePart) topics = topics.filter(t => t.part === activePart);
   if (activeCat) topics = topics.filter(t => t.cat === activeCat);
   if (filterIncomplete) topics = topics.filter(t => !getTopicState(t.id).done);
-  if (searchQuery) topics = topics.filter(t => topicMatchesSearch(t, searchQuery).matches);
+  // NOTE: search no longer filters the table — it now drives a dropdown "jump to" menu
+  // (see buildSearchResults/renderSearchDropdown/jumpToTopic below). Kept here, disabled,
+  // in case in-table filtering is wanted again later.
+  // if (searchQuery) topics = topics.filter(t => topicMatchesSearch(t, searchQuery).matches);
 
   if (topics.length === 0) {
     let emptyMsg = 'אין נושאים להצגה';
-    if (searchQuery) emptyMsg = `אין תוצאות עבור "${escapeHtml(searchQuery)}"`;
-    else if (filterIncomplete) emptyMsg = 'כל הנושאים הושלמו! 🎉';
+    // if (searchQuery) emptyMsg = `אין תוצאות עבור "${escapeHtml(searchQuery)}"`; // see note above
+    if (filterIncomplete) emptyMsg = 'כל הנושאים הושלמו! 🎉';
     tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted);">
       ${emptyMsg}
     </td></tr>`;
@@ -1911,8 +2080,12 @@ function renderTable() {
     const subsPct  = t.subs.length ? Math.round(subsDone / t.subs.length * 100) : 0;
     const isDone   = ts.done;
     const isInProg = !isDone && subsDone > 0;
-    const searchHit = topicMatchesSearch(t, searchQuery);
-    const forceExpand = !!(searchQuery && searchHit.subIdx !== -1);
+    // NOTE: rows used to auto-expand when a search match was only found in a sub-item.
+    // That's now handled by jumpToTopic() when a dropdown result is selected, not at
+    // render time. Disabled, not deleted, in case this is wanted again later.
+    // const searchHit = topicMatchesSearch(t, searchQuery);
+    // const forceExpand = !!(searchQuery && searchHit.subIdx !== -1);
+    const forceExpand = false;
 
     const statusBadge = isDone
       ? `<span class="badge badge-success" data-tooltip="כל הסעיפים וברונר הושלמו">הושלם</span>`
@@ -1927,8 +2100,14 @@ function renderTable() {
     const miniBarCls = isDone ? 'topic-mini-bar done' : 'topic-mini-bar';
 
     // Main row
+    // NOTE: topic name used to be run through highlightText(t.name, searchQuery) to
+    // highlight in-table search matches. Reverted to plain output — can't "comment out"
+    // part of a template literal, so this note documents the change instead of a real
+    // comment. highlightText()/topicMatchesSearch() are untouched and still used by the
+    // search dropdown further down.
     const tr = document.createElement('tr');
     tr.className = `topic-tr${isDone ? ' row-done' : ''}`;
+    tr.id = `topic-${t.id}`;
     tr.onclick = () => toggleSubRow(t.id);
     tr.innerHTML = `
       <td onclick="event.stopPropagation()">
@@ -1937,7 +2116,7 @@ function renderTable() {
       </td>
       <td>
         <div class="topic-name-wrap">
-          <span class="topic-name-title ${isDone ? 'done' : ''}">${highlightText(t.name, searchQuery)}</span>
+          <span class="topic-name-title ${isDone ? 'done' : ''}">${t.name}</span>
           <span class="topic-name-meta">${t.meta}</span>
           <div class="topic-mini-bar-bg">
             <div class="${miniBarCls}" style="width:${subsPct}%"></div>
@@ -1992,13 +2171,18 @@ function renderTable() {
     subHTML += `<div class="sub-col-items">`;
     subHTML += `<div class="sub-col-header" data-tooltip="רשימת הסעיפים לסימון — V ליד כל סעיף שלמדת">📋 סעיפי לימוד</div>`;
     subHTML += `<div class="sub-grid">`;
+    // NOTE: sub-item label used to run through highlightText(sub, searchQuery) to
+    // highlight in-table search matches. Reverted to plain output for the same reason
+    // noted above the main row — highlightText() itself is untouched and still used by
+    // the search dropdown. Added an id on the wrapper div so jumpToTopic() can scroll to
+    // a specific sub-item when a dropdown sub-result is selected.
     t.subs.forEach((sub, i) => {
       const done = !!ts.subs[i];
       subHTML += `
-        <div class="sub-item" onclick="toggleSub('${t.id}',${i},event)">
+        <div class="sub-item" id="subitem-${t.id}-${i}" onclick="toggleSub('${t.id}',${i},event)">
           <input type="checkbox" id="sub-${t.id}-${i}" ${done ? 'checked' : ''}
             onclick="toggleSub('${t.id}',${i},event)" onchange="toggleSub('${t.id}',${i},event)">
-          <label for="sub-${t.id}-${i}" class="${done ? 'done' : ''}" onclick="event.stopPropagation()">${highlightText(sub, searchQuery)}</label>
+          <label for="sub-${t.id}-${i}" class="${done ? 'done' : ''}" onclick="event.stopPropagation()">${sub}</label>
         </div>`;
     });
     subHTML += `</div>`;
@@ -2470,12 +2654,24 @@ getStoredHandle().then(handle => { if (handle) { startAutoSave(); updateAutoSave
       <h2>מה זה?</h2>
       <p>דשבורד אישי למעקב לימודים בקורס סיעוד המבוגר. המערכת עוקבת אחר ההתקדמות שלך ב-18 נושאי לימוד, מאורגנים בחלק א׳ וחלק ב׳.</p>
 
+      <h2>איך פותחים</h2>
+      <ul>
+        <li>מכל מכשיר, כולל טלפון: <code>rafimichaeli.github.io/nursing-study-tracker</code></li>
+        <li>מקומית: פתיחת הקובץ ישירות בדפדפן, ללא צורך בהתקנה.</li>
+      </ul>
+
       <h2>התמצאות בממשק</h2>
-      <h3><span class="material-icons">menu</span> סרגל ניווט שמאלי</h3>
+      <h3><span class="material-icons">menu</span> סרגל ניווט שמאלי — מסך רחב</h3>
       <ul>
         <li>מציג את <strong>אחוז ההתקדמות הכולל</strong> ופירוט לפי חלק א׳ וחלק ב׳.</li>
         <li>לחיצה על <strong>"חלק א׳"</strong> או <strong>"חלק ב׳"</strong> מסננת את הטבלה. לחיצה שנייה מבטלת.</li>
         <li>קישורים מהירים לקטגוריות: כירורגיה, לב, נשימה וכו׳.</li>
+        <li>בתחתית הסרגל: כפתורי שמור / טען / אפס הכל / הוראות שימוש.</li>
+      </ul>
+      <h3><span class="material-icons">smartphone</span> ניווט במובייל</h3>
+      <ul>
+        <li>סמל ה-☰ פותח את סרגל הניווט המלא כתפריט נגלל, כולל כפתורי השמירה וההוראות בתחתיתו.</li>
+        <li>סרגל תחתון קבוע עם 5 כפתורים: הכל, חלק א׳, חלק ב׳, נותר, ומראה — לגישה מהירה.</li>
       </ul>
       <h3><span class="material-icons">view_headline</span> סרגל עליון</h3>
       <ul>
@@ -2514,11 +2710,17 @@ getStoredHandle().then(handle => { if (handle) { startAutoSave(); updateAutoSave
       <p>לחץ <strong>"שמור התקדמות"</strong>. בפעם הראשונה תבחר מיקום לקובץ <code>progress.json</code>. בפעמים הבאות נשמר אוטומטית לאותו מיקום.</p>
       <h3><span class="material-icons">autorenew</span> שמירה אוטומטית</h3>
       <p>לאחר שמירה ידנית ראשונה — המערכת שומרת <strong>כל 5 דקות</strong>. ה-chip בסרגל יהפוך לירוק ויציג את שעת השמירה האחרונה.</p>
+      <div class="help-tip">
+        <span class="material-icons">info</span>
+        שמירה/טעינה אוטומטית לקובץ עובדת רק ב-Chrome / Edge. ב-Safari וב-Firefox (כולל אייפון) כל שמירה תוריד קובץ ידנית — ההתקדמות עצמה עדיין נשמרת אוטומטית בדפדפן בכל מקרה.
+      </div>
       <h3><span class="material-icons">folder_open</span> טעינה</h3>
       <p>לחץ <strong>"טען התקדמות"</strong> לטעינת קובץ שנשמר קודם — שימושי בעת מעבר למחשב אחר.</p>
+      <h3><span class="material-icons">delete</span> איפוס</h3>
+      <p><strong>"אפס הכל"</strong> מוחק את כל הסימונים בדפדפן הזה. פעולה בלתי הפיכה — שמור גיבוי לפני שימוש.</p>
 
       <h2>שינוי מראה</h2>
-      <p>לחץ <strong>☀️ / 🌙</strong> בפינה הימנית העליונה לעבור בין מצב כהה ובהיר.</p>
+      <p>לחץ <strong>☀️ / 🌙</strong> בפינה הימנית העליונה, או בסרגל התחתון במובייל, לעבור בין מצב כהה ובהיר.</p>
 
     </div>
   </div>
