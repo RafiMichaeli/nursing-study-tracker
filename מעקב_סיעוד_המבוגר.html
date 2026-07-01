@@ -300,6 +300,28 @@ body {
 .topbar-search .topbar-search-clear:hover { color: var(--text-dark); }
 mark.search-hit { background: var(--warning-lt); color: var(--text-dark); border-radius: 3px; padding: 0 2px; }
 
+/* ── MOBILE SEARCH: collapsed icon + expand-to-full-width overlay ────────
+   On phones the search box no longer shares topbar space with anything —
+   .topbar-search is hidden by default and .mobile-search-toggle-btn (a small
+   icon button) takes its place. Tapping it adds .mobile-search-open, which
+   turns .topbar-search into a fixed bar spanning the full topbar width,
+   covering the toggle/theme buttons underneath. See the 640px media query
+   for the responsive swap and openMobileSearch()/closeMobileSearch() in JS. */
+.mobile-search-toggle-btn {
+  display: none; background: none; border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 50%; width: 32px; height: 32px;
+  align-items: center; justify-content: center; cursor: pointer;
+  color: var(--muted); font-size: 15px; flex-shrink: 0;
+}
+.mobile-search-toggle-btn:hover { background: rgba(255,255,255,0.1); color: var(--text-dark); }
+[data-theme="light"] .mobile-search-toggle-btn { border-color: rgba(0,0,0,0.15); }
+[data-theme="light"] .mobile-search-toggle-btn:hover { background: #f0f0f0; color: var(--text-dark); }
+.topbar-search-back {
+  display: none; background: none; border: none; cursor: pointer;
+  color: var(--muted); padding: 4px; align-items: center; flex-shrink: 0;
+}
+.topbar-search-back:hover { color: var(--text-dark); }
+
 /* ── SEARCH DROPDOWN (jump-to menu) ─────────────────────── */
 .search-dropdown {
   position: absolute; top: calc(100% + 6px); right: 0; left: 0;
@@ -806,7 +828,18 @@ mark.search-hit { background: var(--warning-lt); color: var(--text-dark); border
      since the old rule never worked. */
   .topbar-progress-wrap { display: none; }
   .topbar-meta { display: none; }
-  .topbar-search { width: auto; flex: 1; max-width: none; }
+
+  /* Search: collapsed to an icon by default (see .mobile-search-toggle-btn above);
+     .topbar-search only appears full-width once expanded via .mobile-search-open. */
+  .topbar-search { display: none; }
+  .mobile-search-toggle-btn { display: flex; }
+  .topbar-search.mobile-search-open {
+    display: flex; position: fixed; top: 0; left: 0; right: 0;
+    height: var(--topbar-h); width: auto; max-width: none;
+    background: var(--topbar-bg); padding: 0 12px; gap: 4px;
+    z-index: 600; /* above .mobile-bottom-nav (500) and .sidebar-overlay (199) */
+  }
+  .topbar-search.mobile-search-open .topbar-search-back { display: flex; }
 
   /* Push content above bottom nav */
   .main { padding-bottom: 64px; }
@@ -1198,7 +1231,10 @@ mark.search-hit { background: var(--warning-lt); color: var(--text-dark); border
         <span class="topbar-pct" id="pctLabel">0%</span>
       </div>
       <span class="topbar-label" id="subLabel" data-tooltip="עמודי ברונר שהושלמו מתוך סך כל עמודי הקורס" data-tip-pos="below">0 / 0 עמ'</span>
-      <div class="topbar-search">
+      <div class="topbar-search" id="topbarSearch">
+        <button class="topbar-search-back" onclick="closeMobileSearch()" data-tooltip="חזרה">
+          <span class="material-icons">arrow_forward</span>
+        </button>
         <span class="material-icons search-icon">search</span>
         <input type="text" id="searchInput" placeholder="חיפוש נושא או סעיף..."
           oninput="handleSearchInput(this.value)"
@@ -1211,6 +1247,11 @@ mark.search-hit { background: var(--warning-lt); color: var(--text-dark); border
         </button>
         <div class="search-dropdown" id="searchDropdown"></div>
       </div>
+      <!-- Mobile-only: collapsed search icon, expands .topbar-search into a full-width
+           overlay bar via openMobileSearch() — see mobile media query + JS below. -->
+      <button class="mobile-search-toggle-btn" id="mobileSearchToggleBtn" onclick="openMobileSearch()" data-tooltip="חיפוש">
+        <span class="material-icons">search</span>
+      </button>
       <div class="topbar-spacer"></div>
       <span class="topbar-meta" style="font-size:13px;color:var(--muted);">336 ש"א · תשפ"ו</span>
       <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="החלף ערכת נושא">
@@ -1839,7 +1880,27 @@ function handleSearchKeydown(e) {
   if (e.key === 'Escape') {
     hideSearchDropdown();
     e.target.blur();
+    // On mobile, Escape also collapses the full-width overlay back to the icon.
+    closeMobileSearch();
   }
+}
+
+// ── Mobile search: collapsed icon ⇄ full-width overlay ──────
+function openMobileSearch() {
+  const box = document.getElementById('topbarSearch');
+  if (box) box.classList.add('mobile-search-open');
+  const input = document.getElementById('searchInput');
+  // Slight delay before focusing: lets the fixed-position layout settle first,
+  // avoiding a layout/keyboard race on some mobile browsers.
+  if (input) setTimeout(() => input.focus(), 50);
+}
+function closeMobileSearch() {
+  const box = document.getElementById('topbarSearch');
+  if (!box || !box.classList.contains('mobile-search-open')) return;
+  box.classList.remove('mobile-search-open');
+  const input = document.getElementById('searchInput');
+  if (input) input.blur();
+  clearSearch();
 }
 
 function jumpToTopic(topicId, subIdx = -1) {
@@ -1885,6 +1946,12 @@ function jumpToTopic(topicId, subIdx = -1) {
       }
     }, 300);
   }
+
+  // On mobile the search bar is a full-width overlay covering the topbar — once a result
+  // is picked there's nothing left to search for, so collapse it back to the icon and
+  // let the jumped-to content take the full screen. No-op on desktop (guarded inside
+  // closeMobileSearch — the class is only ever added by openMobileSearch()).
+  closeMobileSearch();
 }
 
 // ── Stats computation ─────────────────────────────────────
