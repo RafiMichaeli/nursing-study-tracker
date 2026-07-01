@@ -79,7 +79,7 @@
 
 תוסף אופציונלי — כבוי כברירת מחדל — שמוסיף תזמון וציוני דרך על גבי המעקב הקיים.
 
-- כפתור **📅** צף בפינת המסך פותח פאנל הגדרות: הפעלה/כיבוי, תאריך התחלה לכל חלק (א׳/ב׳), וקצב לימוד יומי בשעות — בנפרד למעבר הלמידה ולמעבר הריענון.
+- כפתור **"מעקב לו"ז"** בתחתית הסרגל השמאלי (בין רשימת הנושאים לכפתורי שמור/טען/אפס) פותח פאנל הגדרות: הפעלה/כיבוי, תאריך התחלה לכל חלק (א׳/ב׳), וקצב לימוד יומי בשעות — בנפרד למעבר הלמידה ולמעבר הריענון.
 - כשהמעקב פעיל, כל נושא מקבל **צ'יפ סטטוס**: 🟢 מקדים / 🔵 בלו"ז / 🔴 מאחר — לפי השוואה בין מה שתוכנן לתאריך הזה לבין מה שסומן בפועל.
 - בפאנל המורחב של כל נושא מופיעה שורת **"סיימתי ריענון"** — סימון נפרד למעבר חזרה שני, עם תאריך וצ'יפ סטטוס משלה.
 - מעל הטבלה מופיע **כרטיס דשבורד** שמסכם סעיפים/נושאים שהושלמו מול הצפי היומי, ותחזית תאריך סיום לפי הקצב הנוכחי.
@@ -121,7 +121,7 @@ Open the [live site](https://rafimichaeli.github.io/nursing-study-tracker/), or 
 
 ### Progress schedule (new)
 
-An optional layer on top of the existing tracker, off by default. Click the floating **📅** button to set a start date (per part, א/ב) and a daily study-hour pace — separately for the first pass and the review pass. Once enabled: every topic gets a status chip (🟢 ahead / 🔵 on-track / 🔴 behind) comparing what was planned for today against what you've actually checked off; each topic's expanded panel gets a separate "review pass done" checkbox with its own status; and a summary card above the table shows aggregate progress plus a projected finish date. Turning it off only hides the display — every date already recorded stays saved (inside the same `progress.json`) and reappears if you turn it back on.
+An optional layer on top of the existing tracker, off by default. Click the **"מעקב לו"ז"** button in the sidebar footer (between the topic list and the save/load buttons) to set a start date (per part, א/ב) and a daily study-hour pace — separately for the first pass and the review pass. Once enabled: every topic gets a status chip (🟢 ahead / 🔵 on-track / 🔴 behind) comparing what was planned for today against what you've actually checked off; each topic's expanded panel gets a separate "review pass done" checkbox with its own status; and a summary card above the table shows aggregate progress plus a projected finish date. Turning it off only hides the display — every date already recorded stays saved (inside the same `progress.json`) and reappears if you turn it back on.
 
 ### Course structure
 

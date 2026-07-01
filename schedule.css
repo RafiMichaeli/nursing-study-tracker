@@ -3,31 +3,6 @@
    משתמש במשתני ה-CSS הקיימים של המערכת (--card-bg, --primary וכו')
    כדי להתאים אוטומטית למצב כהה/בהיר. */
 
-/* ⚠️ מכוון-ימין (right) בכוונה, לא שמאל: הטוסט הקיים "נשמר בהצלחה"
-   (showSaveToast ב-index.html) יושב fixed;bottom:20px;left:20px;z-index:9999 —
-   אותה פינה בדיוק. אם היינו משתמשים ב-left היינו מתנגשים איתו חזותית בכל
-   פעם שלוחצים "שמור התקדמות". */
-.sched-fab {
-  position: fixed;
-  right: 20px;
-  bottom: 20px;
-  z-index: 9999;
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  border: 1px solid var(--card-border, rgba(255,255,255,0.12));
-  background: var(--card-bg, #252838);
-  color: var(--text-dark, #e8eaf0);
-  font-size: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
-  transition: transform 0.15s ease;
-}
-.sched-fab:hover { transform: scale(1.07); }
-
 .sched-overlay {
   position: fixed;
   inset: 0;
@@ -141,9 +116,3 @@
   white-space: nowrap;
 }
 
-@media (max-width: 640px) {
-  /* index.html shows a fixed .mobile-bottom-nav (5 icons, ~60-72px incl.
-     safe-area) at bottom:0 below this width — lift the fab above it,
-     otherwise it sits on top of / overlaps the nav bar. */
-  .sched-fab { right: 12px; bottom: calc(72px + env(safe-area-inset-bottom, 0px)); width: 42px; height: 42px; font-size: 18px; }
-}

@@ -408,7 +408,7 @@
 
   function decorate() {
     ensureDefaults();
-    ensureFloatingButton();
+    ensureSidebarButton();
     if (!state._schedule.enabled) {
       removeAllChips();
       removeAllReviewRows();
@@ -420,18 +420,26 @@
     renderDashboard();
   }
 
-  // ── Settings UI (כפתור צף + מודל) ──────────────────────────
-  function ensureFloatingButton() {
-    if (document.getElementById('sched-fab')) return;
+  // ── Settings UI (כפתור בסיידבר + מודל) ─────────────────────
+  // מוזרק כילד ראשון של .sidebar-footer — כלומר מיד אחרי רשימת הנושאים
+  // (.sidebar-nav) ולפני הכפתורים הקיימים (שמור/טען/אפס/עזרה), בדיוק איפה
+  // שרפי ביקש. משתמשים ב-class sb-btn הקיים כדי שהכפתור ייראה זהה לשאר
+  // כפתורי הסיידבר (כולל תמיכה במצב כהה/בהיר) בלי להוסיף CSS חדש בשביל זה.
+  // לא fixed/floating יותר — כך שגם ההתנגשויות עם ה-mobile-bottom-nav
+  // ועם ה-save-toast (ר' schedule.css) כבר לא רלוונטיות; במובייל הכפתור
+  // נגיש בדיוק כמו שאר כפתורי הסיידבר, דרך תפריט ה-☰.
+  function ensureSidebarButton() {
+    if (document.getElementById('sched-sidebar-btn')) return;
+    const footer = document.querySelector('.sidebar-footer');
+    if (!footer) return; // מבנה לא נמצא — מדלגים, לא קריטי
     const btn = document.createElement('button');
-    btn.id = 'sched-fab';
-    btn.className = 'sched-fab';
+    btn.id = 'sched-sidebar-btn';
+    btn.className = 'sb-btn';
     btn.type = 'button';
-    btn.title = 'מעקב לו"ז';
-    btn.setAttribute('aria-label', 'הגדרות מעקב לו"ז');
-    btn.textContent = '📅';
+    btn.setAttribute('data-tooltip', 'הגדרות מעקב לו"ז — תאריך התחלה, קצב יומי וסטטוס לכל נושא');
+    btn.innerHTML = `<span class="material-icons">event</span> מעקב לו"ז`;
     btn.addEventListener('click', openSettingsPanel);
-    document.body.appendChild(btn);
+    footer.insertAdjacentElement('afterbegin', btn);
   }
 
   function closeSettingsPanel() {
@@ -452,7 +460,7 @@
         <h2>מעקב לו"ז (חדש)</h2>
         <p>תוסף אופציונלי — כבוי כברירת מחדל — שמוסיף תזמון וציוני דרך על גבי המעקב הקיים.</p>
         <h3><span class="material-icons">event</span> הפעלה</h3>
-        <p>כפתור <strong>📅</strong> צף בפינת המסך פותח פאנל הגדרות: הפעל/כבה, תאריך התחלה לחלק א׳ (ואופציונלית לחלק ב׳), וקצב לימוד יומי בשעות — בנפרד למעבר הלמידה ולמעבר הריענון.</p>
+        <p>כפתור <strong>"מעקב לו&quot;ז"</strong> בתחתית הסרגל השמאלי (מתחת לרשימת הנושאים, ליד שמור/טען/אפס) פותח פאנל הגדרות: הפעל/כבה, תאריך התחלה לחלק א׳ (ואופציונלית לחלק ב׳), וקצב לימוד יומי בשעות — בנפרד למעבר הלמידה ולמעבר הריענון.</p>
         <h3><span class="material-icons">flag</span> צ'יפ סטטוס לכל נושא</h3>
         <ul>
           <li>🟢 מקדים — עברת יותר סעיפים ממה שהיה מתוכנן עד היום.</li>
