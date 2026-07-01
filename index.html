@@ -290,6 +290,79 @@ body {
   background: rgba(255,255,255,0.08); padding: 3px 10px; border-radius: 20px;
 }
 .topbar-spacer { flex: 1; }
+.topbar-search {
+  position: relative; display: flex; align-items: center;
+  width: 240px; max-width: 40vw; flex-shrink: 0;
+}
+.topbar-search .material-icons.search-icon {
+  position: absolute; right: 10px; font-size: 18px; color: var(--muted); pointer-events: none;
+}
+.topbar-search input {
+  width: 100%; height: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.06); color: var(--text-dark);
+  font-family: inherit; font-size: 13px; padding: 0 34px 0 30px;
+  outline: none; transition: border-color 0.15s ease, background 0.15s ease;
+}
+.topbar-search input::placeholder { color: var(--muted); }
+.topbar-search input:focus { border-color: var(--primary); background: rgba(255,255,255,0.09); }
+.topbar-search .topbar-search-clear {
+  position: absolute; left: 6px; background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: 16px; padding: 2px; display: none; align-items: center;
+}
+.topbar-search .topbar-search-clear.show { display: flex; }
+.topbar-search .topbar-search-clear:hover { color: var(--text-dark); }
+mark.search-hit { background: var(--warning-lt); color: var(--text-dark); border-radius: 3px; padding: 0 2px; }
+
+/* ── MOBILE SEARCH: collapsed icon + expand-to-full-width overlay ────────
+   On phones the search box no longer shares topbar space with anything —
+   .topbar-search is hidden by default and .mobile-search-toggle-btn (a small
+   icon button) takes its place. Tapping it adds .mobile-search-open, which
+   turns .topbar-search into a fixed bar spanning the full topbar width,
+   covering the toggle/theme buttons underneath. See the 640px media query
+   for the responsive swap and openMobileSearch()/closeMobileSearch() in JS. */
+.mobile-search-toggle-btn {
+  display: none; background: none; border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 50%; width: 32px; height: 32px;
+  align-items: center; justify-content: center; cursor: pointer;
+  color: var(--muted); font-size: 15px; flex-shrink: 0;
+}
+.mobile-search-toggle-btn:hover { background: rgba(255,255,255,0.1); color: var(--text-dark); }
+[data-theme="light"] .mobile-search-toggle-btn { border-color: rgba(0,0,0,0.15); }
+[data-theme="light"] .mobile-search-toggle-btn:hover { background: #f0f0f0; color: var(--text-dark); }
+.topbar-search-back {
+  display: none; background: none; border: none; cursor: pointer;
+  color: var(--muted); padding: 4px; align-items: center; flex-shrink: 0;
+}
+.topbar-search-back:hover { color: var(--text-dark); }
+
+/* ── SEARCH DROPDOWN (jump-to menu) ─────────────────────── */
+.search-dropdown {
+  position: absolute; top: calc(100% + 6px); right: 0; left: 0;
+  background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px;
+  box-shadow: var(--card-shadow); max-height: 360px; overflow-y: auto;
+  z-index: 200; display: none; padding: 6px;
+}
+.search-dropdown.show { display: block; }
+.search-dropdown-empty { padding: 14px; text-align: center; color: var(--muted); font-size: 13px; }
+.search-dropdown-group { margin-bottom: 4px; }
+.search-dropdown-group:last-child { margin-bottom: 0; }
+.search-dropdown-header {
+  display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: 6px;
+  cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text-dark);
+}
+.search-dropdown-header:hover { background: var(--sidebar-hover); }
+.search-dropdown-header .cat-tag { font-size: 11px; font-weight: 400; color: var(--muted); }
+.search-dropdown-sub {
+  display: block; padding: 6px 10px 6px 8px; margin-right: 20px; border-radius: 6px;
+  cursor: pointer; font-size: 12px; color: var(--text); line-height: 1.4;
+}
+.search-dropdown-sub:hover { background: var(--sidebar-hover); }
+.search-dropdown-more { padding: 4px 10px 4px 8px; margin-right: 20px; font-size: 11px; color: var(--muted); }
+@keyframes jumpFlash {
+  0% { background: var(--primary-lt); }
+  100% { background: transparent; }
+}
+.jump-flash { animation: jumpFlash 1.5s ease-out; }
 
 /* ── CONTENT ──────────────────────────────────────────── */
 .content {
@@ -653,6 +726,7 @@ body {
 [data-theme="light"] .topbar { border-bottom: 1px solid rgba(0,0,0,0.07); }
 [data-theme="light"] .topbar-progress-track { background: #e9ecef; }
 [data-theme="light"] .topbar-label { background: #f0f0f0; }
+[data-theme="light"] .topbar-search input { background: #f0f0f0; border-color: rgba(0,0,0,0.12); }
 [data-theme="light"] .theme-toggle-btn { border-color: rgba(0,0,0,0.15); }
 [data-theme="light"] .theme-toggle-btn:hover { background: #f0f0f0; color: var(--text-dark); }
 [data-theme="light"] .card-header { border-bottom: 1px solid rgba(0,0,0,0.06); }
@@ -760,8 +834,25 @@ body {
 
   /* Topbar adjustments */
   .topbar { padding: 0 12px; }
-  .topbar-progress { display: none; }
+  /* BUGFIX: this selector referenced a class that doesn't exist in the markup
+     (the real element is .topbar-progress-wrap) so it never actually hid the
+     progress bar on mobile — it sat there competing with the search box for
+     space, which is what was truncating it. Corrected, not commented out,
+     since the old rule never worked. */
+  .topbar-progress-wrap { display: none; }
   .topbar-meta { display: none; }
+
+  /* Search: collapsed to an icon by default (see .mobile-search-toggle-btn above);
+     .topbar-search only appears full-width once expanded via .mobile-search-open. */
+  .topbar-search { display: none; }
+  .mobile-search-toggle-btn { display: flex; }
+  .topbar-search.mobile-search-open {
+    display: flex; position: fixed; top: 0; left: 0; right: 0;
+    height: var(--topbar-h); width: auto; max-width: none;
+    background: var(--topbar-bg); padding: 0 12px; gap: 4px;
+    z-index: 600; /* above .mobile-bottom-nav (500) and .sidebar-overlay (199) */
+  }
+  .topbar-search.mobile-search-open .topbar-search-back { display: flex; }
 
   /* Push content above bottom nav */
   .main { padding-bottom: 64px; }
@@ -1158,6 +1249,27 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span class="topbar-pct" id="pctLabel">0%</span>
       </div>
       <span class="topbar-label" id="subLabel" data-tooltip="עמודי ברונר שהושלמו מתוך סך כל עמודי הקורס" data-tip-pos="below">0 / 0 עמ'</span>
+      <div class="topbar-search" id="topbarSearch">
+        <button class="topbar-search-back" onclick="closeMobileSearch()" data-tooltip="חזרה">
+          <span class="material-icons">arrow_forward</span>
+        </button>
+        <span class="material-icons search-icon">search</span>
+        <input type="text" id="searchInput" placeholder="חיפוש נושא או סעיף..."
+          oninput="handleSearchInput(this.value)"
+          onfocus="handleSearchFocus()"
+          onblur="handleSearchBlur()"
+          onkeydown="handleSearchKeydown(event)"
+          autocomplete="off">
+        <button class="topbar-search-clear" id="searchClearBtn" onclick="clearSearch()" data-tooltip="נקה חיפוש">
+          <span class="material-icons" style="font-size:15px;">close</span>
+        </button>
+        <div class="search-dropdown" id="searchDropdown"></div>
+      </div>
+      <!-- Mobile-only: collapsed search icon, expands .topbar-search into a full-width
+           overlay bar via openMobileSearch() — see mobile media query + JS below. -->
+      <button class="mobile-search-toggle-btn" id="mobileSearchToggleBtn" onclick="openMobileSearch()" data-tooltip="חיפוש">
+        <span class="material-icons">search</span>
+      </button>
       <div class="topbar-spacer"></div>
       <span class="topbar-meta" style="font-size:13px;color:var(--muted);">336 ש"א · תשפ"ו</span>
       <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="החלף ערכת נושא">
@@ -1530,6 +1642,7 @@ let state = {};
 let filterIncomplete = false;
 let activeCat = null;
 let activePart = null; // null = all, 'א' = part A, 'ב' = part B
+let searchQuery = '';
 
 function getTopicState(id) {
   if (!state[id]) state[id] = { done: false, subs: {}, brunner: false };
@@ -1664,6 +1777,199 @@ function toggleFilter() {
 function resetAll() {
   if (!confirm('לאפס את כל הסימונים?')) return;
   state = {}; saveState(); renderAll();
+}
+
+// ── Search ─────────────────────────────────────────────────
+// Search no longer filters the table in place — it drives a dropdown "jump to" menu
+// (see buildSearchResults / renderSearchDropdown / jumpToTopic below). handleSearchInput
+// and clearSearch used to call renderTable() directly; that line is disabled below rather
+// than removed.
+function handleSearchInput(value) {
+  searchQuery = value.trim().toLowerCase();
+  const clearBtn = document.getElementById('searchClearBtn');
+  if (clearBtn) clearBtn.classList.toggle('show', searchQuery.length > 0);
+  // renderTable(); // old: filtered the table on every keystroke
+  renderSearchDropdown();
+}
+function clearSearch() {
+  searchQuery = '';
+  const input = document.getElementById('searchInput');
+  if (input) input.value = '';
+  const clearBtn = document.getElementById('searchClearBtn');
+  if (clearBtn) clearBtn.classList.remove('show');
+  // renderTable(); // old: re-ran table filter after clearing
+  renderSearchDropdown();
+}
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function highlightText(text, q) {
+  if (!q) return escapeHtml(text);
+  const idx = text.toLowerCase().indexOf(q);
+  if (idx === -1) return escapeHtml(text);
+  const before = escapeHtml(text.slice(0, idx));
+  const match = escapeHtml(text.slice(idx, idx + q.length));
+  const after = escapeHtml(text.slice(idx + q.length));
+  return `${before}<mark class="search-hit">${match}</mark>${after}`;
+}
+// Legacy: originally used by renderTable() to decide table-row filtering + which single
+// sub-item to auto-expand. No longer called from renderTable() (see notes there), but
+// left here — untouched — in case that behavior is wanted again. The dropdown below uses
+// its own matching (buildSearchResults) since it needs *all* matching sub-items, not just
+// the first one.
+function topicMatchesSearch(t, q) {
+  if (!q) return { matches: true, subIdx: -1 };
+  const haystack = `${t.name} ${t.meta} ${t.catLabel}`.toLowerCase();
+  if (haystack.includes(q)) return { matches: true, subIdx: -1 };
+  const subIdx = t.subs.findIndex(s => s.toLowerCase().includes(q));
+  return { matches: subIdx !== -1, subIdx };
+}
+
+// ── Search dropdown (jump-to menu) ──────────────────────────
+const MAX_DROPDOWN_GROUPS = 8;
+const MAX_SUBS_PER_GROUP = 5;
+
+function buildSearchResults(q) {
+  if (!q) return [];
+  const results = [];
+  for (const t of TOPICS) {
+    const haystack = `${t.name} ${t.meta} ${t.catLabel}`.toLowerCase();
+    const topicMatched = haystack.includes(q);
+    const matchedSubs = [];
+    t.subs.forEach((s, i) => { if (s.toLowerCase().includes(q)) matchedSubs.push(i); });
+    if (topicMatched || matchedSubs.length) {
+      results.push({ topic: t, topicMatched, matchedSubs });
+      if (results.length >= MAX_DROPDOWN_GROUPS) break;
+    }
+  }
+  return results;
+}
+
+function renderSearchDropdown() {
+  const dd = document.getElementById('searchDropdown');
+  if (!dd) return;
+  if (!searchQuery) { dd.classList.remove('show'); dd.innerHTML = ''; return; }
+
+  const results = buildSearchResults(searchQuery);
+  if (!results.length) {
+    dd.innerHTML = `<div class="search-dropdown-empty">אין תוצאות עבור "${escapeHtml(searchQuery)}"</div>`;
+    dd.classList.add('show');
+    return;
+  }
+
+  let html = '';
+  results.forEach(r => {
+    const t = r.topic;
+    html += `<div class="search-dropdown-group">`;
+    html += `
+      <div class="search-dropdown-header" onmousedown="event.preventDefault();jumpToTopic('${t.id}')">
+        <span style="font-size:14px;">${t.icon}</span>
+        <span>${highlightText(t.name, searchQuery)}</span>
+        <span class="cat-tag">${t.catLabel}</span>
+      </div>`;
+    const shown = r.matchedSubs.slice(0, MAX_SUBS_PER_GROUP);
+    shown.forEach(i => {
+      html += `<div class="search-dropdown-sub" onmousedown="event.preventDefault();jumpToTopic('${t.id}',${i})">${highlightText(t.subs[i], searchQuery)}</div>`;
+    });
+    const remaining = r.matchedSubs.length - shown.length;
+    if (remaining > 0) {
+      html += `<div class="search-dropdown-more">+${remaining} סעיפים נוספים</div>`;
+    }
+    html += `</div>`;
+  });
+  dd.innerHTML = html;
+  dd.classList.add('show');
+}
+
+function hideSearchDropdown() {
+  const dd = document.getElementById('searchDropdown');
+  if (dd) dd.classList.remove('show');
+}
+
+function handleSearchFocus() {
+  if (searchQuery) renderSearchDropdown();
+}
+function handleSearchBlur() {
+  // Delay so a click/mousedown on a dropdown entry (jumpToTopic, fired via onmousedown)
+  // has a chance to run before the dropdown disappears.
+  setTimeout(hideSearchDropdown, 150);
+}
+function handleSearchKeydown(e) {
+  if (e.key === 'Escape') {
+    hideSearchDropdown();
+    e.target.blur();
+    // On mobile, Escape also collapses the full-width overlay back to the icon.
+    closeMobileSearch();
+  }
+}
+
+// ── Mobile search: collapsed icon ⇄ full-width overlay ──────
+function openMobileSearch() {
+  const box = document.getElementById('topbarSearch');
+  if (box) box.classList.add('mobile-search-open');
+  const input = document.getElementById('searchInput');
+  // Slight delay before focusing: lets the fixed-position layout settle first,
+  // avoiding a layout/keyboard race on some mobile browsers.
+  if (input) setTimeout(() => input.focus(), 50);
+}
+function closeMobileSearch() {
+  const box = document.getElementById('topbarSearch');
+  if (!box || !box.classList.contains('mobile-search-open')) return;
+  box.classList.remove('mobile-search-open');
+  const input = document.getElementById('searchInput');
+  if (input) input.blur();
+  clearSearch();
+}
+
+function jumpToTopic(topicId, subIdx = -1) {
+  hideSearchDropdown();
+
+  // Reset the other filters so the target topic is guaranteed to be visible, regardless
+  // of whatever part/category/incomplete filter was active — mirrors the reset already
+  // done by filterPart()/filterCat() when toggling those off.
+  activePart = null;
+  activeCat = null;
+  filterIncomplete = false;
+  document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active'));
+  const allLink = document.querySelector('.sidebar-link[data-cat="all"]');
+  if (allLink) allLink.classList.add('active');
+  const chipA = document.getElementById('chipA'); if (chipA) chipA.classList.remove('active');
+  const chipB = document.getElementById('chipB'); if (chipB) chipB.classList.remove('active');
+  const wrapA = document.getElementById('chartWrapA'); if (wrapA) wrapA.classList.remove('chart-dimmed');
+  const wrapB = document.getElementById('chartWrapB'); if (wrapB) wrapB.classList.remove('chart-dimmed');
+  const filterBtn = document.getElementById('filterSbBtn'); if (filterBtn) filterBtn.classList.remove('active');
+
+  renderAll();
+
+  // Force this topic's sub-panel open (all sub-items, not just the matched one).
+  const subRow = document.getElementById(`subrow-${topicId}`);
+  const chevron = document.getElementById(`chev-${topicId}`);
+  if (subRow) subRow.style.display = 'table-row';
+  if (chevron) chevron.textContent = 'expand_less';
+
+  const topicRow = document.getElementById(`topic-${topicId}`);
+  if (topicRow) {
+    topicRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    topicRow.classList.add('jump-flash');
+    setTimeout(() => topicRow.classList.remove('jump-flash'), 1500);
+  }
+
+  if (subIdx !== -1) {
+    setTimeout(() => {
+      const subItem = document.getElementById(`subitem-${topicId}-${subIdx}`);
+      if (subItem) {
+        subItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        subItem.classList.add('jump-flash');
+        setTimeout(() => subItem.classList.remove('jump-flash'), 1500);
+      }
+    }, 300);
+  }
+
+  // On mobile the search bar is a full-width overlay covering the topbar — once a result
+  // is picked there's nothing left to search for, so collapse it back to the icon and
+  // let the jumped-to content take the full screen. No-op on desktop (guarded inside
+  // closeMobileSearch — the class is only ever added by openMobileSearch()).
+  closeMobileSearch();
 }
 
 // ── Stats computation ─────────────────────────────────────
@@ -1837,10 +2143,17 @@ function renderTable() {
   if (activePart) topics = topics.filter(t => t.part === activePart);
   if (activeCat) topics = topics.filter(t => t.cat === activeCat);
   if (filterIncomplete) topics = topics.filter(t => !getTopicState(t.id).done);
+  // NOTE: search no longer filters the table — it now drives a dropdown "jump to" menu
+  // (see buildSearchResults/renderSearchDropdown/jumpToTopic below). Kept here, disabled,
+  // in case in-table filtering is wanted again later.
+  // if (searchQuery) topics = topics.filter(t => topicMatchesSearch(t, searchQuery).matches);
 
   if (topics.length === 0) {
+    let emptyMsg = 'אין נושאים להצגה';
+    // if (searchQuery) emptyMsg = `אין תוצאות עבור "${escapeHtml(searchQuery)}"`; // see note above
+    if (filterIncomplete) emptyMsg = 'כל הנושאים הושלמו! 🎉';
     tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted);">
-      ${filterIncomplete ? 'כל הנושאים הושלמו! 🎉' : 'אין נושאים להצגה'}
+      ${emptyMsg}
     </td></tr>`;
     return;
   }
@@ -1857,6 +2170,12 @@ function renderTable() {
     const subsPct  = t.subs.length ? Math.round(subsDone / t.subs.length * 100) : 0;
     const isDone   = ts.done;
     const isInProg = !isDone && subsDone > 0;
+    // NOTE: rows used to auto-expand when a search match was only found in a sub-item.
+    // That's now handled by jumpToTopic() when a dropdown result is selected, not at
+    // render time. Disabled, not deleted, in case this is wanted again later.
+    // const searchHit = topicMatchesSearch(t, searchQuery);
+    // const forceExpand = !!(searchQuery && searchHit.subIdx !== -1);
+    const forceExpand = false;
 
     const statusBadge = isDone
       ? `<span class="badge badge-success" data-tooltip="כל הסעיפים וברונר הושלמו">הושלם</span>`
@@ -1871,8 +2190,14 @@ function renderTable() {
     const miniBarCls = isDone ? 'topic-mini-bar done' : 'topic-mini-bar';
 
     // Main row
+    // NOTE: topic name used to be run through highlightText(t.name, searchQuery) to
+    // highlight in-table search matches. Reverted to plain output — can't "comment out"
+    // part of a template literal, so this note documents the change instead of a real
+    // comment. highlightText()/topicMatchesSearch() are untouched and still used by the
+    // search dropdown further down.
     const tr = document.createElement('tr');
     tr.className = `topic-tr${isDone ? ' row-done' : ''}`;
+    tr.id = `topic-${t.id}`;
     tr.onclick = () => toggleSubRow(t.id);
     tr.innerHTML = `
       <td onclick="event.stopPropagation()">
@@ -1906,16 +2231,16 @@ function renderTable() {
       <td class="col-hide">${partBadge}</td>
       <td onclick="event.stopPropagation()">
         <button class="expand-btn" onclick="toggleSubRow('${t.id}')" data-tooltip="פתח/סגור סעיפי הנושא" data-tip-pos="left-edge">
-          <span class="material-icons" id="chev-${t.id}">expand_more</span>
+          <span class="material-icons" id="chev-${t.id}">${forceExpand ? 'expand_less' : 'expand_more'}</span>
         </button>
       </td>
     `;
 
-    // Sub row (hidden by default)
+    // Sub row (hidden by default, unless a search match forces it open)
     const subTr = document.createElement('tr');
     subTr.className = 'sub-tr';
     subTr.id = `subrow-${t.id}`;
-    subTr.style.display = 'none';
+    subTr.style.display = forceExpand ? 'table-row' : 'none';
 
     let subHTML = `<td colspan="8"><div class="sub-content">`;
 
@@ -1936,10 +2261,15 @@ function renderTable() {
     subHTML += `<div class="sub-col-items">`;
     subHTML += `<div class="sub-col-header" data-tooltip="רשימת הסעיפים לסימון — V ליד כל סעיף שלמדת">📋 סעיפי לימוד</div>`;
     subHTML += `<div class="sub-grid">`;
+    // NOTE: sub-item label used to run through highlightText(sub, searchQuery) to
+    // highlight in-table search matches. Reverted to plain output for the same reason
+    // noted above the main row — highlightText() itself is untouched and still used by
+    // the search dropdown. Added an id on the wrapper div so jumpToTopic() can scroll to
+    // a specific sub-item when a dropdown sub-result is selected.
     t.subs.forEach((sub, i) => {
       const done = !!ts.subs[i];
       subHTML += `
-        <div class="sub-item" onclick="toggleSub('${t.id}',${i},event)">
+        <div class="sub-item" id="subitem-${t.id}-${i}" onclick="toggleSub('${t.id}',${i},event)">
           <input type="checkbox" id="sub-${t.id}-${i}" ${done ? 'checked' : ''}
             onclick="toggleSub('${t.id}',${i},event)" onchange="toggleSub('${t.id}',${i},event)">
           <label for="sub-${t.id}-${i}" class="${done ? 'done' : ''}" onclick="event.stopPropagation()">${sub}</label>
