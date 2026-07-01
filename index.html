@@ -292,12 +292,12 @@ body {
 }
 .topbar-search input::placeholder { color: var(--muted); }
 .topbar-search input:focus { border-color: var(--primary); background: rgba(255,255,255,0.09); }
-.topbar-search-clear {
+.topbar-search .topbar-search-clear {
   position: absolute; left: 6px; background: none; border: none; cursor: pointer;
   color: var(--muted); font-size: 16px; padding: 2px; display: none; align-items: center;
 }
-.topbar-search-clear.show { display: flex; }
-.topbar-search-clear:hover { color: var(--text-dark); }
+.topbar-search .topbar-search-clear.show { display: flex; }
+.topbar-search .topbar-search-clear:hover { color: var(--text-dark); }
 mark.search-hit { background: var(--warning-lt); color: var(--text-dark); border-radius: 3px; padding: 0 2px; }
 
 /* ── SEARCH DROPDOWN (jump-to menu) ─────────────────────── */
