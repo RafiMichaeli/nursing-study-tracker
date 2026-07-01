@@ -20,11 +20,17 @@
 - מציג את אחוז ההתקדמות הכולל, ופירוט לפי חלק א׳ וחלק ב׳.
 - לחיצה על **"חלק א׳"** או **"חלק ב׳"** מסננת את הטבלה לנושאים של אותו חלק בלבד. לחיצה שנייה מבטלת את הסינון.
 - קישורים מהירים לקפיצה לכל קטגוריה (כירורגיה, קרדיולוגיה, נשימה וכו׳).
+- כפתור **"לא-גמורים בלבד"** מסנן את הטבלה לנושאים שטרם הושלמו.
 - ציון מצב שמירה אוטומטית (chip ירוק = פעיל, כולל שעת שמירה אחרונה).
+- בתחתית הסרגל: **שמור התקדמות**, **טען התקדמות**, **אפס הכל** (מוחק לצמיתות את כל הסימונים), ו-**הוראות שימוש** (פותח מדריך שימוש מובנה בתוך הדשבורד).
 
 **סרגל עליון (Topbar)**
 - מונה עמודי ברונר שהושלמו מתוך הסך הכולל.
 - פס התקדמות כולל באחוזים.
+- תיבת **חיפוש** (🔍) לחיפוש נושא או סעיף: הקלדה פותחת תפריט תוצאות עם הדגשת הטקסט התואם, ולחיצה על תוצאה קופצת ישירות לנושא. במובייל מוצג כסמל מכווץ שנפתח למסך מלא.
+
+**מעל טבלת הנושאים**
+- כפתורי **"פתח הכל"** / **"סגור הכל"** לפתיחה או סגירה של פאנלי הסעיפים בכל הנושאים בבת אחת.
 
 **טבלת הנושאים**
 - כל שורה = נושא לימוד עם קטגוריה, מספר עמודים, שעות, סטטוס ואחוז התקדמות.
@@ -84,10 +90,14 @@ Interactive study tracker for the Adult Nursing course — Ichilov Sheinbrunn, 2
 ### Features
 
 - **Topic tracking** — check off sub-topics and Brunner reading for each of 18 chapters
+- **Search** — jump-to search box in the topbar; matches topics and sub-items, highlights hits, click a result to jump straight to it (collapses to an icon on mobile)
 - **Progress charts** — bar charts per part + overall donut chart
-- **Smart filtering** — by part (א/ב), category, or incomplete topics only
+- **Smart filtering** — by part (א/ב), category, or incomplete topics only (desktop sidebar button or mobile bottom nav)
+- **Expand/collapse all** — open or close every topic's detail panel at once
 - **Study material links** — direct links to lecture slides and Brunner chapters on Google Drive
 - **AI exam generator** — one-click prompt copy for Claude / ChatGPT to generate 20 MCQs
+- **Reset** — wipe all saved progress in the browser (irreversible)
+- **Built-in help guide** — in-app instructions modal, no need to leave the page
 - **Auto-save** — saves progress to a local `progress.json` every 5 minutes
 - **Dark / light theme** — persisted via localStorage
 - **Mobile-ready** — bottom nav, fully responsive layout
