@@ -1,0 +1,2452 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>סיעוד המבוגר — מעקב לימודים</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════════════════
+   AdminKit layout — RTL Hebrew
+═══════════════════════════════════════════════════════ */
+:root {
+  --sidebar-w: 220px;
+  --sidebar-bg: #141720;
+  --sidebar-link: #8693a4;
+  --sidebar-hover: rgba(255,255,255,0.055);
+  --sidebar-active: rgba(63,91,246,0.18);
+  --sidebar-active-border: #4361ee;
+  --sidebar-head: rgba(255,255,255,0.28);
+  --topbar-h: 44px;
+  --topbar-bg: #141720;
+  --topbar-shadow: 0 1px 0 0 rgba(255,255,255,0.06);
+  --page-bg: #1c1e2e;
+  --card-bg: #252838;
+  --card-shadow: 0 2px 10px 0 rgba(0,0,0,0.35);
+  --card-border: rgba(255,255,255,0.06);
+  --primary: #4f80ff;
+  --primary-hover: #3d6eff;
+  --primary-lt: rgba(79,128,255,0.15);
+  --success: #1cbb8c;
+  --success-lt: rgba(28,187,140,0.15);
+  --warning: #fcb92c;
+  --warning-lt: rgba(252,185,44,0.15);
+  --danger: #e05260;
+  --danger-lt: rgba(224,82,96,0.15);
+  --info: #38bdf8;
+  --info-lt: rgba(56,189,248,0.15);
+  --purple: #a78bfa;
+  --purple-lt: rgba(167,139,250,0.15);
+  --orange: #fb923c;
+  --text: #c8cdd8;
+  --text-dark: #e8eaf0;
+  --muted: #7a8394;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+.material-icons { font-size: 1.3em; vertical-align: middle; line-height: 1; user-select: none; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
+* { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.12) transparent; }
+
+::selection { background: rgba(79,128,255,0.35); color: #fff; }
+
+body {
+  font-family: 'Heebo', sans-serif;
+  background: var(--page-bg);
+  color: var(--text);
+  direction: rtl;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ── COURSE WIZARD OVERLAY ───────────────────────────── */
+.wizard-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 2000;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(3px);
+  align-items: center; justify-content: center;
+}
+.wizard-overlay.open { display: flex; }
+.wizard-sheet {
+  width: min(680px, 96vw);
+  height: min(88vh, 800px);
+  background: #1c1e2e;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+  display: flex; flex-direction: column; overflow: hidden;
+  animation: sheetIn .22s ease;
+}
+@keyframes sheetIn {
+  from { opacity:0; transform: scale(0.96) translateY(12px); }
+  to   { opacity:1; transform: scale(1)    translateY(0); }
+}
+.wizard-sheet-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0;
+  background: #141720;
+}
+.wizard-sheet-title { font-size: 14px; font-weight: 700; color: #e8eaf0; }
+.wizard-close-btn {
+  background: none; border: none; cursor: pointer;
+  color: #7a8394; padding: 4px; border-radius: 6px;
+  display: flex; align-items: center; transition: all .15s;
+}
+.wizard-close-btn:hover { color: #e8eaf0; background: rgba(255,255,255,0.07); }
+.wizard-frame { flex: 1; border: none; width: 100%; background: #1c1e2e; }
+
+/* ── WRAPPER ─────────────────────────────────────────── */
+.wrapper {
+  display: flex;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* ── SIDEBAR ─────────────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  background: var(--sidebar-bg);
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  transition: margin-right 0.15s ease-in-out;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+.sidebar.collapsed { margin-right: calc(var(--sidebar-w) * -1); }
+
+.sidebar-brand {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px 8px;
+  color: #fff; text-decoration: none;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+.sidebar-brand-icon {
+  width: 30px; height: 30px; border-radius: 6px;
+  background: var(--primary); display: flex; align-items: center;
+  justify-content: center; font-size: 15px; flex-shrink: 0;
+}
+.sidebar-brand-text { font-size: 14px; font-weight: 700; line-height: 1.2; }
+.sidebar-brand-sub { font-size: 11px; color: rgba(255,255,255,0.45); display: block; }
+
+/* Sidebar overall progress */
+.sidebar-overall {
+  padding: 7px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+.sidebar-overall-top {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 4px;
+}
+.sidebar-overall-label { font-size: 12px; color: var(--sidebar-head); text-transform: uppercase; letter-spacing: 0.5px; }
+.sidebar-overall-pct { font-size: 14px; font-weight: 700; color: #fff; }
+.sidebar-bar-bg { height: 4px; background: rgba(255,255,255,0.12); border-radius: 4px; overflow: hidden; }
+.sidebar-bar-fill { height: 100%; background: var(--primary); border-radius: 4px; transition: width 0.4s ease; }
+
+/* Part A/B mini stats */
+.sidebar-parts { display: flex; gap: 6px; padding: 6px 14px 0; }
+.sidebar-part-chip {
+  flex: 1; padding: 4px 6px; border-radius: 5px; text-align: center;
+  cursor: pointer; transition: all 0.15s;
+}
+.sidebar-part-chip.pa { background: rgba(79,128,255,0.15); border: 1px solid rgba(79,128,255,0.25); }
+.sidebar-part-chip.pb { background: rgba(167,139,250,0.15); border: 1px solid rgba(167,139,250,0.25); }
+.sidebar-part-chip.pa:hover { background: rgba(79,128,255,0.28); }
+.sidebar-part-chip.pb:hover { background: rgba(167,139,250,0.28); }
+.sidebar-part-chip.pa.active { background: rgba(79,128,255,0.35); border-color: #4f80ff; box-shadow: 0 0 0 2px rgba(79,128,255,0.3); }
+.sidebar-part-chip.pb.active { background: rgba(167,139,250,0.35); border-color: #a78bfa; box-shadow: 0 0 0 2px rgba(167,139,250,0.3); }
+.sidebar-part-chip .pct { font-size: 15px; font-weight: 700; display: block; }
+.sidebar-part-chip.pa .pct { color: #6ea8fe; }
+.sidebar-part-chip.pb .pct { color: #c8a8f9; }
+.sidebar-part-chip .lbl { font-size: 11px; color: rgba(255,255,255,0.45); }
+
+/* Chart dimming when part filter active */
+.chart-wrap { transition: opacity 0.2s; }
+.chart-wrap.chart-dimmed { opacity: 0.28; pointer-events: none; }
+
+/* Sidebar nav */
+.sidebar-nav { flex: 1; padding: 4px 0; }
+.sidebar-header {
+  padding: 6px 14px 2px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.8px;
+  text-transform: uppercase; color: var(--sidebar-head);
+}
+.sidebar-item { list-style: none; }
+.sidebar-link {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 14px; color: var(--sidebar-link);
+  text-decoration: none; font-size: 14px; font-weight: 500;
+  border-radius: 0; transition: all 0.1s; cursor: pointer;
+  border: none; background: none; width: 100%; text-align: right;
+}
+.sidebar-link:hover { background: var(--sidebar-hover); color: #fff; }
+.sidebar-link.active {
+  background: var(--sidebar-active);
+  color: #fff;
+  border-right: 3px solid var(--sidebar-active-border);
+  padding-right: 11px;
+}
+.sidebar-link .link-icon { font-size: 15px; flex-shrink: 0; }
+.sidebar-link .link-badge {
+  margin-right: auto; margin-left: 0;
+  font-size: 10px; padding: 1px 6px; border-radius: 10px;
+  background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.6);
+}
+.sidebar-link .link-badge.done-badge { background: rgba(28,187,140,0.25); color: #1cbb8c; }
+
+/* Sidebar footer controls */
+.sidebar-footer {
+  padding: 8px 10px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  display: flex; flex-direction: column; gap: 4px;
+  flex-shrink: 0;
+}
+.sidebar-footer .sb-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 5px 10px; border-radius: 5px; font-size: 12px;
+  font-weight: 500; cursor: pointer; border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7);
+  font-family: inherit; transition: all 0.15s; width: 100%; text-align: right;
+}
+.sidebar-footer .sb-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+.sidebar-footer .sb-btn.danger:hover { background: rgba(220,53,69,0.2); border-color: rgba(220,53,69,0.4); color: #f5a0a7; }
+.sidebar-footer .sb-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+/* ── MAIN ─────────────────────────────────────────────── */
+.main {
+  flex: 1;
+  min-width: 0;
+  margin-right: var(--sidebar-w);
+  transition: margin-right 0.15s ease-in-out;
+  display: flex; flex-direction: column;
+}
+.main.expanded { margin-right: 0; }
+
+/* ── TOPBAR ───────────────────────────────────────────── */
+.topbar {
+  height: var(--topbar-h);
+  background: var(--topbar-bg);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  box-shadow: var(--topbar-shadow);
+  display: flex; align-items: center; gap: 16px;
+  padding: 0 20px;
+  position: sticky; top: 0; z-index: 100;
+  flex-shrink: 0;
+}
+.topbar-toggle {
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: 20px; padding: 4px;
+  display: flex; align-items: center;
+}
+.topbar-toggle:hover { color: var(--text-dark); }
+.topbar-progress-wrap {
+  flex: 1; display: flex; align-items: center; gap: 12px; max-width: 360px;
+}
+.topbar-progress-track {
+  flex: 1; height: 5px; background: rgba(255,255,255,0.1); border-radius: 20px; overflow: hidden;
+}
+.topbar-progress-bar {
+  height: 100%; background: var(--primary);
+  border-radius: 20px; transition: width 0.4s ease; min-width: 2px;
+}
+.topbar-pct { font-size: 14px; font-weight: 700; color: var(--primary); min-width: 36px; }
+.topbar-label {
+  font-size: 12px; color: var(--muted); white-space: nowrap;
+  background: rgba(255,255,255,0.08); padding: 3px 10px; border-radius: 20px;
+}
+.topbar-spacer { flex: 1; }
+
+/* ── CONTENT ──────────────────────────────────────────── */
+.content {
+  flex: 1;
+  padding: 24px 40px 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── PAGE HEADER ─────────────────────────────────────── */
+.page-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px; flex-wrap: wrap; gap: 6px;
+}
+.page-header-left h1 {
+  font-size: 18px; font-weight: 700; color: var(--text-dark);
+}
+.page-header-left p { font-size: 13px; color: var(--muted); margin-top: 1px; }
+.page-header-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ── CARDS (generic) ─────────────────────────────────── */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 4px;
+  box-shadow: var(--card-shadow);
+  margin-bottom: 24px;
+}
+.card-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card-title { font-size: 14px; font-weight: 600; color: var(--text-dark); margin: 0; }
+.card-subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.card-body { padding: 20px; }
+.card-body.p-0 { padding: 0; }
+
+/* ── ROW / GRID ──────────────────────────────────────── */
+.row { display: flex; flex-wrap: wrap; gap: 0; margin: 0 -12px; }
+.col { padding: 0 12px; flex: 1; min-width: 0; }
+.col-12 { padding: 0 12px; width: 100%; }
+.col-6 { padding: 0 12px; width: 50%; }
+.col-4 { padding: 0 12px; width: 33.333%; }
+.col-8 { padding: 0 12px; width: 66.666%; }
+.col-3 { padding: 0 12px; width: 25%; }
+
+/* ── STAT CARDS (Analytics Dashboard) ───────────────── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.stat-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 4px;
+  box-shadow: var(--card-shadow);
+  padding: 12px 14px;
+  position: relative;
+  overflow: hidden;
+}
+.stat-card-top { display: flex; align-items: flex-start; justify-content: space-between; }
+.stat-card-title { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+.stat-card-icon {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; flex-shrink: 0;
+}
+.stat-card-icon.blue   { background: var(--primary-lt); color: var(--primary); }
+.stat-card-icon.green  { background: var(--success-lt); color: var(--success); }
+.stat-card-icon.amber  { background: var(--warning-lt); color: var(--warning); }
+.stat-card-icon.red    { background: var(--danger-lt); color: var(--danger); }
+.stat-card-icon.purple { background: var(--purple-lt); color: var(--purple); }
+.stat-card-icon.info   { background: var(--info-lt); color: var(--info); }
+.stat-val {
+  font-size: 28px; font-weight: 700; color: var(--text-dark);
+  margin: 4px 0 2px; line-height: 1;
+}
+.stat-trend {
+  font-size: 12px; display: flex; align-items: center; gap: 4px;
+}
+.stat-trend .trend-label { color: var(--muted); }
+.stat-trend .up { color: var(--success); }
+.stat-trend .down { color: var(--danger); }
+
+/* ── CHARTS ROW ──────────────────────────────────────── */
+.charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.chart-wrap {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 4px;
+  box-shadow: var(--card-shadow);
+}
+.chart-header {
+  padding: 8px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.chart-title { font-size: 14px; font-weight: 600; color: var(--text-dark); }
+.chart-body { padding: 10px 14px; }
+.chart-canvas-wrap { position: relative; height: 230px; }
+
+/* Part A/B table inside donut card */
+.part-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+.part-table tr { border-top: 1px solid rgba(255,255,255,0.07); }
+.part-table tr:first-child { border-top: none; }
+.part-table td { padding: 6px 4px; font-size: 14px; }
+.part-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-left: 6px; }
+.part-dot.a { background: var(--primary); }
+.part-dot.b { background: var(--purple); }
+.part-num { font-weight: 600; color: var(--text-dark); }
+
+/* ── CONTROLS BAR ────────────────────────────────────── */
+.controls-bar {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 16px; align-items: center;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 11px; border-radius: 4px; font-size: 12px;
+  font-weight: 500; cursor: pointer; white-space: nowrap;
+  border: 1px solid transparent; font-family: inherit;
+  transition: all 0.15s; text-decoration: none;
+}
+.btn-outline-secondary {
+  background: rgba(255,255,255,0.05); color: var(--muted); border-color: rgba(255,255,255,0.12);
+}
+.btn-outline-secondary:hover { background: rgba(255,255,255,0.10); color: var(--text-dark); }
+.btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-success { background: var(--success); color: #fff; border-color: var(--success); }
+.btn-success:hover { background: #178f6c; }
+.btn-danger { background: var(--card-bg); color: var(--danger); border-color: #f5c6cb; }
+.btn-danger:hover { background: var(--danger-lt); }
+.btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+/* ── TABLE (Latest Projects) ─────────────────────────── */
+.table-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 4px;
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+}
+.table-card-header {
+  padding: 8px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 6px;
+}
+.table-card-title { font-size: 14px; font-weight: 600; color: var(--text-dark); }
+
+.topics-table { width: 100%; border-collapse: collapse; }
+.topics-table thead tr {
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.topics-table th {
+  padding: 8px 10px; font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--muted); white-space: nowrap; text-align: right;
+}
+.topics-table tbody tr.topic-tr {
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  transition: background 0.1s;
+  cursor: pointer;
+}
+.topics-table tbody tr.topic-tr:hover { background: rgba(255,255,255,0.04); }
+.topics-table tbody tr.topic-tr.row-done { background: rgba(28,187,140,0.05); }
+.topics-table td {
+  padding: 8px 10px; font-size: 13px; text-align: right; vertical-align: middle;
+}
+
+/* Topic name cell */
+.topic-name-wrap { display: flex; flex-direction: column; gap: 1px; }
+.topic-name-title {
+  font-weight: 600; font-size: 13px; color: var(--text-dark);
+}
+.topic-name-title.done { text-decoration: line-through; color: var(--muted); font-weight: 400; }
+.topic-name-meta { font-size: 11px; color: var(--muted); line-height: 1.3; }
+.topic-mini-bar-bg {
+  height: 3px; background: rgba(255,255,255,0.1); border-radius: 3px;
+  overflow: hidden; margin-top: 3px; width: 100px;
+}
+.topic-mini-bar { height: 100%; background: var(--primary); border-radius: 3px; transition: width 0.3s; }
+.topic-mini-bar.done { background: var(--success); }
+
+/* Category cell */
+.cat-cell { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.cat-cell .cat-icon { font-size: 16px; }
+.cat-cell .cat-name { font-size: 13px; color: var(--muted); white-space: nowrap; }
+
+/* Badges in table */
+.badge {
+  display: inline-block; font-size: 12px; font-weight: 600;
+  padding: 3px 8px; border-radius: 3px; white-space: nowrap;
+}
+.badge-success  { background: var(--success-lt); color: var(--success); }
+.badge-warning  { background: var(--warning-lt); color: #8a6500; }
+.badge-secondary{ background: rgba(255,255,255,0.1); color: var(--muted); }
+.badge-primary  { background: var(--primary-lt); color: var(--primary); }
+.badge-purple   { background: var(--purple-lt); color: var(--purple); }
+.badge-hours    { background: var(--primary-lt); color: var(--primary); }
+.badge-pages    { background: var(--info-lt); color: var(--info); }
+
+/* Subs count */
+.subs-count { font-size: 14px; font-weight: 600; color: var(--text-dark); }
+.subs-total { font-size: 13px; color: var(--muted); }
+
+/* Expand button */
+.expand-btn {
+  background: none; border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 4px; padding: 5px 10px; cursor: pointer;
+  color: var(--muted); font-size: 13px; transition: all 0.15s;
+}
+.expand-btn:hover { background: rgba(255,255,255,0.06); color: var(--primary); border-color: var(--primary); }
+
+/* Checkbox in table */
+.topic-cb { width: 16px; height: 16px; cursor: pointer; accent-color: var(--success); }
+
+/* ── SUB ROW (expandable) ─────────────────────────────── */
+.sub-tr { border-bottom: 1px solid rgba(255,255,255,0.05); }
+.sub-tr td { background: #1a1c2a; padding: 0 !important; }
+.sub-content { padding: 14px 20px 16px 20px; }
+
+/* 3-column sub layout */
+.sub-cols {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 0;
+  margin-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+[data-theme="light"] .sub-cols { border-top: 1px solid rgba(0,0,0,0.06); }
+.sub-cols > div {
+  padding: 12px 16px;
+  border-right: 1px solid rgba(255,255,255,0.07);
+}
+.sub-cols > div:last-child { border-right: none; }
+[data-theme="light"] .sub-cols > div { border-right: 1px solid rgba(0,0,0,0.06); }
+[data-theme="light"] .sub-cols > div:last-child { border-right: none; }
+.sub-col-header {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.5px; color: var(--muted);
+  margin-bottom: 6px; padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+[data-theme="light"] .sub-col-header { border-bottom: 1px solid rgba(0,0,0,0.06); }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.exam-gen-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 13px; border-radius: 6px; font-size: 13px;
+  font-weight: 600; cursor: pointer; font-family: inherit;
+  background: rgba(79,128,255,0.12); color: var(--primary);
+  border: 1px solid rgba(79,128,255,0.28); transition: all .15s;
+}
+.exam-gen-btn:hover { background: rgba(79,128,255,0.25); border-color: var(--primary); }
+.exam-gen-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.sub-grid {
+  display: flex; flex-direction: column;
+  gap: 2px;
+}
+.sub-item {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 5px 8px; border-radius: 5px; cursor: pointer;
+  transition: background 0.1s;
+}
+.sub-item:hover { background: rgba(79,128,255,0.1); }
+.sub-item input[type=checkbox] {
+  margin-top: 2px; flex-shrink: 0;
+  accent-color: var(--success); width: 15px; height: 15px; cursor: pointer;
+}
+.sub-item label { font-size: 14px; cursor: pointer; color: var(--text); line-height: 1.4; }
+.sub-item label.done { text-decoration: line-through; color: var(--muted); }
+.brunner-row {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 8px; font-size: 13px; color: var(--muted);
+  background: rgba(252,185,44,0.08); border-radius: 5px;
+  margin-bottom: 8px; cursor: pointer;
+}
+.brunner-row input { accent-color: var(--warning); cursor: pointer; }
+.brunner-row label { cursor: pointer; }
+.brunner-row label.done { text-decoration: line-through; opacity: 0.6; }
+.sub-links { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.topic-link-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 13px; padding: 4px 11px; border-radius: 4px;
+  background: var(--primary-lt); color: var(--primary);
+  text-decoration: none; border: 1px solid rgba(59,125,221,0.2);
+  transition: all 0.15s; white-space: nowrap; font-weight: 500;
+}
+.topic-link-btn:hover { background: var(--primary); color: #fff; }
+.sub-prog-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+}
+.sub-prog-bg { flex: 1; height: 5px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+.sub-prog-fill { height: 100%; background: var(--primary); border-radius: 4px; }
+.sub-prog-txt { font-size: 13px; color: var(--muted); white-space: nowrap; }
+
+/* ── FOOTER ──────────────────────────────────────────── */
+.footer {
+  padding: 7px 16px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  font-size: 12px; color: var(--muted);
+  background: var(--topbar-bg);
+  text-align: center;
+}
+
+/* ── THEME TOGGLE BUTTON ─────────────────────────────── */
+.theme-toggle-btn {
+  background: none; border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 50%; width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--muted); font-size: 15px;
+  transition: all 0.15s; flex-shrink: 0;
+}
+.theme-toggle-btn:hover { background: rgba(255,255,255,0.1); color: var(--text-dark); }
+
+/* ── LIGHT THEME OVERRIDES ───────────────────────────── */
+[data-theme="light"] {
+  --sidebar-bg: #fff;
+  --sidebar-link: #6c757d;
+  --sidebar-hover: rgba(0,0,0,0.05);
+  --sidebar-active: rgba(59,125,221,0.10);
+  --sidebar-active-border: #3b7ddd;
+  --sidebar-head: rgba(0,0,0,0.4);
+  --topbar-bg: #fff;
+  --topbar-shadow: 0 0 2rem 0 rgba(33,37,41,.1);
+  --page-bg: #f5f7fb;
+  --card-bg: #fff;
+  --card-shadow: 0 0 .875rem 0 rgba(33,37,41,.05);
+  --card-border: rgba(0,0,0,.0625);
+  --primary: #3b7ddd;
+  --primary-hover: #2f6bc7;
+  --primary-lt: #e8f0fb;
+  --success-lt: #e3f7f0;
+  --warning-lt: #fff8e6;
+  --danger: #dc3545;
+  --danger-lt: #fdecea;
+  --info: #20aee3;
+  --info-lt: #e3f5fc;
+  --purple: #6f42c1;
+  --purple-lt: #f0eafb;
+  --text: #495057;
+  --text-dark: #343a40;
+  --muted: #6c757d;
+}
+[data-theme="light"] .topbar { border-bottom: 1px solid rgba(0,0,0,0.07); }
+[data-theme="light"] .topbar-progress-track { background: #e9ecef; }
+[data-theme="light"] .topbar-label { background: #f0f0f0; }
+[data-theme="light"] .theme-toggle-btn { border-color: rgba(0,0,0,0.15); }
+[data-theme="light"] .theme-toggle-btn:hover { background: #f0f0f0; color: var(--text-dark); }
+[data-theme="light"] .card-header { border-bottom: 1px solid rgba(0,0,0,0.06); }
+[data-theme="light"] .chart-header { border-bottom: 1px solid rgba(0,0,0,0.06); }
+[data-theme="light"] .part-table tr { border-top: 1px solid rgba(0,0,0,0.05); }
+[data-theme="light"] .table-card-header { border-bottom: 1px solid rgba(0,0,0,0.06); }
+[data-theme="light"] .topics-table thead tr { background: var(--page-bg); border-bottom: 2px solid rgba(0,0,0,0.07); }
+[data-theme="light"] .topics-table tbody tr.topic-tr { border-bottom: 1px solid rgba(0,0,0,0.05); }
+[data-theme="light"] .topics-table tbody tr.topic-tr:hover { background: #fafbfd; }
+[data-theme="light"] .topics-table tbody tr.topic-tr.row-done { background: #fafffe; }
+[data-theme="light"] .topic-mini-bar-bg { background: #e9ecef; }
+[data-theme="light"] .badge-secondary { background: #e9ecef; color: #6c757d; }
+[data-theme="light"] .btn-outline-secondary { background: #fff; color: var(--muted); border-color: #ced4da; }
+[data-theme="light"] .btn-outline-secondary:hover { background: #e9ecef; }
+[data-theme="light"] .expand-btn { border-color: rgba(0,0,0,0.12); }
+[data-theme="light"] .expand-btn:hover { background: var(--page-bg); border-color: var(--primary); }
+[data-theme="light"] .sub-tr { border-bottom: 1px solid rgba(0,0,0,0.05); }
+[data-theme="light"] .sub-tr td { background: #f9fbff; }
+[data-theme="light"] .sub-item:hover { background: rgba(59,125,221,0.06); }
+[data-theme="light"] .sub-prog-bg { background: #e9ecef; }
+[data-theme="light"] .footer { border-top: 1px solid rgba(0,0,0,0.06); background: #fff; }
+[data-theme="light"] .sidebar-link.active { border-right: 3px solid var(--sidebar-active-border); padding-right: 11px; }
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); }
+
+/* ── LIGHT THEME SIDEBAR OVERRIDES ──────────────────── */
+[data-theme="light"] .sidebar { border-left: 1px solid rgba(0,0,0,0.08); }
+[data-theme="light"] .sidebar-brand { border-bottom-color: rgba(0,0,0,0.08); color: #343a40; }
+[data-theme="light"] .sidebar-brand-sub { color: rgba(0,0,0,0.4); }
+[data-theme="light"] .sidebar-overall { border-bottom-color: rgba(0,0,0,0.08); }
+[data-theme="light"] .sidebar-overall-pct { color: #343a40; }
+[data-theme="light"] .sidebar-bar-bg { background: rgba(0,0,0,0.1); }
+[data-theme="light"] .sidebar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); }
+[data-theme="light"] .sidebar-part-chip.pa { background: rgba(59,125,221,0.12); border-color: rgba(59,125,221,0.25); }
+[data-theme="light"] .sidebar-part-chip.pb { background: rgba(111,66,193,0.10); border-color: rgba(111,66,193,0.22); }
+[data-theme="light"] .sidebar-part-chip.pa:hover { background: rgba(59,125,221,0.22); }
+[data-theme="light"] .sidebar-part-chip.pb:hover { background: rgba(111,66,193,0.18); }
+[data-theme="light"] .sidebar-part-chip.pa.active { background: rgba(59,125,221,0.28); border-color: #3b7ddd; box-shadow: 0 0 0 2px rgba(59,125,221,0.25); }
+[data-theme="light"] .sidebar-part-chip.pb.active { background: rgba(111,66,193,0.25); border-color: #6f42c1; box-shadow: 0 0 0 2px rgba(111,66,193,0.2); }
+[data-theme="light"] .sidebar-part-chip .lbl { color: rgba(0,0,0,0.45); }
+[data-theme="light"] .sidebar-part-chip .pct { color: var(--text-dark); }
+[data-theme="light"] .sidebar-header { color: rgba(0,0,0,0.4); }
+[data-theme="light"] .sidebar-link:hover { color: #343a40; }
+[data-theme="light"] .sidebar-link.active { color: #3b7ddd; }
+[data-theme="light"] .sidebar-link .link-badge { background: rgba(0,0,0,0.08); color: rgba(0,0,0,0.5); }
+[data-theme="light"] .sidebar-link .link-badge.done-badge { background: rgba(28,187,140,0.18); color: #1a9e76; }
+[data-theme="light"] .sidebar-footer { border-top-color: rgba(0,0,0,0.08); }
+[data-theme="light"] .sidebar-footer .sb-btn { border-color: rgba(0,0,0,0.12); background: rgba(0,0,0,0.04); color: #495057; }
+[data-theme="light"] .sidebar-footer .sb-btn:hover { background: rgba(0,0,0,0.08); color: #343a40; }
+[data-theme="light"] .sidebar-footer .sb-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+[data-theme="light"] .sidebar-close-btn { color: #6c757d; }
+[data-theme="light"] .sidebar-close-btn:hover { color: #343a40; background: rgba(0,0,0,0.07); }
+
+/* ── MOBILE ──────────────────────────────────────────── */
+/* ── MOBILE BOTTOM NAV ───────────────────────────────── */
+.mobile-bottom-nav {
+  display: none;
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 500;
+  background: var(--topbar-bg);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 6px 0 env(safe-area-inset-bottom, 6px);
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+}
+.mob-nav-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: 11px; padding: 4px 6px;
+  flex: 1; min-width: 0; transition: color 0.15s;
+}
+.mob-nav-btn i { font-size: 20px; }
+.mob-nav-btn.active { color: var(--primary); }
+.mob-nav-btn.active i { color: var(--primary); }
+[data-theme="light"] .mobile-bottom-nav { border-top: 1px solid rgba(0,0,0,0.1); }
+
+/* ── TABLET (900px) ──────────────────────────────────── */
+@media (max-width: 900px) {
+  .sidebar { margin-right: calc(var(--sidebar-w) * -1); transition: margin-right 0.25s ease; }
+  .sidebar.open { margin-right: 0; }
+  .main { margin-right: 0 !important; }
+  .sidebar-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5); z-index: 199;
+  }
+  .sidebar.open ~ .main .sidebar-overlay { display: block; }
+
+  .stats-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .charts-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .content { padding: 14px 14px 40px; }
+
+  .topics-table .col-hide { display: none; }
+  .topic-mini-bar-bg { width: 70px; }
+  .cat-cell .cat-name { display: none; }
+}
+
+/* ── MOBILE (640px) ──────────────────────────────────── */
+@media (max-width: 640px) {
+  :root { --topbar-h: 52px; }
+
+  /* Show bottom nav */
+  .mobile-bottom-nav { display: flex; }
+
+  /* Sidebar: add bottom padding so footer buttons aren't hidden under the bottom nav */
+  .sidebar { padding-bottom: 72px; }
+
+  /* Topbar adjustments */
+  .topbar { padding: 0 12px; }
+  .topbar-progress { display: none; }
+
+  /* Push content above bottom nav */
+  .main { padding-bottom: 64px; }
+
+  /* Content padding */
+  .content { padding: 12px 10px 12px; }
+
+  /* Page header */
+  .page-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .page-header-left h1 { font-size: 16px; }
+  .page-header-left p { font-size: 12px; }
+  .page-header-right { width: 100%; }
+  .page-header-right .btn { width: 100%; justify-content: center; font-size: 13px; }
+
+  /* Stats: 2×2 grid */
+  .stats-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .stat-card { padding: 12px; }
+  .stat-val { font-size: 22px; }
+  .stat-card-title { font-size: 10px; }
+  .stat-card-icon { width: 30px; height: 30px; font-size: 14px; }
+
+  /* Charts: single column */
+  .charts-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  /* Table: mobile-friendly */
+  .topics-table .col-hide { display: none; }
+  .cat-cell .cat-name { display: none; }
+  .topic-mini-bar-bg { width: 50px; }
+  .topic-name-meta { display: none; }
+  .topics-table td { padding: 7px 8px; font-size: 12px; }
+  .topics-table th { padding: 6px 8px; font-size: 10px; }
+  .topic-name-title { font-size: 12px; }
+  .badge { font-size: 11px; padding: 2px 6px; }
+
+  /* Expand rows */
+  .sub-content { padding: 10px 12px 12px; }
+  .sub-cols { grid-template-columns: 1fr; gap: 10px; }
+  .sub-item label { font-size: 13px; }
+
+  /* Card headers */
+  .card-title { font-size: 13px; }
+  .table-card-title { font-size: 13px; }
+  .chart-title { font-size: 13px; }
+
+  /* Hide sidebar elements duplicated by mobile bottom nav */
+  .sidebar-parts { display: none; }
+  #filterSbBtn { display: none; }
+
+  /* Footer */
+  .footer { display: none; }
+}
+
+/* ── SMALL MOBILE (380px) ────────────────────────────── */
+@media (max-width: 380px) {
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .stat-val { font-size: 20px; }
+  .content { padding: 10px 8px; }
+  .topics-table td { padding: 6px 6px; }
+}
+
+/* ── AUTO-SAVE STATUS ────────────────────────────────────── */
+.autosave-chip {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 12px;
+  margin: 8px 8px 2px;
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  transition: background .3s, border-color .3s, color .3s;
+}
+.autosave-chip.active {
+  color: var(--success);
+  background: rgba(28,187,140,0.08);
+  border-color: rgba(28,187,140,0.22);
+}
+.autosave-chip.inactive {
+  color: var(--muted);
+}
+.autosave-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+  background: var(--muted);
+  transition: background .3s;
+}
+.autosave-chip.active .autosave-dot {
+  background: var(--success);
+  box-shadow: 0 0 0 0 rgba(28,187,140,0.6);
+  animation: autosave-pulse 2.4s ease-in-out infinite;
+}
+@keyframes autosave-pulse {
+  0%   { box-shadow: 0 0 0 0   rgba(28,187,140,0.55); }
+  60%  { box-shadow: 0 0 0 6px rgba(28,187,140,0); }
+  100% { box-shadow: 0 0 0 0   rgba(28,187,140,0); }
+}
+.autosave-text { flex: 1; line-height: 1.3; }
+.autosave-text strong { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.2px; }
+.autosave-text span   { display: block; font-size: 11px; opacity: 0.75; margin-top: 1px; }
+
+/* ── TOOLTIPS ──────────────────────────────────────────── */
+[data-tooltip]{position:relative}
+[data-tooltip]::after{
+  content:attr(data-tooltip);
+  position:absolute;
+  bottom:calc(100% + 8px);
+  right:50%;
+  transform:translateX(50%);
+  background:#0d0f1a;
+  color:#e8eaf0;
+  font-size:12px;
+  line-height:1.55;
+  padding:6px 11px;
+  border-radius:7px;
+  white-space:normal;
+  max-width:240px;
+  width:max-content;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .18s ease;
+  z-index:10000;
+  border:1px solid rgba(255,255,255,0.13);
+  box-shadow:0 4px 18px rgba(0,0,0,0.55);
+  direction:rtl;
+  text-align:right;
+}
+[data-tooltip]:hover::after{opacity:1}
+[data-tooltip][data-tip-pos="below"]::after{bottom:auto;top:calc(100% + 8px)}
+[data-tooltip][data-tip-pos="left"]::after{bottom:auto;top:50%;right:calc(100% + 8px);transform:translateY(-50%)}
+[data-tooltip][data-tip-pos="right-edge"]::after{right:0;transform:none}
+[data-tooltip][data-tip-pos="left-edge"]::after{right:auto;left:0;transform:none}
+
+/* ── HELP OVERLAY ────────────────────────────────────── */
+.help-overlay {
+  display: none; position: fixed; inset: 0; z-index: 3000;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+  align-items: center; justify-content: center;
+}
+.help-overlay.open { display: flex; }
+.help-sheet {
+  width: min(720px, 96vw);
+  height: min(88vh, 860px);
+  background: var(--card-bg);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.09);
+  box-shadow: 0 28px 90px rgba(0,0,0,0.65);
+  display: flex; flex-direction: column; overflow: hidden;
+  animation: sheetIn .22s ease;
+}
+.help-sheet-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0;
+  background: rgba(0,0,0,0.18);
+}
+.help-sheet-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 15px; font-weight: 700; color: var(--text-dark);
+}
+.help-sheet-title .material-icons { color: var(--primary); font-size: 20px; }
+.help-close-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); padding: 4px 6px; border-radius: 6px;
+  display: flex; align-items: center; transition: all .15s;
+  font-size: 13px;
+}
+.help-close-btn:hover { color: var(--text-dark); background: rgba(255,255,255,0.07); }
+.help-body {
+  flex: 1; overflow-y: auto; padding: 28px 32px;
+  direction: rtl; text-align: right;
+  color: var(--text); line-height: 1.75;
+}
+.help-body h2 {
+  font-size: 13px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase;
+  color: var(--primary); margin: 28px 0 10px; padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.help-body h2:first-child { margin-top: 0; }
+.help-body h3 {
+  font-size: 14px; font-weight: 600; color: var(--text-dark);
+  margin: 16px 0 6px; display: flex; align-items: center; gap: 6px;
+}
+.help-body h3 .material-icons { font-size: 16px; color: var(--primary); }
+.help-body p { font-size: 14px; color: var(--text); margin-bottom: 8px; }
+.help-body ul { padding-right: 18px; margin-bottom: 10px; }
+.help-body ul li { font-size: 14px; margin-bottom: 5px; }
+.help-body strong { color: var(--text-dark); }
+.help-body .help-table { width: 100%; border-collapse: collapse; margin: 10px 0 14px; font-size: 13px; }
+.help-body .help-table th {
+  background: rgba(79,128,255,0.12); color: var(--primary);
+  padding: 7px 12px; text-align: right; font-weight: 600;
+  border: 1px solid rgba(255,255,255,0.07);
+}
+.help-body .help-table td {
+  padding: 7px 12px; border: 1px solid rgba(255,255,255,0.06);
+  color: var(--text);
+}
+.help-body .help-table tr:nth-child(even) td { background: rgba(255,255,255,0.03); }
+.help-tip {
+  background: rgba(79,128,255,0.08); border: 1px solid rgba(79,128,255,0.2);
+  border-radius: 8px; padding: 10px 14px; margin: 10px 0 14px;
+  font-size: 13px; color: var(--text); display: flex; gap: 8px; align-items: flex-start;
+}
+.help-tip .material-icons { color: var(--primary); font-size: 17px; flex-shrink: 0; margin-top: 1px; }
+.help-step {
+  display: flex; gap: 10px; align-items: flex-start;
+  margin-bottom: 8px; font-size: 14px;
+}
+.help-step-num {
+  min-width: 22px; height: 22px; border-radius: 50%;
+  background: var(--primary-lt); color: var(--primary);
+  font-size: 12px; font-weight: 700; display: flex;
+  align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+}
+
+</style>
+</head>
+
+<body>
+<div class="wrapper">
+
+  <!-- ═══════════ SIDEBAR ═══════════ -->
+  <nav class="sidebar" id="sidebar">
+    <a class="sidebar-brand" href="#">
+      <div class="sidebar-brand-icon">🏥</div>
+      <div>
+        <span class="sidebar-brand-text">סיעוד המבוגר</span>
+        <span class="sidebar-brand-sub">רפי מיכאלי · הסבה ט׳ · תשפ"ו</span>
+      </div>
+    </a>
+
+    <!-- Overall progress -->
+    <div class="sidebar-overall">
+      <div class="sidebar-overall-top">
+        <span class="sidebar-overall-label">התקדמות כוללת</span>
+        <span class="sidebar-overall-pct" id="sidebarPct">0%</span>
+      </div>
+      <div class="sidebar-bar-bg"><div class="sidebar-bar-fill" id="sidebarBar"></div></div>
+    </div>
+
+    <!-- Part A/B chips -->
+    <div class="sidebar-parts">
+      <div class="sidebar-part-chip pa" id="chipA" onclick="filterPart('א')" data-tooltip="לחץ לסינון נושאי חלק א׳ בלבד — לחץ שוב לביטול הסינון">
+        <span class="pct" id="sidebarPartA">0%</span>
+        <span class="lbl">חלק א׳</span>
+      </div>
+      <div class="sidebar-part-chip pb" id="chipB" onclick="filterPart('ב')" data-tooltip="לחץ לסינון נושאי חלק ב׳ בלבד — לחץ שוב לביטול הסינון">
+        <span class="pct" id="sidebarPartB">0%</span>
+        <span class="lbl">חלק ב׳</span>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <ul class="sidebar-nav" id="sidebarNav">
+      <li class="sidebar-header">ניווט</li>
+      <li class="sidebar-item">
+        <button class="sidebar-link active" data-cat="all" onclick="filterCat(null)">
+          <span class="material-icons link-icon">grid_view</span>
+          כל הנושאים
+          <span class="link-badge" id="sb-badge-all">18</span>
+        </button>
+      </li>
+      <li class="sidebar-header">חלק א׳</li>
+      <!-- Part A categories built by JS -->
+      <li class="sidebar-item" id="sb-surgery_shock">
+        <button class="sidebar-link" data-cat="surgery_shock" onclick="filterCat('surgery_shock')">
+          <span class="link-icon">🏥</span> כירורגיה והלם
+          <span class="link-badge" id="sb-badge-surgery_shock"></span>
+        </button>
+      </li>
+      <li class="sidebar-item" id="sb-respiratory">
+        <button class="sidebar-link" data-cat="respiratory" onclick="filterCat('respiratory')">
+          <span class="link-icon">🫁</span> מערכת הנשימה
+          <span class="link-badge" id="sb-badge-respiratory"></span>
+        </button>
+      </li>
+      <li class="sidebar-item" id="sb-cardio">
+        <button class="sidebar-link" data-cat="cardio" onclick="filterCat('cardio')">
+          <span class="link-icon">🫀</span> לב וכלי דם
+          <span class="link-badge" id="sb-badge-cardio"></span>
+        </button>
+      </li>
+      <li class="sidebar-item" id="sb-gastro">
+        <button class="sidebar-link" data-cat="gastro" onclick="filterCat('gastro')">
+          <span class="link-icon">🫃</span> מערכת העיכול
+          <span class="link-badge" id="sb-badge-gastro"></span>
+        </button>
+      </li>
+      <li class="sidebar-item" id="sb-endocrine">
+        <button class="sidebar-link" data-cat="endocrine" onclick="filterCat('endocrine')">
+          <span class="link-icon">⚗️</span> הורמונלית
+          <span class="link-badge" id="sb-badge-endocrine"></span>
+        </button>
+      </li>
+      <li class="sidebar-header">חלק ב׳</li>
+      <li class="sidebar-item" id="sb-urology">
+        <button class="sidebar-link" data-cat="urology" onclick="filterCat('urology')">
+          <span class="link-icon">🫘</span> מערכת השתן
+          <span class="link-badge" id="sb-badge-urology"></span>
+        </button>
+      </li>
+      <li class="sidebar-item" id="sb-immune_rheum">
+        <button class="sidebar-link" data-cat="immune_rheum" onclick="filterCat('immune_rheum')">
+          <span class="link-icon">🛡️</span> חיסון וראומטולוגיה
+          <span class="link-badge" id="sb-badge-immune_rheum"></span>
+        </button>
+      </li>
+      <li class="sidebar-item" id="sb-skin_burns">
+        <button class="sidebar-link" data-cat="skin_burns" onclick="filterCat('skin_burns')">
+          <span class="link-icon">🔥</span> עור וכוויות
+          <span class="link-badge" id="sb-badge-skin_burns"></span>
+        </button>
+      </li>
+      <li class="sidebar-item" id="sb-senses">
+        <button class="sidebar-link" data-cat="senses" onclick="filterCat('senses')">
+          <span class="link-icon">👁️</span> עיניים ואא"ג
+          <span class="link-badge" id="sb-badge-senses"></span>
+        </button>
+      </li>
+      <li class="sidebar-item" id="sb-neuro">
+        <button class="sidebar-link" data-cat="neuro" onclick="filterCat('neuro')">
+          <span class="link-icon">🧠</span> מערכת העצבים
+          <span class="link-badge" id="sb-badge-neuro"></span>
+        </button>
+      </li>
+      <li class="sidebar-item" id="sb-musculoskeletal">
+        <button class="sidebar-link" data-cat="musculoskeletal" onclick="filterCat('musculoskeletal')">
+          <span class="link-icon">🦴</span> שלד ושרירים
+          <span class="link-badge" id="sb-badge-musculoskeletal"></span>
+        </button>
+      </li>
+      <li class="sidebar-item" id="sb-onco_hematology">
+        <button class="sidebar-link" data-cat="onco_hematology" onclick="filterCat('onco_hematology')">
+          <span class="link-icon">🎗️</span> אונקולוגיה ודם
+          <span class="link-badge" id="sb-badge-onco_hematology"></span>
+        </button>
+      </li>
+    </ul>
+
+    <!-- Footer controls -->
+    <div class="sidebar-footer">
+      <!-- Auto-save status chip -->
+      <div class="autosave-chip inactive" id="autoSaveChip" data-tooltip="שמירה אוטומטית שומרת כל 5 דקות לאחר שמירה ידנית ראשונה">
+        <div class="autosave-dot"></div>
+        <div class="autosave-text">
+          <strong id="autoSaveLabel">שמירה אוטומטית לא פעילה</strong>
+          <span id="autoSaveTime">לחץ "שמור" להפעלה</span>
+        </div>
+      </div>
+      <button class="sb-btn" id="filterSbBtn" onclick="toggleFilter()" data-tooltip="הצג רק נושאים שטרם הושלמו">
+        <span class="material-icons">filter_list</span> לא-גמורים בלבד
+      </button>
+      <button class="sb-btn" onclick="saveProgress()" data-tooltip="שמור התקדמות לקובץ JSON. לאחר שמירה ראשונה — שמירה אוטומטית כל 5 דקות">
+        <span class="material-icons">save</span> שמור התקדמות
+      </button>
+      <button class="sb-btn" onclick="loadProgress()" data-tooltip="טען קובץ התקדמות שנשמר קודם — שימושי בעת מעבר למחשב אחר">
+        <span class="material-icons">folder_open</span> טען התקדמות
+      </button>
+      <input type="file" id="loadInput" accept=".json" style="display:none" onchange="loadProgress(event)">
+      <button class="sb-btn danger" onclick="resetAll()" data-tooltip="⚠ מחק את כל ההתקדמות לצמיתות — לא ניתן לשחזר">
+        <span class="material-icons">delete</span> אפס הכל
+      </button>
+      <button class="sb-btn" onclick="openHelp()" data-tooltip="פתח מדריך שימוש">
+        <span class="material-icons">help_outline</span> הוראות שימוש
+      </button>
+    </div>
+  </nav>
+
+  <!-- ═══════════ MAIN ═══════════ -->
+  <div class="main" id="main">
+
+    <!-- Topbar -->
+    <nav class="topbar">
+      <button class="topbar-toggle" onclick="toggleSidebar()">
+        <span class="material-icons">menu</span>
+      </button>
+      <div class="topbar-progress-wrap">
+        <div class="topbar-progress-track">
+          <div class="topbar-progress-bar" id="mainBar"></div>
+        </div>
+        <span class="topbar-pct" id="pctLabel">0%</span>
+      </div>
+      <span class="topbar-label" id="subLabel" data-tooltip="עמודי ברונר שהושלמו מתוך סך כל עמודי הקורס" data-tip-pos="below">0 / 0 עמ'</span>
+      <div class="topbar-spacer"></div>
+      <span style="font-size:13px;color:var(--muted);">336 ש"א · תשפ"ו</span>
+      <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="החלף ערכת נושא">
+        <span class="material-icons" id="themeIcon">light_mode</span>
+      </button>
+    </nav>
+
+    <!-- Content -->
+    <main class="content">
+
+      <!-- Page header -->
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1>סיעוד המבוגר — <strong>מעקב התקדמות לימודים</strong></h1>
+        </div>
+        <div class="page-header-btns">
+          <button class="btn btn-outline-secondary" onclick="expandAllRows()" data-tooltip="פתח את פאנל הסעיפים לכל הנושאים" data-tip-pos="below">
+            <span class="material-icons">unfold_more</span> פתח הכל
+          </button>
+          <button class="btn btn-outline-secondary" onclick="collapseAllRows()" data-tooltip="סגור את כל פאנלי הסעיפים" data-tip-pos="below">
+            <span class="material-icons">unfold_less</span> סגור הכל
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Analytics stat cards ── -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-card-top">
+            <span class="stat-card-title">נושאים</span>
+            <div class="stat-card-icon blue"><span class="material-icons">library_books</span></div>
+          </div>
+          <div class="stat-val" id="statTopics">0/18</div>
+          <div class="stat-trend">
+            <span class="material-icons up">check_circle</span>
+            <span class="trend-label">נושאים הושלמו</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-top">
+            <span class="stat-card-title">סעיפים</span>
+            <div class="stat-card-icon green"><span class="material-icons">done_all</span></div>
+          </div>
+          <div class="stat-val" id="statSubs">0</div>
+          <div class="stat-trend">
+            <span class="material-icons up">checklist</span>
+            <span class="trend-label">סעיפים שנסקרו</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-top">
+            <span class="stat-card-title">ש"א הושלמו</span>
+            <div class="stat-card-icon amber"><span class="material-icons">schedule</span></div>
+          </div>
+          <div class="stat-val" id="statHours">0</div>
+          <div class="stat-trend">
+            <span class="material-icons up">trending_up</span>
+            <span class="trend-label">שעות אקדמיות</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-top">
+            <span class="stat-card-title">ש"א נותרות</span>
+            <div class="stat-card-icon red"><span class="material-icons">hourglass_empty</span></div>
+          </div>
+          <div class="stat-val" id="statLeft">336</div>
+          <div class="stat-trend">
+            <span class="material-icons down">trending_down</span>
+            <span class="trend-label">עד סיום הסילבוס</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Recent Movement chart + Part distribution ── -->
+      <div class="charts-row">
+
+        <!-- Bar chart — Part א -->
+        <div class="chart-wrap" id="chartWrapA">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">התקדמות לימוד — חלק א׳</div>
+            </div>
+          </div>
+          <div class="chart-body">
+            <div class="chart-canvas-wrap">
+              <canvas id="progressChartA"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bar chart — Part ב -->
+        <div class="chart-wrap" id="chartWrapB">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">התקדמות לימוד — חלק ב׳</div>
+            </div>
+          </div>
+          <div class="chart-body">
+            <div class="chart-canvas-wrap">
+              <canvas id="progressChartB"></canvas>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /charts-row -->
+
+      <!-- ── Latest Projects table ── -->
+      <div class="table-card">
+        <div class="table-card-header">
+          <span class="table-card-title">נושאי לימוד</span>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <span id="tableCountLabel" style="font-size:12px;color:var(--muted);"></span>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="topics-table">
+            <thead>
+              <tr>
+                <th style="width:36px;"></th>
+                <th>נושא</th>
+                <th class="col-hide">קטגוריה</th>
+                <th data-tooltip="שעות אקדמיות ועמודי ברונר לנושא" data-tip-pos="below">ש"א / עמ'</th>
+                <th data-tooltip="מספר סעיפי הלימוד שסומנו כהושלמו" data-tip-pos="below">סעיפים</th>
+                <th data-tooltip="טרם החל | בתהליך | הושלם (כל הסעיפים + ברונר)" data-tip-pos="below">סטטוס</th>
+                <th class="col-hide">חלק</th>
+                <th style="width:40px;"></th>
+              </tr>
+            </thead>
+            <tbody id="topicsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </main><!-- /content -->
+
+    <footer class="footer">
+      סיעוד המבוגר · הסבה ט׳ לסיעוד · אייכילוב-שיינברון · תשפ"ו · רפי מיכאלי &nbsp;·&nbsp;
+      <span id="footerStats"></span>
+    </footer>
+  </div><!-- /main -->
+
+</div><!-- /wrapper -->
+
+<!-- ═══════════ MOBILE BOTTOM NAV ═══════════ -->
+<nav class="mobile-bottom-nav" id="mobileBottomNav">
+  <button class="mob-nav-btn active" id="mobBtnAll" onclick="mobFilter('all')" title="הכל">
+    <span class="material-icons">grid_view</span>
+    <span>הכל</span>
+  </button>
+  <button class="mob-nav-btn" id="mobBtnA" onclick="mobFilter('א')" title="חלק א׳">
+    <span class="material-icons">bookmark_add</span>
+    <span>חלק א׳</span>
+  </button>
+  <button class="mob-nav-btn" id="mobBtnB" onclick="mobFilter('ב')" title="חלק ב׳">
+    <span class="material-icons">bookmarks</span>
+    <span>חלק ב׳</span>
+  </button>
+  <button class="mob-nav-btn" id="mobBtnIncomplete" onclick="mobFilterIncomplete()" title="לא הושלמו">
+    <span class="material-icons">hourglass_empty</span>
+    <span>נותר</span>
+  </button>
+  <button class="mob-nav-btn" onclick="toggleTheme()" title="ערכת נושא">
+    <span class="material-icons" id="mobThemeIcon">light_mode</span>
+    <span>מראה</span>
+  </button>
+</nav>
+
+<!-- Overlay for mobile sidebar -->
+<div id="sidebarOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:199;" onclick="closeSidebar()"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════
+const TOPICS = [
+  // ── חלק א ──
+  {cat:"surgery_shock",catLabel:"כירורגיה ומצבי הלם",icon:"🏥",part:"א",id:"periop",name:"טיפול סביב ניתוחי",hours:22,pages:165,meta:"Pre-op · Intra-op · Post-op · סיבוכים · צנתר שתן",brunner:"פרקים 14-16",subs:["סוגי ניתוחים — סיווג לפי מטרה, היקף ודחיפות","Preoperative: הערכת סיכון ניתוחי לפי מערכות גוף","Preoperative: הסכמה מדעת (חוק זכויות החולה) + הכנת המטופל","Intraoperative: צוות חדר ניתוח — תפקידים וסביבה","Intraoperative: סוגי הרדמה, תרופות וסיבוכים, תנוחות","Postoperative: עקרונות טיפול לאחר ניתוח","Postoperative: סיבוכים מוקדמים ומאוחרים","שחרור מטופל, הכנה ושיקום","החדרת והוצאת צנתר שלפוחית השתן — חוזרים"]},
+  {cat:"surgery_shock",catLabel:"כירורגיה ומצבי הלם",icon:"🏥",part:"א",id:"shock",name:"מצבי הלם",hours:8,pages:76,meta:"Hypovolemic · Cardiogenic · Septic · Anaphylactic · Obstructive",brunner:"פרק 11",subs:["Hypovolemic Shock — גורמים, שלבים, טיפול","Cardiogenic Shock — גורמים ועקרונות טיפול","Anaphylactic Shock — זיהוי, אפינפרין, מניעה","Septic Shock — SIRS, Sepsis, גורמים, טיפול","Neurogenic Shock + Obstructive Shock","שלבי ההלם: Compensated → Progressive → Irreversible","ניהול סיעודי — ניטור, גישה ורידית, תרופות"]},
+  {cat:"respiratory",catLabel:"מערכת הנשימה",icon:"🫁",part:"א",id:"respiratory",name:"מערכת הנשימה",hours:42,pages:473,meta:"COPD · Asthma · Pneumonia · ARDS · PE · Mechanical Ventilation",brunner:"פרקים 17-20",subs:["אנטומיה, פיזיולוגיה ואומדן מערכת הנשימה","בדיקות: PFT, ABG, Pulse Oximetry, Bronchoscopy, Thoracentesis","הפרעות מאזן חומצי-בסיסי: Respiratory & Metabolic Acidosis/Alkalosis","Asthma + Status Asthmaticus","COPD: Chronic Bronchitis & Emphysema — שלבי GOLD","Pulmonary Fibrosis, Pulmonary Arterial Hypertension, Lung Cancer","Atelectasis, Pneumonia, Pulmonary TB, Lung Abscess","ARF, ARDS, Pulmonary Embolism","חבלות חזה: Flail Chest, Pneumothorax, Hemothorax, Cardiac Tamponade","טיפול בחמצן: Low Flow / High Flow Systems","NIV: CPAP, BiPAP","Invasive: Intubation, Tracheostomy, Mechanical Ventilation & Weaning"]},
+  {cat:"cardio",catLabel:"לב וכלי דם",icon:"🫀",part:"א",id:"cardio",name:"מערכת הלב וכלי הדם",hours:40,pages:438,meta:"ECG · ACS · MI · HF · Arrhythmias · Endocarditis · HTN",brunner:"פרקים 21-25",subs:["אנטומיה, פיזיולוגיה ואומדן הלב","בדיקות: ECG, Echo, Cardiac Cath, Stress Test, Hemodynamic Monitoring","פענוח אק\"ג: קצב סינוס תקין, ציר, גל P-QRS-T","הפרעות קצב: Sinus, Atrial (Afib/Flutter), Junctional, Ventricular (VT/VF)","Heart Blocks: 1st, 2nd (Type I/II), 3rd Degree — טיפול וקוצבים","Defib + AED — חוזר מנהל האחיות","מחלות כליליות: Stable Angina, ACS, NSTEMI, STEMI","PCI & CABG — טיפול סיעודי","מחלות מסתמיות: Mitral Valve, Aortic Valve — Stenosis & Regurgitation","Heart Failure: Left/Right/Congestive, Pulmonary Edema","מחלות דלקתיות: Endocarditis, Pericarditis, Myocarditis, Rheumatic Carditis","יתר לחץ דם: אבחון, סיבוכים רב-מערכתיים, טיפול"]},
+  {cat:"cardio",catLabel:"לב וכלי דם",icon:"🫀",part:"א",id:"vascular",name:"מחלות כלי דם פריפריים",hours:14,pages:175,meta:"PAD · DVT · Aneurysm · Lymphedema · Raynaud's",brunner:"פרקים 26-27",subs:["בדיקות: Doppler, Duplex US, CT, MRA, Angiography, Venography","הפרעות עורקיות: PAD, Aortic Aneurysm & Dissection","Arterial Embolism & Thrombosis, Raynaud's Phenomenon","הפרעות ורידיות: VTE/DVT, Chronic Venous Insufficiency, Leg Ulcer","Varicose Veins — טיפול ומניעה","הפרעות לימפתיות: Lymphedema, Cellulitis, Lymphangitis"]},
+  {cat:"gastro",catLabel:"מערכת העיכול",icon:"🫃",part:"א",id:"gastro",name:"מערכת העיכול",hours:52,pages:628,meta:"GERD · Peptic Ulcer · Cirrhosis · IBD · Colorectal Cancer · Pancreatitis",brunner:"פרקים 38-44",subs:["אנטומיה, פיזיולוגיה ואומדן מערכת העיכול","בדיקות: אנדוסקופיה (Gastroscopy, Colonoscopy, ERCP), CT, MRI","מחלות ושט: Achalasia, GERD, Barrett Esophagus, Hiatal Hernia, Cancer","מחלות קיבה ותריסריון: Gastritis, Peptic Ulcer Disease, Gastric Cancer","Bariatric Surgery — טיפול סיעודי","מחלות כבד: Viral/Nonviral Hepatitis, Cirrhosis, Liver Cancer","מחלות מרה: Cholecystitis, Cholelithiasis","מחלות לבלב: Acute/Chronic Pancreatitis, Pancreatic Cancer","מחלות מעיים: IBS, Peritonitis, Appendicitis, Intestinal Obstruction","IBD: Crohn's Disease, Ulcerative Colitis — הבדלים, טיפול","Colorectal Cancer, Polyps + Ileostomy/Colostomy — עקרונות טיפול","Hemorrhoids, Anal Fissure, Anorectal Abscess"]},
+  {cat:"endocrine",catLabel:"מערכת הורמונלית",icon:"⚗️",part:"א",id:"endocrine",name:"מערכת הורמונלית",hours:20,pages:211,meta:"DM Type 1&2 · Thyroid · Adrenal · Pituitary · SIADH",brunner:"פרקים 45-46",subs:["אנטומיה, פיזיולוגיה ואומדן המערכת ההורמונלית","היפופיזה: Hypopituitarism, Hyperpituitarism, Diabetes Insipidus, SIADH","בלוטת התריס: Hypothyroidism, Hyperthyroidism, Thyroiditis, Thyroid Cancer","בלוטת יותרת הכליה: Addison's Disease, Cushing's, Hyperaldosteronism","בלוטת יותרת התריס: Hypoparathyroidism, Hyperparathyroidism","Diabetes Mellitus Type 1 — פתופיזיולוגיה, אינסולין","Diabetes Mellitus Type 2 — גורמי סיכון, ניהול תרופתי","סיבוכי סוכרת: DKA, HHS, היפוגליקמיה, כף רגל סוכרתית"]},
+  // ── חלק ב ──
+  {cat:"urology",catLabel:"מערכת השתן",icon:"🫘",part:"ב",id:"urology",name:"מערכת השתן",hours:32,pages:279,meta:"CKD · AKI · Dialysis · UTI · BPH · Prostate Cancer",brunner:"פרקים 47-49",subs:["אנטומיה, פיזיולוגיה ואומדן מערכת השתן","בדיקות: BUN, Creatinine, GFR, ניתוח שתן, Cystoscopy, Renal Biopsy","נפרולוגיה: Chronic Kidney Disease (CKD) — שלבים","Acute Kidney Injury (AKI) — גורמים, שלבים, טיפול","Glomerulonephritis, Nephrotic Syndrome, Polycystic Kidney","Hemodialysis — גישה ורידית, עקרונות, סיבוכים","Peritoneal Dialysis — עקרונות וסיבוכים","UTI — עליון ותחתון, גורמים, טיפול, מניעה","Urinary Incontinence, Retention, Neurogenic Bladder","Urolithiasis (אבני כליה) + Bladder Cancer","BPH — אבחון, TURP, טיפול תרופתי","Prostate Cancer, Testicular Cancer, Orchitis"]},
+  {cat:"immune_rheum",catLabel:"מערכת חיסונית וראומטולוגיה",icon:"🛡️",part:"ב",id:"immune",name:"מערכת חיסונית",hours:12,pages:291,meta:"HIV · Anaphylaxis · RA · SLE · Gout",brunner:"פרקים 31-34",subs:["כשל חיסוני ראשוני + HIV/AIDS — סיווג, מעקב, ART","Anaphylaxis — פתופיזיולוגיה, טיפול מיידי, מניעה (חוזר 204/2023)","Urticaria, Angioedema, Food Allergy, Latex Allergy","Rheumatoid Arthritis — אבחון (RF, Anti-CCP), טיפול DMARD","Osteoarthritis — הבדל מ-RA, טיפול, החלפת מפרק","SLE — קריטריוני SLICC, איברי מטרה, טיפול","Scleroderma, Sjögren's, Polymyositis, Polymyalgia Rheumatica","Gout + Fibromyalgia"]},
+  {cat:"skin_burns",catLabel:"עור וכוויות",icon:"🔥",part:"ב",id:"skin",name:"מחלות עור",hours:8,pages:187,meta:"Dermatitis · Psoriasis · Herpes · Melanoma · SCC",brunner:"פרקים 55-56",subs:["בדיקות אבחון: Skin Biopsy, Wood Lamp","מחלות אלרגיות/דלקתיות: Pruritus, Dermatitis (Seborrheic, Contact, Atopic)","Psoriasis, Stevens-Johnson Syndrome, Toxic Epidermal Necrolysis","זיהומים ויראליים: Herpes Simplex, Herpes Zoster","זיהומים חיידקיים: Folliculitis, Furuncles, Cellulitis","זיהומים פטרייתיים: Tinea, Candidiasis","זיהומים טפיליים: Scabies, Pediculosis","גידולים ממאירים: Melanoma, SCC, BCC, Kaposi Sarcoma"]},
+  {cat:"skin_burns",catLabel:"עור וכוויות",icon:"🔥",part:"ב",id:"burns",name:"כוויות",hours:4,pages:88,meta:"שלבים · Parkland Formula · Phases · שיקום",brunner:"פרק 57",subs:["פתופיזיולוגיה ושינויים רב-מערכתיים בפגיעת כוויות","סוגי כוויות ושיטות סיווג חומרה (TBSA, Rule of Nines, Lund-Browder)","Emergent/Resuscitation Phase — נוזלים, Parkland Formula","Acute/Healing Phase — טיפול בפצע, הדבקה","Rehabilitative Phase — שיקום, מניעת כיווץ, פסיכולוגיה"]},
+  {cat:"senses",catLabel:"עיניים ואף-אוזן-גרון",icon:"👁️",part:"ב",id:"eyes",name:"מחלות עיניים",hours:8,pages:107,meta:"Cataract · Glaucoma · Macular Degeneration · Retinal Detachment",brunner:"פרק 58",subs:["אנטומיה, פיזיולוגיה ואומדן הראייה","בדיקות: Tonometry, Ophthalmoscopy, Fluorescein Angiography, OCT","Cataract — אבחון, פיאקואמולסיפיקציה, טיפול סיעודי","Glaucoma — open-angle vs angle-closure, טיפול תרופתי וכירורגי","הפרעות ברשתית: Age-Related Macular Degeneration, Retinal Detachment","Conjunctivitis — זיהומי ואלרגי, מניעת הדבקה","שגיאות שבירה: Myopia, Hyperopia, Astigmatism","חבלות ומצבי חירום: Foreign Body, Penetrating Injury"]},
+  {cat:"senses",catLabel:"עיניים ואף-אוזן-גרון",icon:"👂",part:"ב",id:"ent",name:"מחלות אף-אוזן-גרון",hours:10,pages:72,meta:"Otitis Media · Hearing Loss · Rhinitis · Sinusitis · Laryngeal Cancer",brunner:"פרק 59",subs:["אנטומיה, פיזיולוגיה ואומדן אף-אוזן-גרון","בדיקות: Audiometry, Tympanogram, CT, MRI","מחלות אף: Allergic/Viral Rhinitis, Sinusitis, Epistaxis, Nasal Fracture","אובדן שמיעה — סוגים, אבחון, שיקום (מכשיר שמיעה, שתל קוכלארי)","הפרעות אוזן חיצונית/תיכונה: Otitis Externa/Media, Tympanic Membrane Perf.","הפרעות אוזן פנימית: Meniere's Disease, BPPV, Tinnitus","צוואר וגרון: Pharyngitis, Tonsillitis, Obstructive Sleep Apnea","Laryngitis, Laryngeal Obstruction, Cancer of the Larynx"]},
+  {cat:"neuro",catLabel:"מערכת העצבים",icon:"🧠",part:"ב",id:"neuro",name:"מערכת העצבים (נוירולוגיה)",hours:32,pages:440,meta:"Stroke · Epilepsy · MS · Parkinson's · Meningitis · GBS",brunner:"פרקים 60-65",subs:["אנטומיה, פיזיולוגיה ואומדן נוירולוגי (כולל GCS)","בדיקות: CT, MRI, EEG, EMG, Lumbar Puncture, Cerebral Angiography","Altered Level of Consciousness — גורמים, ניהול","Seizures & Epilepsy — סיווג, Status Epilepticus, טיפול","Migraine Headache","TIA + Ischemic Stroke — FAST, tPA, חלון טיפול","Hemorrhagic Stroke — SAH, ICH (חוזרים 190-193)","מחלות זיהומיות: Meningitis, Encephalitis, Brain Abscess","מחלות אוטואימוניות: Multiple Sclerosis (MS), Myasthenia Gravis, GBS","מחלות ניווניות: Parkinson's Disease, ALS, Huntington Disease","גידולי מוח וחוט שדרה — Primary & Secondary","מוות מוחי — הגדרה, קריטריונים, תהליך"]},
+  {cat:"musculoskeletal",catLabel:"שלד ושרירים",icon:"🦴",part:"ב",id:"musculoskeletal",name:"מערכת השלד והשרירים",hours:20,pages:316,meta:"Osteoporosis · Fractures · Osteomyelitis · Amputation · Low Back Pain",brunner:"פרקים 35-37",subs:["אנטומיה, פיזיולוגיה ואומדן שלד-שרירים","בדיקות: Bone Density (DXA), CT, MRI, Bone Scan, Arthroscopy","Osteoporosis + Osteomalacia — גורמי סיכון, מניעה, טיפול","Osteoarthritis — Total Hip/Knee Replacement, טיפול סיעודי","Osteomyelitis + Septic Arthritis + Bone Tumors","טראומטולוגיה: שברים — סיווג, שלבי ריפוי, סיבוכים מוקדמים/מאוחרים","Compartment Syndrome, Fat Embolism, DVT — מניעה","פריקות, פציעות גידים וסחוסים","Amputation — Elective & Traumatic, שיקום","Low Back Pain, Herniated Cervical/Lumbar Disk"]},
+  {cat:"onco_hematology",catLabel:"אונקולוגיה, המטולוגיה ושד",icon:"🎗️",part:"ב",id:"oncology",name:"מחלה ממארת (אונקולוגיה)",hours:14,pages:241,meta:"Staging · Chemo · Immunotherapy · Palliative Care · מצבי חירום",brunner:"פרקים 12-13",subs:["פתופיזיולוגיה: Grading, Ploidy, Staging (TNM), גורמי סיכון","טיפול כירורגי — Debulking, Prophylactic Surgery","טיפול קרינתי — סוגים, תופעות לוואי","כימותרפיה — מנגנוני פעולה, תופעות לוואי, ניהול סיעודי","Targeted Therapy & Immunotherapy","Hematopoietic Stem Cell Transplantation","מצבי חירום: Sepsis, DIC, SIADH, Spinal Cord Compression","Hypercalcemia, Superior Vena Cava Syndrome, Tumor Lysis Syndrome","טיפול פליאטיבי: עקרונות, ניהול כאב (WHO Ladder), תסמינים","Palliative Care: תמיכה פסיכו-סוציאלית, חוק החולה הנוטה למות"]},
+  {cat:"onco_hematology",catLabel:"אונקולוגיה, המטולוגיה ושד",icon:"🩸",part:"ב",id:"hematology",name:"מערכת הדם והלימפה",hours:14,pages:265,meta:"Anemia · Leukemia · Lymphoma · DIC · Hemophilia",brunner:"פרקים 28-30",subs:["אנטומיה, פיזיולוגיה ואומדן מערכת הדם","בדיקות: CBC, Reticulocytes, Coagulation (PT/INR/PTT), Bone Marrow","אנמיות: Iron Deficiency, Anemia of Chronic Disease, Aplastic Anemia","אנמיות: Megaloblastic (B12/Folate), Sickle Cell Disease, Thalassemia","Polycythemia Vera + Neutropenia","ממאירויות: AML, CML, CLL — Leukemia","Hodgkin Lymphoma, Non-Hodgkin Lymphoma, Multiple Myeloma","הפרעות קרישה: Thrombocytopenia (ITP), Hemophilia, Von Willebrand","DIC — פתופיזיולוגיה, ניטור, טיפול","Stem Cell Transplantation & Therapeutic Apheresis"]},
+  {cat:"onco_hematology",catLabel:"אונקולוגיה, המטולוגיה ושד",icon:"🎀",part:"ב",id:"breast",name:"הפרעות בשד",hours:6,pages:76,meta:"Breast Cancer · Mastectomy · BRCA · Fibrocystic · שחזור",brunner:"פרק 52",subs:["בדיקת שד עצמית + Mammography, US, MRI, Biopsy, BRCA1/BRCA2","סרטן השד — סוגים, שלבי TNM, גורמי סיכון","טיפול כירורגי: Lumpectomy, Mastectomy, Sentinel Node Biopsy","טיפולים משלימים: קרינה, כימותרפיה, Hormonal, Targeted (Herceptin)","שחזור שד — סוגים ומועד ביצוע","מצבים שפירים: Fibrocystic Changes, Fibroadenoma, LCIS"]},
+];
+
+const D = id => `https://drive.google.com/file/d/${id}/view`;
+const TOPIC_LINKS = {
+  "periop":["1jQuFxSCHLs1idlK9_G9m6kYDvA70wFXD|📖 ברונר 14-16","1_D6MfPcc9IUYTbL7TZiAiIUtRuz3wT7i|📄 סביב ניתוחי","1ODJQF_1K_k-2YKNATSZzsBtIZ0m5ZHXs|📄 הרדמה","1VO_TaGpDRs4ydUNW8hDc1zEB7CaTk1K0|📄 סיבוכי הרדמה","1IPkmqt6Mjy_5QCpaIJh3ZUk22uzopjhI|📄 Post-op כאב","1btpGQB9tCRA7zpHwx4ZX_9eR5pxcXx_0|📄 קטטר שתן"].map(s=>{const[id,label]=s.split('|');return{url:D(id),label};}),
+  "shock":["1xhqT0hKshLExY45xNgGjyOtGXc22t6sf|📖 ברונר פרק 11","1z6_OIQyHSfQHTK45VMwd6jDaR3WcbZMw|📄 הלם"].map(s=>{const[id,label]=s.split('|');return{url:D(id),label};}),
+  "respiratory":["1WgdNCIlxRD8pX11BFZhLOGA4_i6_UAOL|📖 ברונר 17-20","1ju0Xfs_D3nZF23GaVeyso68fIHIh-oI-|📄 מבוא נשימה","17NiBUnJtkt501KNSL9yiTFL-5JJOXitZ|📄 חומצי-בסיסי","1IAM15GXVVCyByPOCeq2CRtZSZccE_IjZ|📄 Asthma","1WvUOBEDQaEASIYZ1Bsvp6eqqpYi9BjWh|📄 COPD","1CE8PXnB_V5UnPKyBxkMGjPwrHTPJmjCb|📄 Pneumonia & TB","1kuxMNbMIqXqesr7WxDHEdYHKLiLFGbql|📄 ARDS","13berZGzuK9eNR66Tz18As8reqhjj3Ufa|📄 PE","1XtGigEzEIBhuNZXr8dHPs1WOEhKYpsm7|📄 Oxygen & NIV","1kasniRm75oBs06BTMN7wh-LcuOq0keXr|📄 Mechanical Vent."].map(s=>{const[id,label]=s.split('|');return{url:D(id),label};}),
+  "cardio":["1rTR6MRb9R3czSEww3Y-o6NfoSbFEZ2nk|📖 ברונר 21-25","1dSqhVqflVDDnXphP0_-bQSh5NdXglk2Z|📄 מבוא","1IlQ0qm-7YTeh38PRQjSHUbdDMEQZQAA5|📄 אבחון קרדיו","1zDZNYTlv9wo6gzhOhVkQw-gvBWdISd7r|📄 ECG (1)","15MyGhfP80yWFOSGkGiE1CBbiSMDWI7kq|📄 ECG (2)","1eF_udpOYdh2HvdY3SLngJ4drNWnteX7L|📄 ECG טיפול","145Z-LMOR8omsrjjHqCWQazU-BNyZLRJn|📄 קוצבי לב","1VCaiLtQcrgU196JxsrAXDbLukN6aKwSL|📄 כליליות","1ZBA05heUSFkg2MjV5pYfwVv3Etgo7Y1X|📄 מסתמיות","13MNdVknL1MDb-B93qFi_X9zyni4IWbu2|📄 HF","1vLJph8LIbC3adPLpcM2gIBTFs1CwIUt4|📄 דלקתיות","1XEZls_aqJyIdHL_0RnUhG-95TyIFRxFh|📄 CABG","1WYO9kU9hxn6Or-pURT1WlWCiEmvNqin1|📄 HTN","1R_aUQGdoaOaur4ZzGuQF-FSMmsLyV-xj|📄 קרדיומיופטיה"].map(s=>{const[id,label]=s.split('|');return{url:D(id),label};}),
+  "vascular":["1c0upj-F9OxXaZ6IN8Ee5cnX6evQOTLTK|📖 ברונר 26-27","1j3x3ZeslaPwy0y1L8D-wMONG-w00w_Tn|📄 אבחון כלי דם","1MSfoQ8BeES1ZI4dhUC5cVr9p5uWGXZF0|📄 Arterial","12A78lGaVC8f5oqolmzdLzBLyBx9ZuPPL|📄 Venous","1N1VS8AWdL5vl5PgyG55VBQHKUZ0Fc5Xl|📄 Lymphatic"].map(s=>{const[id,label]=s.split('|');return{url:D(id),label};}),
+  "gastro":["1RdkxUVOay46Vq72ei_9nxuFJF4uqPV0Y|📖 ברונר 38-44","1oWpvdAUIHRZ5kEzzHsWTQqAhSTnWYr7B|📄 מבוא","1doLgdRwKO7cuzuL1qVNc4BiEs36vbtw6|📄 ושט","1mHoOJ6hs-ZZuypVu6MS6XrD2b61T3zRi|📄 קיבה","1Ve4VJ66yvPgxR_-xhdg3W4rfBCWoIwXS|📄 Obesity","1ieiqAfySkorSuEnB3ZfQnxJq5ChiWi0s|📄 Hepatitis","1V63TPbCwNxUMbIU_X610wL9wCeLvn3v3|📄 Cirrhosis","1BPp9IAh9sPCN4PzB6tLBTIz9H9eopfZ5|📄 כיס מרה","1sEYQqwFaMkVr8f0_ndLAHTvHdg2vgsG-|📄 לבלב","1w0n_LkBI2suXbdlOITskjk3Lqbrx9_h0|📄 מעיים","15ygzkVK-tx8Q0DCgehh6E1yDcFaZsxte|📄 IBD & IBS","1Wmijg_EmNzEn0_-dTHm4a5Yj_tsaUwtg|📄 CRC ברונר","1htj6N8djtdJIt3Q6fN1ewDRjesoONl-p|📄 CRC+Polyps","1N9p7o2J0m3QjJMkaZxBP2z6CvcstZqko|📄 Anorectum","1_gqhuO_8h85y9cr-e0YGF8Hu8xF6UvV1|📄 בקעים","1dixkinGm9MGSjsS785epTo3T4s7wwB2E|📄 סטומה-טיפול","1a94c-qiwY_WM4VVQjaDCPQD_gRGk7cVo|📄 סטומה-סיבוכים"].map(s=>{const[id,label]=s.split('|');return{url:D(id),label};}),
+  "endocrine":["1j5LppkkiqG1tsbdbPeR7oST9WtaoiKxO|📖 ברונר 45-46","14rnpvkVX_ePDmvgX0MqArhpE9ytUK1PX|📄 היפופיזה","1BTHrRYxHffgY7BXdHRpvkT0-kvFEwQsF|📄 יותרת הכליה","1kWZRcV7InD6UmbfRA0EBgLT-SDl3fXfZ|📄 תריס","1faLioGvdrW2ZCZNwIqHyaAEzi2Fg3Wpq|📄 יותרת התריס","11T1PYY1fnS5CSQBy-4Holx881gnFfERc|📄 סוכרת"].map(s=>{const[id,label]=s.split('|');return{url:D(id),label};}),
+    "urology":[
+    {url:D("1ogBkPoAvUP-FC9ATQt_5-tS750rDZgB1"),label:"📖 ברונר 47-49"},
+    {url:D("1K9OVkaHV-yTuHzO6yDf8zsvxmCYiYz0j"),label:"📄 אנטומיה ובדיקות הדמייה"},
+    {url:D("1_yqoqfDrDUTe90tIbDr0Bt5cznBfkSnD"),label:"📄 Urology"},
+    {url:D("1enfmOCL0bMQDaaKB7ivxxdFpRThQ4yXp"),label:"📄 Urinary Incontinence"},
+    {url:D("1N31D_4Vk1XDE03si-_FvfrPrzfAo5ufy"),label:"📄 סרטן שלפוחית"},
+    {url:D("1UtQFG8FxNjWVpvVxSR7I40-yuIi35Zq5"),label:"📄 Renal Cancer"},
+    {url:D("1w5fu60kYhLdaqpcfMxVLzW84J7L0EDU1"),label:"📄 פרוסטטה"},
+    {url:D("1cQkuoMt2mUYzq_NI7WdK_gq4rhgy-DSs"),label:"📄 UTI"},
+    {url:D("13mruwJzXnsQgOdlpFLx_VF53v-ugdGQm"),label:"📄 אבנים בדרכי השתן"},
+    {url:D("1jHOk8-zCprrpVhmuxQ1ognZHyKvLUTB9"),label:"📄 האשך"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=55216",label:"🎬 הקלטה 24.5"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=55958",label:"🎬 הקלטה 14.6"},
+  ],
+  "immune":[
+    {url:D("1uV6BbQyFQMggADHuc_40OzgvLEjZqfxJ"),label:"📖 ברונר 31-34"},
+    {url:D("1BPAFrBMY4VpkhJf6yNv5CWS71b8kh5of"),label:"📄 מבוא למערכת חיסונית"},
+    {url:D("12srfkb9bTuddOYQsH-kjim-EA8CqbrBT"),label:"📄 AIDS"},
+    {url:D("1QaXQR8Looh5Ywg3u61ahlnw_4ZzBUKWj"),label:"📄 מחלות רקמת חיבור"},
+    {url:D("1Ogo2_7ZYmvs5C3ZiS4JT5E9M2tRZhrTH"),label:"📄 תגובה אלרגית"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=53328",label:"🎬 הקלטה 12.4"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=53896",label:"🎬 הקלטה 26.4"},
+  ],
+  "skin":[
+    {url:D("1Yy3XmOuKxHsn1fj3GmsXoJXaSVnxAX13"),label:"📖 ברונר 55-56"},
+    {url:D("10hV1MDebRIwPQ4blzACwQ8nYvdog7De4"),label:"📄 בדיקות אבחון בעור"},
+    {url:D("1PnOoBfMyj9n9Bko49MXatNaVGEDujb3G"),label:"📄 מחלות דלקתיות ואלרגיה"},
+    {url:D("1eotESJ8TFCKM_C8GCa9jqvmWXj37Z3Vb"),label:"📄 מחלות זיהומיות"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=56275",label:"🎬 הקלטה 25.6"},
+  ],
+  "burns":[{url:D("1gPEDxAbPxMWQEnLBPoGkM0g-9OCPcRPL"),label:"📖 ברונר 57"}],
+  "eyes":[
+    {url:D("1dZXTsYCCzUieoGjQlXeUP766MOOpr401"),label:"📖 ברונר 58"},
+    {url:D("1ZRHEpVUuC1IUoho2ncTecFZNmJR8LvHa"),label:"📄 אנטומיה ואומדן ראייה"},
+    {url:D("13hgHC4XvgAPIr18eTRv0VKDdaI6jWUnF"),label:"📄 גלאוקומה, קטרקט"},
+    {url:D("1LlZmjPiECTPTAh6uJQ25qDjNKHfZQXr2"),label:"📄 הפרעות ברשתית"},
+    {url:D("1SNpEC0nEHOvCYuXO-4Rgyov55rWxtRz4"),label:"📄 מחלות קרנית"},
+    {url:D("1-l9SA9sKudZ135QQ2g8qv1RL5kgH50kQ"),label:"📄 חבלות ומצבי חירום"},
+    {url:D("14HExA5xnBEE83OYSxVy27jms0OzTMQCg"),label:"📄 Conjunctivitis"},
+    {url:D("1T5Lm7RaelOK83XyN2_XdChPGri_xJtFp"),label:"📄 Refraction Errors"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=55652",label:"🎬 הקלטה 7.6"},
+  ],
+  "ent":[
+    {url:D("1TefxnbnPQmkyFTE2UidfTOAKxYvC2V9J"),label:"📖 ברונר 59"},
+    {url:D("1aPF8rxnCefLl2gpLL8P2YYZkumzxSnN9"),label:"📄 הקדמה לאאג"},
+    {url:D("1e027xFEb0reDiNHhvbrT1b29F0TIicm4"),label:"📄 האוזן"},
+    {url:D("1LVtsUdazOidQQTIPBnz-VXRMKSLbYACO"),label:"📄 האף"},
+    {url:D("1pHPmldMJMiOpRXSjuz0h86JmUbxQRXcd"),label:"📄 הצוואר"},
+    {url:D("1t0BdKDF99f12trZM38Xp5XXzpX6bsUPd"),label:"📄 הצוואר + סיכום (PPTX)"},
+    {url:D("15sVykRmgQzvQH1Z9ziMrbsZ7wI2v9wf4"),label:"📄 בדיקות שמיעה"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=54730",label:"🎬 הקלטה 19.5"},
+  ],
+  "neuro":[
+    {url:D("1tc98vpPJplSGHsRayaHjDdLGFswyXn1e"),label:"📖 ברונר 60-65"},
+    {url:D("1ufI-nDwSFPapBMgrbns4Q21Cjosa86OE"),label:"📄 מבוא למערכת העצבים"},
+    {url:D("1hEzV52KSf-0cwxfl05jkJH5-WcNArTg2"),label:"📄 הערכה נוירולוגית ובדיקות"},
+    {url:D("1QmDoAkaC3xeI-dq4PZNX3dXJAry8Li3y"),label:"📄 הערכה נוירופסיכולוגית"},
+    {url:D("1HlaRp6J6DL4i53YvUhNFDyZQKtajo3r_"),label:"📄 שבץ מוחי דימומי"},
+    {url:D("1BtiGduLajVqhvrMDeY_-gkZwo35qA3cK"),label:"📄 שבץ מוחי איסכמי"},
+    {url:D("1yzezCD1uL1kgKKW_U46BAxWbcp-eYuCe"),label:"📄 מיאסטניה וגיאן ברה"},
+    {url:D("13bhuqFKUBHAmXQJQ7QKbgK0Tv9suPwHj"),label:"📄 כאבי ראש"},
+    {url:D("1KjP4RdYjazwSAdeQVQVKRUdgYerFMi8S"),label:"📄 טרשת נפוצה"},
+    {url:D("1A3M6YlSXa3bajRz-ec7RBQCczrYgsjgx"),label:"📄 אפילפסיה ופרכוסים"},
+    {url:D("1iMA1LdiBrA-Itkd33FsJCUd00ln1f7B6"),label:"📄 זיהומים במעמ"},
+    {url:D("1iYD1CtqNuVnjsGqmgQEvc62vO_ZiH12j"),label:"📄 מחלות זיהומיות CJD"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=56037",label:"🎬 הקלטה 16.6"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=56116",label:"🎬 הקלטה 18.6"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=56183",label:"🎬 הקלטה 21.6"},
+  ],
+  "musculoskeletal":[
+    {url:D("1mvpklDzd4qJLnbhpD_3Cri3Ax46UdU0L"),label:"📖 ברונר 35-37"},
+    {url:D("1XwUsykp2DP0fjD6mhGmRWz1e8-LXKy2H"),label:"📄 מבוא לאורטופדיה"},
+    {url:D("1bnCqxwTJfS6m9nDJufTCqQS7cPiJcX6O"),label:"📄 אומדן ובדיקה פיזיקלית"},
+    {url:D("16nyNnEOENyZY37CB0qhZJtyDWPFiN9oD"),label:"📄 הדמייה"},
+    {url:D("18yCCWd-ZlMaWcnMzPswh71jcIAjkoIcH"),label:"📄 טרואמה וכירורגיה"},
+    {url:D("1f96v5Tk50KUzVDjs2B7nKs7MzXx8W7L2"),label:"📄 סיעוד אורטופדי"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=55537",label:"🎬 הקלטה 2.6"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=56252",label:"🎬 הקלטה 23.6"},
+  ],
+  "oncology":[
+    {url:D("1ep4y5yTajntUCYiWPXEi9OltBwmnWOZz"),label:"📖 ברונר 12-13"},
+    {url:D("1xL-gTqSwGAVkaEknWqzG5bOgsGwwwegx"),label:"📄 מבוא לאונקולוגיה"},
+    {url:D("16HWI4NwoJYhw01hE7MhOIhPnE6ZRPYTf"),label:"📄 הטיפול האונקולוגי"},
+    {url:D("1NNgLpOk9tKVMDxukhjb41CuqiHUotSmU"),label:"📄 מצבי חירום באונקולוגיה"},
+    {url:D("1PJdpxMa4tleSUFDjCvcD0X-ZRdXOeIF1"),label:"📄 טיפול תומך"},
+  ],
+  "hematology":[
+    {url:D("1cPtiIGCcNZuERx8iq3tpjQKt4R2IxPGD"),label:"📖 ברונר 28-30"},
+    {url:D("1a3LwBzYAmoKbzmWZkfIVyJrwRZcdokXa"),label:"📄 Hematology - Br15"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=55245",label:"🎬 הקלטה 26.5"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=55535",label:"🎬 הקלטה 2.6"},
+  ],
+  "breast":[
+    {url:D("1_cQasyKXKAP-TvcwDaCvnAl094wklHPI"),label:"📖 ברונר 52"},
+    {url:D("1yOHTs_y0BSq7FdJ3zt-8-uYnr1CpmwZU"),label:"📄 מחלות שד - ברונר 2025"},
+    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=56251",label:"🎬 הקלטה 23.6"},
+  ],
+};
+
+// Exam file links — add Google Drive IDs per topic
+const EXAM_LINKS = {
+  // "periop": [{url: D("DRIVE_ID"), label: "📝 בחינה 2024"}],
+};
+
+const CAT_ORDER = ["surgery_shock","respiratory","cardio","gastro","endocrine","urology","immune_rheum","skin_burns","senses","neuro","musculoskeletal","onco_hematology"];
+const CAT_LABELS = {};
+TOPICS.forEach(t => { CAT_LABELS[t.cat] = t.catLabel; });
+
+// ── Theme ──────────────────────────────────────────────────
+function initTheme() {
+  const saved = localStorage.getItem('mevak_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  updateThemeIcon(saved);
+}
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('mevak_theme', next);
+  updateThemeIcon(next);
+  // Re-render charts for correct colors
+  if (barChartA) { barChartA.destroy(); barChartA = null; }
+  if (barChartB) { barChartB.destroy(); barChartB = null; }
+  renderBarChart();
+}
+function updateThemeIcon(theme) {
+  const icon = document.getElementById('themeIcon');
+  if (icon) icon.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
+  const mobIcon = document.getElementById('mobThemeIcon');
+  if (mobIcon) mobIcon.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
+}
+
+// ── Mobile bottom nav ──────────────────────────────────────
+function mobFilter(part) {
+  if (part === 'all') {
+    activePart = null;
+  } else {
+    activePart = (activePart === part) ? null : part;
+  }
+  // Sync sidebar chips
+  document.getElementById('chipA').classList.toggle('active', activePart === 'א');
+  document.getElementById('chipB').classList.toggle('active', activePart === 'ב');
+  // Sync chart dimming
+  const wrapA = document.getElementById('chartWrapA');
+  const wrapB = document.getElementById('chartWrapB');
+  if (activePart === 'א') { wrapA.classList.remove('chart-dimmed'); wrapB.classList.add('chart-dimmed'); }
+  else if (activePart === 'ב') { wrapA.classList.add('chart-dimmed'); wrapB.classList.remove('chart-dimmed'); }
+  else { wrapA.classList.remove('chart-dimmed'); wrapB.classList.remove('chart-dimmed'); }
+  // Sync bottom nav buttons
+  document.getElementById('mobBtnAll').classList.toggle('active', !activePart);
+  document.getElementById('mobBtnA').classList.toggle('active', activePart === 'א');
+  document.getElementById('mobBtnB').classList.toggle('active', activePart === 'ב');
+  document.getElementById('mobBtnIncomplete').classList.remove('active');
+  renderAll();
+}
+function mobFilterIncomplete() {
+  filterIncomplete = !filterIncomplete;
+  document.getElementById('mobBtnIncomplete').classList.toggle('active', filterIncomplete);
+  renderTable();
+}
+
+// ── State ──────────────────────────────────────────────────
+let state = {};
+let filterIncomplete = false;
+let activeCat = null;
+let activePart = null; // null = all, 'א' = part A, 'ב' = part B
+
+function getTopicState(id) {
+  if (!state[id]) state[id] = { done: false, subs: {}, brunner: false };
+  return state[id];
+}
+function saveState() { try { localStorage.setItem('nursingState_adult', JSON.stringify(state)); } catch {} }
+function loadState() { try { const s = localStorage.getItem('nursingState_adult'); if (s) state = JSON.parse(s); } catch {} }
+
+// ── Sidebar / layout ───────────────────────────────────────
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const main = document.getElementById('main');
+  const overlay = document.getElementById('sidebarOverlay');
+  const isMobile = window.innerWidth <= 900;
+  if (isMobile) {
+    sb.classList.toggle('open');
+    overlay.style.display = sb.classList.contains('open') ? 'block' : 'none';
+  } else {
+    sb.classList.toggle('collapsed');
+    main.classList.toggle('expanded');
+  }
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').style.display = 'none';
+}
+
+// ── Category filter ────────────────────────────────────────
+function filterCat(cat) {
+  activeCat = cat;
+  document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active'));
+  const key = cat || 'all';
+  const link = document.querySelector(`.sidebar-link[data-cat="${key}"]`);
+  if (link) link.classList.add('active');
+  renderTable();
+  renderBarChart();
+}
+
+// ── Part filter ────────────────────────────────────────────
+function filterPart(part) {
+  // toggle: clicking the active part deselects it
+  activePart = (activePart === part) ? null : part;
+
+  // update chip UI
+  document.getElementById('chipA').classList.toggle('active', activePart === 'א');
+  document.getElementById('chipB').classList.toggle('active', activePart === 'ב');
+
+  // dim/undim bar charts
+  const wrapA = document.getElementById('chartWrapA');
+  const wrapB = document.getElementById('chartWrapB');
+  if (activePart === 'א') {
+    wrapA.classList.remove('chart-dimmed');
+    wrapB.classList.add('chart-dimmed');
+  } else if (activePart === 'ב') {
+    wrapA.classList.add('chart-dimmed');
+    wrapB.classList.remove('chart-dimmed');
+  } else {
+    wrapA.classList.remove('chart-dimmed');
+    wrapB.classList.remove('chart-dimmed');
+  }
+
+  // if category filter is from the wrong part, reset it
+  if (activePart && activeCat) {
+    const topic = TOPICS.find(t => t.cat === activeCat);
+    if (topic && topic.part !== activePart) {
+      activeCat = null;
+      document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active'));
+      const allLink = document.querySelector('.sidebar-link[data-cat="all"]');
+      if (allLink) allLink.classList.add('active');
+    }
+  }
+
+  // sync mobile bottom nav buttons
+  const mbAll = document.getElementById('mobBtnAll');
+  const mbA   = document.getElementById('mobBtnA');
+  const mbB   = document.getElementById('mobBtnB');
+  if (mbAll) mbAll.classList.toggle('active', !activePart);
+  if (mbA)   mbA.classList.toggle('active', activePart === 'א');
+  if (mbB)   mbB.classList.toggle('active', activePart === 'ב');
+
+  renderAll();
+}
+
+// ── Toggle functions ──────────────────────────────────────
+function toggleBrunner(id) {
+  getTopicState(id).brunner = !getTopicState(id).brunner;
+  saveState(); renderAll();
+}
+function toggleTopic(id, e) {
+  if (e) e.stopPropagation();
+  const ts = getTopicState(id);
+  ts.done = !ts.done;
+  const topic = TOPICS.find(t => t.id === id);
+  if (ts.done) topic.subs.forEach((_, i) => { ts.subs[i] = true; });
+  saveState(); renderAll();
+}
+function toggleSub(topicId, subIdx, e) {
+  if (e) e.stopPropagation();
+  const ts = getTopicState(topicId);
+  ts.subs[subIdx] = !ts.subs[subIdx];
+  const topic = TOPICS.find(t => t.id === topicId);
+  ts.done = topic.subs.every((_, i) => ts.subs[i]);
+  saveState(); renderAll();
+  // Keep subrow open
+  const subRow = document.getElementById(`subrow-${topicId}`);
+  if (subRow) subRow.style.display = 'table-row';
+}
+function toggleSubRow(topicId) {
+  const subRow = document.getElementById(`subrow-${topicId}`);
+  const chevron = document.getElementById(`chev-${topicId}`);
+  if (!subRow) return;
+  const isOpen = subRow.style.display !== 'none' && subRow.style.display !== '';
+  subRow.style.display = isOpen ? 'none' : 'table-row';
+  if (chevron) {
+    chevron.textContent = isOpen ? 'expand_more' : 'expand_less';
+  }
+}
+function expandAllRows() {
+  document.querySelectorAll('.sub-tr').forEach(el => el.style.display = 'table-row');
+  document.querySelectorAll('[id^="chev-"]').forEach(el => el.textContent = 'expand_less');
+}
+function collapseAllRows() {
+  document.querySelectorAll('.sub-tr').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('[id^="chev-"]').forEach(el => el.textContent = 'expand_more');
+}
+function toggleFilter() {
+  filterIncomplete = !filterIncomplete;
+  const btn = document.getElementById('filterSbBtn');
+  if (btn) btn.classList.toggle('active', filterIncomplete);
+  renderAll();
+}
+function resetAll() {
+  if (!confirm('לאפס את כל הסימונים?')) return;
+  state = {}; saveState(); renderAll();
+}
+
+// ── Stats computation ─────────────────────────────────────
+function calcWeightedProgress(topicList) {
+  const AVG = 35;
+  let total = 0, done = 0;
+  topicList.forEach(t => {
+    const ts = getTopicState(t.id);
+    const w = t.pages || (t.subs.length * AVG);
+    const pps = w / t.subs.length;
+    t.subs.forEach((_, i) => { total += pps; if (ts.subs[i]) done += pps; });
+  });
+  return { total: Math.round(total), done: Math.round(done), pct: total ? Math.round(done/total*100) : 0 };
+}
+
+function updateStats() {
+  // Apply part filter to stat cards when active
+  const viewTopics = activePart ? TOPICS.filter(t => t.part === activePart) : TOPICS;
+
+  const totalTopics = viewTopics.length;
+  const totalHours  = viewTopics.reduce((a,t) => a + t.hours, 0);
+  const totalPages  = viewTopics.reduce((a,t) => a + (t.pages||0), 0);
+  const doneTopics  = viewTopics.filter(t => getTopicState(t.id).done).length;
+  const doneSubs    = viewTopics.reduce((a,t) => { const ts=getTopicState(t.id); return a+t.subs.filter((_,i)=>ts.subs[i]).length; }, 0);
+  const totalSubs   = viewTopics.reduce((a,t) => a+t.subs.length, 0);
+  const doneHours   = viewTopics.filter(t=>getTopicState(t.id).done).reduce((a,t)=>a+t.hours,0);
+  const donePages   = viewTopics.reduce((a,t) => {
+    if (!t.pages) return a;
+    const ts=getTopicState(t.id);
+    return a+Math.round(t.pages*t.subs.filter((_,i)=>ts.subs[i]).length/t.subs.length);
+  }, 0);
+
+  const overall = calcWeightedProgress(viewTopics);
+  const partA   = calcWeightedProgress(TOPICS.filter(t=>t.part==='א'));
+  const partB   = calcWeightedProgress(TOPICS.filter(t=>t.part==='ב'));
+
+  // Topbar
+  document.getElementById('mainBar').style.width = overall.pct + '%';
+  document.getElementById('pctLabel').textContent = overall.pct + '%';
+  document.getElementById('subLabel').textContent = totalPages
+    ? `${donePages} / ${totalPages} עמ'`
+    : `${doneSubs} / ${totalSubs}`;
+
+  // Stat cards
+  document.getElementById('statTopics').textContent = `${doneTopics}/${totalTopics}`;
+  document.getElementById('statSubs').textContent   = doneSubs;
+  document.getElementById('statHours').textContent  = doneHours;
+  document.getElementById('statLeft').textContent   = totalHours - doneHours;
+
+  // Sidebar
+  document.getElementById('sidebarBar').style.width  = overall.pct + '%';
+  document.getElementById('sidebarPct').textContent   = overall.pct + '%';
+  document.getElementById('sidebarPartA').textContent = partA.pct + '%';
+  document.getElementById('sidebarPartB').textContent = partB.pct + '%';
+
+  // Footer
+  const footerEl = document.getElementById('footerStats');
+  if (footerEl) footerEl.textContent = `${doneTopics}/${totalTopics} נושאים · ${doneSubs}/${totalSubs} סעיפים · ${doneHours} ש"א הושלמו`;
+
+  // Sidebar badges
+  CAT_ORDER.forEach(cat => {
+    const el = document.getElementById(`sb-badge-${cat}`);
+    if (!el) return;
+    const catTopics = TOPICS.filter(t=>t.cat===cat);
+    const catDone   = catTopics.filter(t=>getTopicState(t.id).done).length;
+    el.textContent = `${catDone}/${catTopics.length}`;
+    el.className = catDone === catTopics.length ? 'link-badge done-badge' : 'link-badge';
+  });
+  // All badge
+  const allBadge = document.getElementById('sb-badge-all');
+  if (allBadge) allBadge.textContent = `${doneTopics}/${totalTopics}`;
+
+  // Table count label
+  const countEl = document.getElementById('tableCountLabel');
+  if (countEl) {
+    const showing = activeCat ? TOPICS.filter(t=>t.cat===activeCat).length : TOPICS.length;
+    countEl.textContent = activeCat ? `מציג: ${CAT_LABELS[activeCat]}` : `${showing} נושאים`;
+  }
+}
+
+// ── PIE CHARTS (per part) ─────────────────────────────────
+let barChartA = null, barChartB = null;
+
+function isDark() {
+  return document.documentElement.getAttribute('data-theme') !== 'light';
+}
+
+function renderPartChart(part, canvasId, existingChart) {
+  const ctx = document.getElementById(canvasId);
+  if (!ctx) return existingChart;
+
+  const dark = isDark();
+  const mainColor   = part === 'א' ? '#4f80ff' : '#a78bfa';
+  const doneColor   = '#1cbb8c';
+  const warnColor   = '#fcb92c';
+  const emptyColor  = dark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)';
+  const textColor   = dark ? '#c8cdd8' : '#495057';
+  const tooltipBg   = dark ? '#1a1c2a' : '#fff';
+  const tooltipTitle = dark ? '#e8eaf0' : '#343a40';
+
+  const seenCats = [];
+  const labels = [], data = [], colors = [], catPcts = [];
+
+  TOPICS.filter(t => t.part === part).forEach(t => {
+    if (seenCats.includes(t.cat)) return;
+    seenCats.push(t.cat);
+    const catTopics = TOPICS.filter(x => x.cat === t.cat);
+    const totalS = catTopics.reduce((a,x) => a + x.subs.length, 0);
+    const doneS  = catTopics.reduce((a,x) => {
+      const ts = getTopicState(x.id);
+      return a + x.subs.filter((_,i) => ts.subs[i]).length;
+    }, 0);
+    const pct = totalS ? Math.round(doneS / totalS * 100) : 0;
+    const totalHours = catTopics.reduce((a,x) => a + x.hours, 0);
+    labels.push(t.catLabel.length > 13 ? t.catLabel.substring(0,13) + '…' : t.catLabel);
+    data.push(totalHours || totalS);
+    catPcts.push(pct);
+    colors.push(pct === 100 ? doneColor : pct >= 50 ? mainColor : pct > 0 ? warnColor : emptyColor);
+  });
+
+  if (existingChart) { existingChart.destroy(); }
+  return new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: colors,
+        borderColor: dark ? 'rgba(255,255,255,0.06)' : '#fff',
+        borderWidth: 2,
+        hoverOffset: 10,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom',
+          labels: { font: { size: 10 }, boxWidth: 10, padding: 6, color: textColor }
+        },
+        tooltip: {
+          rtl: true,
+          backgroundColor: tooltipBg,
+          titleColor: tooltipTitle,
+          bodyColor: textColor,
+          borderColor: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+          borderWidth: 1,
+          callbacks: {
+            label: c => ` ${c.label}: ${catPcts[c.dataIndex]}% הושלם`
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderBarChart() {
+  barChartA = renderPartChart('א', 'progressChartA', barChartA);
+  barChartB = renderPartChart('ב', 'progressChartB', barChartB);
+}
+
+// ── TABLE (Latest Projects) ────────────────────────────────
+function renderTable() {
+  const tbody = document.getElementById('topicsTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  let topics = [...TOPICS];
+  if (activePart) topics = topics.filter(t => t.part === activePart);
+  if (activeCat) topics = topics.filter(t => t.cat === activeCat);
+  if (filterIncomplete) topics = topics.filter(t => !getTopicState(t.id).done);
+
+  if (topics.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted);">
+      ${filterIncomplete ? 'כל הנושאים הושלמו! 🎉' : 'אין נושאים להצגה'}
+    </td></tr>`;
+    return;
+  }
+
+  // Sort by CAT_ORDER
+  topics.sort((a,b) => {
+    const ia = CAT_ORDER.indexOf(a.cat), ib = CAT_ORDER.indexOf(b.cat);
+    return ia !== ib ? ia - ib : 0;
+  });
+
+  topics.forEach(t => {
+    const ts = getTopicState(t.id);
+    const subsDone = t.subs.filter((_,i) => ts.subs[i]).length;
+    const subsPct  = t.subs.length ? Math.round(subsDone / t.subs.length * 100) : 0;
+    const isDone   = ts.done;
+    const isInProg = !isDone && subsDone > 0;
+
+    const statusBadge = isDone
+      ? `<span class="badge badge-success" data-tooltip="כל הסעיפים וברונר הושלמו">הושלם</span>`
+      : isInProg
+        ? `<span class="badge badge-warning" data-tooltip="חלק מהסעיפים הושלמו — המשך ללמוד">בתהליך</span>`
+        : `<span class="badge badge-secondary" data-tooltip="טרם התחלת ללמוד נושא זה">טרם החל</span>`;
+
+    const partBadge = t.part === 'א'
+      ? `<span class="badge badge-primary">חלק א׳</span>`
+      : `<span class="badge badge-purple">חלק ב׳</span>`;
+
+    const miniBarCls = isDone ? 'topic-mini-bar done' : 'topic-mini-bar';
+
+    // Main row
+    const tr = document.createElement('tr');
+    tr.className = `topic-tr${isDone ? ' row-done' : ''}`;
+    tr.onclick = () => toggleSubRow(t.id);
+    tr.innerHTML = `
+      <td onclick="event.stopPropagation()">
+        <input type="checkbox" class="topic-cb" ${isDone ? 'checked' : ''}
+          onchange="toggleTopic('${t.id}', event)" data-tooltip="סמן לסיום מהיר של הנושא כולו">
+      </td>
+      <td>
+        <div class="topic-name-wrap">
+          <span class="topic-name-title ${isDone ? 'done' : ''}">${t.name}</span>
+          <span class="topic-name-meta">${t.meta}</span>
+          <div class="topic-mini-bar-bg">
+            <div class="${miniBarCls}" style="width:${subsPct}%"></div>
+          </div>
+        </div>
+      </td>
+      <td class="col-hide">
+        <div class="cat-cell">
+          <span class="cat-icon">${t.icon}</span>
+          <span class="cat-name">${t.catLabel}</span>
+        </div>
+      </td>
+      <td>
+        <span class="badge badge-hours" data-tooltip="שעות אקדמיות מוקצות לנושא">${t.hours} ש"א</span>
+        ${t.pages ? `<br><span class="badge badge-pages" style="margin-top:3px;" data-tooltip="עמודי ברונר לנושא זה">${t.pages} עמ'</span>` : ''}
+      </td>
+      <td>
+        <span class="subs-count">${subsDone}</span>
+        <span class="subs-total">/${t.subs.length}</span>
+      </td>
+      <td>${statusBadge}</td>
+      <td class="col-hide">${partBadge}</td>
+      <td onclick="event.stopPropagation()">
+        <button class="expand-btn" onclick="toggleSubRow('${t.id}')" data-tooltip="פתח/סגור סעיפי הנושא" data-tip-pos="left-edge">
+          <span class="material-icons" id="chev-${t.id}">expand_more</span>
+        </button>
+      </td>
+    `;
+
+    // Sub row (hidden by default)
+    const subTr = document.createElement('tr');
+    subTr.className = 'sub-tr';
+    subTr.id = `subrow-${t.id}`;
+    subTr.style.display = 'none';
+
+    let subHTML = `<td colspan="8"><div class="sub-content">`;
+
+    // Sub-progress bar
+    subHTML += `
+      <div class="sub-prog-row">
+        <div class="sub-prog-bg">
+          <div class="sub-prog-fill" style="width:${subsPct}%"></div>
+        </div>
+        <span class="sub-prog-txt" data-tooltip="סעיפים שסימנת כהושלמו מתוך סך הסעיפים בנושא">${subsDone} / ${t.subs.length} סעיפים · ${subsPct}%</span>
+      </div>
+    `;
+
+    // 3-column layout
+    subHTML += `<div class="sub-cols">`;
+
+    // ── Column 1: sub-items + brunner ──
+    subHTML += `<div class="sub-col-items">`;
+    subHTML += `<div class="sub-col-header" data-tooltip="רשימת הסעיפים לסימון — V ליד כל סעיף שלמדת">📋 סעיפי לימוד</div>`;
+    subHTML += `<div class="sub-grid">`;
+    t.subs.forEach((sub, i) => {
+      const done = !!ts.subs[i];
+      subHTML += `
+        <div class="sub-item" onclick="toggleSub('${t.id}',${i},event)">
+          <input type="checkbox" id="sub-${t.id}-${i}" ${done ? 'checked' : ''}
+            onclick="toggleSub('${t.id}',${i},event)" onchange="toggleSub('${t.id}',${i},event)">
+          <label for="sub-${t.id}-${i}" class="${done ? 'done' : ''}" onclick="event.stopPropagation()">${sub}</label>
+        </div>`;
+    });
+    subHTML += `</div>`;
+    if (t.brunner) {
+      subHTML += `
+        <div class="brunner-row" onclick="toggleBrunner('${t.id}')" data-tooltip="סמן לאחר קריאת פרקי הברונר — נדרש להשלמת הנושא">
+          <input type="checkbox" ${ts.brunner ? 'checked' : ''} onclick="event.stopPropagation();toggleBrunner('${t.id}')">
+          <label class="${ts.brunner ? 'done' : ''}" onclick="event.stopPropagation()">
+            📖 קראתי ברונר — ${t.brunner}
+          </label>
+        </div>`;
+    }
+    subHTML += `</div>`;
+
+    // ── Column 2: study links ──
+    const links = TOPIC_LINKS[t.id] || [];
+    subHTML += `<div class="sub-col-links">`;
+    subHTML += `<div class="sub-col-header" data-tooltip="קישורים לשקפי ההרצאות ולפרקי הברונר ב-Google Drive">📄 חומר לימוד</div>`;
+    if (links.length) {
+      subHTML += `<div class="sub-links">`;
+      links.forEach(link => {
+        subHTML += `<a href="${link.url}" target="_blank" class="topic-link-btn" onclick="event.stopPropagation()">${link.label}</a>`;
+      });
+      subHTML += `</div>`;
+    } else {
+      subHTML += `<span style="font-size:12px;color:var(--muted);">—</span>`;
+    }
+    subHTML += `</div>`;
+
+    // ── Column 3: exam links + Gemini generate button ──
+    const exams = EXAM_LINKS[t.id] || [];
+    subHTML += `<div class="sub-col-exams">`;
+    subHTML += `<div class="sub-col-header" data-tooltip="צור מבחן אמריקאי על הנושא בעזרת AI">📝 בחינות</div>`;
+    subHTML += `<button class="exam-gen-btn" onclick="event.stopPropagation();copyExamPrompt('${t.id}',this)" data-tooltip="מעתיק פרומפט מוכן — הדבק ב-Claude, ChatGPT וכו' לקבלת 20 שאלות אמריקאיות בעברית">
+      <span class="material-icons" style="font-size:14px;vertical-align:middle">content_copy</span> העתק פרומפט ליצירת מבחן במערכת AI
+    </button>`;
+    if (exams.length) {
+      subHTML += `<div class="sub-links" style="margin-top:8px">`;
+      exams.forEach(link => {
+        subHTML += `<a href="${link.url}" target="_blank" class="topic-link-btn" onclick="event.stopPropagation()">${link.label}</a>`;
+      });
+      subHTML += `</div>`;
+    }
+    subHTML += `</div>`;
+
+    subHTML += `</div>`; // /sub-cols
+
+    subHTML += `</div></td>`;
+    subTr.innerHTML = subHTML;
+
+    tbody.appendChild(tr);
+    tbody.appendChild(subTr);
+  });
+}
+
+// ── RENDER ALL ─────────────────────────────────────────────
+function renderAll() {
+  updateStats();
+  renderTable();
+  renderBarChart();
+}
+
+// ── SAVE / LOAD ────────────────────────────────────────────
+function openHandleDB() {
+  return new Promise((res,rej) => {
+    const r = indexedDB.open('nursingTrackerDB_adult', 1);
+    r.onupgradeneeded = e => e.target.result.createObjectStore('handles');
+    r.onsuccess = e => res(e.target.result);
+    r.onerror = rej;
+  });
+}
+async function getStoredHandle() {
+  try {
+    const db = await openHandleDB();
+    return await new Promise(res => {
+      const tx = db.transaction('handles','readonly');
+      const req = tx.objectStore('handles').get('progress');
+      req.onsuccess = e => res(e.target.result || null);
+      req.onerror = () => res(null);
+    });
+  } catch { return null; }
+}
+async function storeHandle(handle) {
+  try {
+    const db = await openHandleDB();
+    await new Promise(res => {
+      const tx = db.transaction('handles','readwrite');
+      tx.objectStore('handles').put(handle,'progress');
+      tx.oncomplete = res;
+    });
+  } catch {}
+}
+// ── AUTO-SAVE ──────────────────────────────────────────────
+let autoSaveInterval = null;
+const AUTO_SAVE_MS = 5 * 60 * 1000; // 5 minutes
+
+function showSaveToast(msg, isAuto = false) {
+  let toast = document.getElementById('saveToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'saveToast';
+    toast.style.cssText = [
+      'position:fixed','bottom:20px','left:20px','z-index:9999',
+      'background:var(--card-bg)','border:1px solid var(--card-border)',
+      'border-radius:8px','padding:9px 16px','font-size:13px',
+      'color:var(--text)','box-shadow:0 4px 20px rgba(0,0,0,0.4)',
+      'opacity:0','transition:opacity 0.25s','pointer-events:none',
+    ].join(';');
+    document.body.appendChild(toast);
+  }
+  toast.innerHTML = msg;
+  toast.style.opacity = '1';
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => { toast.style.opacity = '0'; }, isAuto ? 2500 : 2000);
+}
+
+function updateAutoSaveStatus(lastTime) {
+  const chip  = document.getElementById('autoSaveChip');
+  const label = document.getElementById('autoSaveLabel');
+  const time  = document.getElementById('autoSaveTime');
+  if (!chip) return;
+  if (autoSaveInterval) {
+    chip.className = 'autosave-chip active';
+    label.textContent = 'שמירה אוטומטית פעילה';
+    time.textContent  = lastTime ? 'נשמר לאחרונה · ' + lastTime : 'כל 5 דקות';
+  } else {
+    chip.className = 'autosave-chip inactive';
+    label.textContent = 'שמירה אוטומטית לא פעילה';
+    time.textContent  = 'לחץ "שמור" להפעלה';
+  }
+}
+
+function startAutoSave() {
+  if (autoSaveInterval) return; // already running
+  autoSaveInterval = setInterval(async () => {
+    const handle = await getStoredHandle();
+    if (!handle) return;
+    try {
+      const perm = await handle.queryPermission({mode:'readwrite'});
+      if (perm !== 'granted') return; // don't prompt in background
+      const w = await handle.createWritable();
+      await w.write(JSON.stringify(state, null, 2));
+      await w.close();
+      const t = new Date().toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit'});
+      showSaveToast(`<span style="color:var(--success)">✓</span> נשמר אוטומטית · ${t}`, true);
+      updateAutoSaveStatus(t);
+    } catch {}
+  }, AUTO_SAVE_MS);
+}
+
+async function saveProgress() {
+  const data = JSON.stringify(state, null, 2);
+  const fallback = () => {
+    const blob = new Blob([data],{type:'application/json'});
+    const url  = URL.createObjectURL(blob);
+    const a = Object.assign(document.createElement('a'),{href:url,download:'progress.json'});
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+  if (!window.showSaveFilePicker) { fallback(); return; }
+
+  let handle = await getStoredHandle();
+  if (handle) {
+    try {
+      const perm = await handle.queryPermission({mode:'readwrite'});
+      if (perm !== 'granted') { const r = await handle.requestPermission({mode:'readwrite'}); if (r !== 'granted') handle = null; }
+    } catch { handle = null; }
+  }
+  if (!handle) {
+    try {
+      handle = await window.showSaveFilePicker({
+        suggestedName: 'progress.json',
+        types: [{description:'JSON',accept:{'application/json':['.json']}}]
+      });
+      await storeHandle(handle);
+      startAutoSave(); // begin auto-save after first successful pick
+      updateAutoSaveStatus(null);
+    } catch(e) { if (e.name==='AbortError') return; fallback(); return; }
+  }
+
+  try {
+    const w = await handle.createWritable();
+    await w.write(data); await w.close();
+    const btn = document.querySelector('[onclick="saveProgress()"]');
+    if (btn) {
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<span class="material-icons" style="font-size:18px;vertical-align:middle">check</span> נשמר!';
+      setTimeout(() => { btn.innerHTML = orig; }, 1800);
+    }
+    const _st = new Date().toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit'});
+    showSaveToast(`<span style="color:var(--success)">✓</span> נשמר בהצלחה · ${_st}`);
+    updateAutoSaveStatus(_st);
+  } catch(e) { alert('שגיאה בשמירה: ' + e.message); }
+}
+async function loadProgress(e) {
+  const file = e?.target?.files?.[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = ev => { try { state = JSON.parse(ev.target.result); saveState(); renderAll(); } catch { alert('שגיאה בטעינת הקובץ'); } };
+    reader.readAsText(file); e.target.value = ''; return;
+  }
+  if (!window.showOpenFilePicker) { document.getElementById('loadInput').click(); return; }
+  try {
+    const [handle] = await window.showOpenFilePicker({types:[{description:'JSON',accept:{'application/json':['.json']}}]});
+    await storeHandle(handle);
+    const f = await handle.getFile();
+    state = JSON.parse(await f.text()); saveState(); renderAll();
+    startAutoSave(); updateAutoSaveStatus(null);
+  } catch(e) { if (e.name !== 'AbortError') alert('שגיאה בטעינה'); }
+}
+
+// ── EXAM GENERATOR (Claude API) ────────────────────────────
+const CLAUDE_KEY_STORE = 'anthropic_api_key_v1';
+
+async function generateExam(topicId, btnEl) {
+  const topic = TOPICS.find(t => t.id === topicId);
+  if (!topic) return;
+
+  let apiKey = localStorage.getItem(CLAUDE_KEY_STORE);
+  if (!apiKey) {
+    apiKey = prompt('הכנס Anthropic API Key (יישמר מקומית בדפדפן בלבד):\nניתן לקבל ב: console.anthropic.com/settings/keys');
+    if (!apiKey || !apiKey.trim()) return;
+    localStorage.setItem(CLAUDE_KEY_STORE, apiKey.trim());
+    apiKey = apiKey.trim();
+  }
+
+  const orig = btnEl.innerHTML;
+  btnEl.innerHTML = '<span class="material-icons" style="font-size:14px;vertical-align:middle;display:inline-block;animation:spin 1s linear infinite">refresh</span> מייצר...';
+  btnEl.disabled = true;
+
+  try {
+    const subsText = topic.subs.map(function(s, i) { return (i+1) + '. ' + s; }).join('\n');
+    const promptText =
+      'אתה מרצה לסיעוד. צור 20 שאלות אמריקאיות בעברית רפואית על הנושא: "' + topic.name + '" (' + topic.meta + ').\n\n' +
+      'הסעיפים לכסות:\n' + subsText + '\n\n' +
+      'כללים:\n' +
+      '- כל שאלה: 4 אפשרויות תשובה (א, ב, ג, ד), תשובה נכונה אחת\n' +
+      '- שאלות הבנה קלינית, לא רק שינון\n' +
+      '- גוון: תרחישים קליניים, הגדרות, השוואות, מנגנונים\n' +
+      '- הסבר קצר (2-3 משפטים) לתשובה הנכונה\n\n' +
+      'החזר JSON בלבד ללא markdown:\n' +
+      '[{"q":"טקסט שאלה","opts":["א. ...","ב. ...","ג. ...","ד. ..."],"ans":0,"exp":"הסבר"}]\n' +
+      '"ans" = אינדקס 0-3 של התשובה הנכונה.';
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-calls': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-5',
+        max_tokens: 8192,
+        messages: [{ role: 'user', content: promptText }]
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(function() { return {}; });
+      if (res.status === 401 || res.status === 403) localStorage.removeItem(CLAUDE_KEY_STORE);
+      throw new Error((err.error && err.error.message) || 'HTTP ' + res.status);
+    }
+
+    const data = await res.json();
+    const raw = (data.content && data.content[0] && data.content[0].text) || '';
+    const clean = raw.replace(/^```json?\s*/i, '').replace(/```\s*$/, '').trim();
+    const qs = JSON.parse(clean);
+    if (!Array.isArray(qs) || !qs.length) throw new Error('לא התקבלו שאלות תקינות');
+
+    openQuizTab(topic.name, qs);
+  } catch(e) {
+    console.error(e);
+    alert('שגיאה ביצירת המבחן:\n' + e.message);
+  } finally {
+    btnEl.innerHTML = orig;
+    btnEl.disabled = false;
+  }
+}
+
+function copyExamPrompt(topicId, btnEl) {
+  const topic = TOPICS.find(t => t.id === topicId);
+  if (!topic) return;
+  const subsText = topic.subs.map((s, i) => `${i+1}. ${s}`).join('\n');
+  const brunnerRef = topic.brunner ? `\nחומר מקור: ברונר ${topic.brunner}` : '';
+  const prompt =
+    `אתה מרצה לסיעוד. צור 20 שאלות אמריקאיות בעברית רפואית על הנושא: "${topic.name}" (${topic.meta}).${brunnerRef}\n\n` +
+    `הסעיפים לכסות:\n${subsText}\n\n` +
+    `כללים:\n` +
+    `- כל שאלה: 4 אפשרויות תשובה (א, ב, ג, ד), תשובה נכונה אחת\n` +
+    `- שאלות הבנה קלינית, לא רק שינון\n` +
+    `- גוון: תרחישים קליניים, הגדרות, השוואות, מנגנונים\n` +
+    `- הסבר קצר (2-3 משפטים) לתשובה הנכונה\n` +
+    `- רמת קושי מתאימה לבחינת סיעוד`;
+
+  const orig = btnEl.innerHTML;
+  const ok = () => {
+    btnEl.innerHTML = '<span class="material-icons" style="font-size:14px;vertical-align:middle">check</span> הועתק!';
+    btnEl.style.background = 'var(--green,#1cbb8c)';
+    setTimeout(() => { btnEl.innerHTML = orig; btnEl.style.background = ''; }, 2000);
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(prompt).then(ok).catch(() => fallbackCopy(prompt, ok));
+  } else {
+    fallbackCopy(prompt, ok);
+  }
+}
+
+function fallbackCopy(text, callback) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try { document.execCommand('copy'); callback(); } catch(e) { alert('העתקה נכשלה — אנא העתק ידנית'); }
+  document.body.removeChild(ta);
+}
+
+function openQuizTab(topicName, questions) {
+  const html = buildQuizHTML(topicName, questions);
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+  setTimeout(function() { URL.revokeObjectURL(url); }, 120000);
+}
+
+function buildQuizHTML(topicName, questions) {
+  // Convert Gemini format {q, opts, ans, exp} → quiz format {id, question, options, correct_answer}
+  const converted = questions.map(function(q, i) {
+    var opts = q.opts.map(function(o) { return o.replace(/^[אבגד]\.\s*/, ''); });
+    return {
+      id: i + 1,
+      question: q.q,
+      options: opts,
+      correct_answer: opts[q.ans],
+      explanation: q.exp || ''
+    };
+  });
+  const qsJSON = JSON.stringify(converted);
+  const total = converted.length;
+
+  return '<!DOCTYPE html>\n' +
+'<html lang="he" dir="rtl">\n' +
+'<head>\n' +
+'    <meta charset="UTF-8">\n' +
+'    <title>מבחן — ' + topicName + '</title>\n' +
+'    <style>\n' +
+'        body { font-family: Arial, sans-serif; margin: 40px; background: #fff; color: #333; }\n' +
+'        .quiz-container { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }\n' +
+'        .option-btn { display: block; width: 100%; padding: 10px; margin: 10px 0; background: #f0f0f0; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; text-align: right; font-size: 16px; }\n' +
+'        .option-btn:hover { background: #e0e0e0; }\n' +
+'        .progress { font-weight: bold; margin-bottom: 20px; color: #666; }\n' +
+'        .explanation-box { margin-top: 14px; padding: 10px 14px; background: #f0f7ff; border-right: 3px solid #4f80ff; border-radius: 5px; font-size: 14px; color: #444; line-height: 1.5; }\n' +
+'    </style>\n' +
+'</head>\n' +
+'<body>\n' +
+'    <div class="quiz-container">\n' +
+'        <div class="progress">שאלה <span id="currentQuestionNum">1</span> מתוך ' + total + '</div>\n' +
+'        <h2 id="questionText">טוען שאלה...</h2>\n' +
+'        <div id="optionsContainer"></div>\n' +
+'        <div id="explanationContainer"></div>\n' +
+'    </div>\n' +
+'    <script>\n' +
+'        var geminiQuestions = ' + qsJSON + ';\n' +
+'        var currentIdx = 0;\n' +
+'        var correctCount = 0;\n' +
+'        var totalQuestions = geminiQuestions.length;\n' +
+'        var errorsReport = [];\n' +
+'        function renderQuestion() {\n' +
+'            if (currentIdx >= totalQuestions) { finishQuiz(); return; }\n' +
+'            var q = geminiQuestions[currentIdx];\n' +
+'            document.getElementById("currentQuestionNum").innerText = currentIdx + 1;\n' +
+'            document.getElementById("questionText").innerText = q.question;\n' +
+'            document.getElementById("explanationContainer").innerHTML = "";\n' +
+'            var container = document.getElementById("optionsContainer");\n' +
+'            container.innerHTML = "";\n' +
+'            q.options.forEach(function(option) {\n' +
+'                var btn = document.createElement("button");\n' +
+'                btn.className = "option-btn";\n' +
+'                btn.innerText = option;\n' +
+'                btn.onclick = function() { handleAnswer(option, q); };\n' +
+'                container.appendChild(btn);\n' +
+'            });\n' +
+'        }\n' +
+'        function handleAnswer(selectedOption, questionObj) {\n' +
+'            var isCorrect = selectedOption === questionObj.correct_answer;\n' +
+'            if (isCorrect) {\n' +
+'                correctCount++;\n' +
+'            } else {\n' +
+'                errorsReport.push({ question: questionObj.question, userAnswer: selectedOption, correctAnswer: questionObj.correct_answer });\n' +
+'            }\n' +
+'            // Show feedback briefly before moving on\n' +
+'            var btns = document.getElementById("optionsContainer").querySelectorAll("button");\n' +
+'            btns.forEach(function(b) {\n' +
+'                b.disabled = true;\n' +
+'                if (b.innerText === questionObj.correct_answer) b.style.background = "#c8f7e4";\n' +
+'                else if (b.innerText === selectedOption) b.style.background = "#ffd6d6";\n' +
+'            });\n' +
+'            if (questionObj.explanation) {\n' +
+'                document.getElementById("explanationContainer").innerHTML =\n' +
+'                    \'<div class="explanation-box">💡 \' + questionObj.explanation + \'</div>\';\n' +
+'            }\n' +
+'            setTimeout(function() { currentIdx++; renderQuestion(); }, questionObj.explanation ? 2500 : 1200);\n' +
+'        }\n' +
+'        function finishQuiz() {\n' +
+'            var score = Math.round((correctCount / totalQuestions) * 100);\n' +
+'            var resultData = { type: "QUIZ_FINISHED", score: score, successRate: score, errors: errorsReport };\n' +
+'            if (window.opener) { window.opener.postMessage(resultData, "*"); }\n' +
+'            window.close();\n' +
+'        }\n' +
+'        renderQuestion();\n' +
+'    <\/script>\n' +
+'  </body>\n' +
+'</html>';
+}
+
+function openHelp() {
+  document.getElementById('helpOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeHelp() {
+  document.getElementById('helpOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeHelp(); });
+
+// ── Startup ────────────────────────────────────────────────
+initTheme();
+loadState();
+renderAll();
+// Resume auto-save if a file handle was stored from a previous session
+getStoredHandle().then(handle => { if (handle) { startAutoSave(); updateAutoSaveStatus(null); } });
+
+</script>
+
+<!-- ═══ COURSE WIZARD OVERLAY ═══ -->
+<div class="wizard-overlay" id="wizardOverlay">
+  <div class="wizard-sheet">
+    <div class="wizard-sheet-bar">
+      <span class="wizard-sheet-title">
+        <span class="material-icons" style="font-size:21px;vertical-align:middle;margin-left:4px;color:var(--primary)">add_circle_outline</span>
+        בניית מעקב לקורס חדש
+      </span>
+      <button class="wizard-close-btn" onclick="closeCourseWizard()">
+        <span class="material-icons" style="font-size:26px">close</span>
+      </button>
+    </div>
+    <iframe class="wizard-frame" id="wizardFrame" src="" allow="file-system"></iframe>
+  </div>
+</div>
+
+
+<!-- ══ HELP OVERLAY ══════════════════════════════════════ -->
+<div class="help-overlay" id="helpOverlay" onclick="if(event.target===this)closeHelp()">
+  <div class="help-sheet">
+    <div class="help-sheet-bar">
+      <div class="help-sheet-title">
+        <span class="material-icons">help_outline</span>
+        הוראות שימוש — מעקב סיעוד המבוגר
+      </div>
+      <button class="help-close-btn" onclick="closeHelp()">
+        <span class="material-icons" style="font-size:20px">close</span>
+      </button>
+    </div>
+    <div class="help-body">
+
+      <h2>מה זה?</h2>
+      <p>דשבורד אישי למעקב לימודים בקורס סיעוד המבוגר. המערכת עוקבת אחר ההתקדמות שלך ב-18 נושאי לימוד, מאורגנים בחלק א׳ וחלק ב׳.</p>
+
+      <h2>התמצאות בממשק</h2>
+      <h3><span class="material-icons">menu</span> סרגל ניווט שמאלי</h3>
+      <ul>
+        <li>מציג את <strong>אחוז ההתקדמות הכולל</strong> ופירוט לפי חלק א׳ וחלק ב׳.</li>
+        <li>לחיצה על <strong>"חלק א׳"</strong> או <strong>"חלק ב׳"</strong> מסננת את הטבלה. לחיצה שנייה מבטלת.</li>
+        <li>קישורים מהירים לקטגוריות: כירורגיה, לב, נשימה וכו׳.</li>
+      </ul>
+      <h3><span class="material-icons">view_headline</span> סרגל עליון</h3>
+      <ul>
+        <li><strong>מונה עמודים</strong>: כמה עמודי ברונר הושלמו מתוך הסך הכולל.</li>
+        <li><strong>אחוז התקדמות</strong> כולל עם פס התקדמות.</li>
+      </ul>
+
+      <h2>טבלת הנושאים</h2>
+      <p>כל שורה מייצגת נושא לימוד ומציגה: שם, קטגוריה, עמודי ברונר, שעות, סטטוס ואחוז התקדמות.</p>
+      <table class="help-table">
+        <tr><th>סטטוס</th><th>תנאי</th></tr>
+        <tr><td>Not Started</td><td>אף סעיף לא סומן</td></tr>
+        <tr><td>In Progress</td><td>לפחות סעיף אחד סומן</td></tr>
+        <tr><td>Done</td><td>כל הסעיפים + קריאת ברונר הושלמו</td></tr>
+      </table>
+
+      <h2>עבודה עם נושא</h2>
+      <p>לחיצה על שורה פותחת פאנל מורחב עם שלושה עמודות:</p>
+      <h3><span class="material-icons">checklist</span> 1 — סעיפי לימוד</h3>
+      <p>סמן V ליד כל סעיף שסיימת. בתחתית — <strong>"קראתי ברונר"</strong>: סמן לאחר קריאת הפרקים.</p>
+      <h3><span class="material-icons">menu_book</span> 2 — חומר לימוד</h3>
+      <p>קישורים ישירים לשקפי ההרצאות ופרקי ברונר ב-Google Drive. קישורי הקלטות (🎬) כאשר קיימים.</p>
+      <h3><span class="material-icons">quiz</span> 3 — בחינות</h3>
+      <p><strong>"העתק פרומפט ליצירת מבחן במערכת AI"</strong> — מעתיק פרומפט מוכן לקליפבורד. הדבק ב-Claude / ChatGPT לקבלת 20 שאלות אמריקאיות בעברית עם הסברים.</p>
+      <div class="help-step"><div class="help-step-num">1</div><span>לחץ על נושא לפתיחת הפאנל</span></div>
+      <div class="help-step"><div class="help-step-num">2</div><span>לחץ "העתק פרומפט ליצירת מבחן"</span></div>
+      <div class="help-step"><div class="help-step-num">3</div><span>פתח Claude / ChatGPT והדבק (Cmd+V)</span></div>
+      <div class="help-step"><div class="help-step-num">4</div><span>המערכת תיצור 20 שאלות ברמת סיעוד</span></div>
+
+      <h2>שמירה וטעינה</h2>
+      <div class="help-tip">
+        <span class="material-icons">info</span>
+        ההתקדמות נשמרת אוטומטית ב-localStorage, אך מומלץ לשמור גיבוי חיצוני.
+      </div>
+      <h3><span class="material-icons">save</span> שמירה ידנית</h3>
+      <p>לחץ <strong>"שמור התקדמות"</strong>. בפעם הראשונה תבחר מיקום לקובץ <code>progress.json</code>. בפעמים הבאות נשמר אוטומטית לאותו מיקום.</p>
+      <h3><span class="material-icons">autorenew</span> שמירה אוטומטית</h3>
+      <p>לאחר שמירה ידנית ראשונה — המערכת שומרת <strong>כל 5 דקות</strong>. ה-chip בסרגל יהפוך לירוק ויציג את שעת השמירה האחרונה.</p>
+      <h3><span class="material-icons">folder_open</span> טעינה</h3>
+      <p>לחץ <strong>"טען התקדמות"</strong> לטעינת קובץ שנשמר קודם — שימושי בעת מעבר למחשב אחר.</p>
+
+      <h2>שינוי מראה</h2>
+      <p>לחץ <strong>☀️ / 🌙</strong> בפינה הימנית העליונה לעבור בין מצב כהה ובהיר.</p>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
