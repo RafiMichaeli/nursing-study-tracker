@@ -1433,6 +1433,7 @@ mark.search-hit { background: var(--warning-lt); color: var(--text-dark); border
 <!-- Overlay for mobile sidebar -->
 <div id="sidebarOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:199;" onclick="closeSidebar()"></div>
 
+<script src="links.js"></script>
 <script>
 // ═══════════════════════════════════════════════════════════
 // DATA
@@ -1460,124 +1461,6 @@ const TOPICS = [
   {cat:"onco_hematology",catLabel:"אונקולוגיה, המטולוגיה ושד",icon:"🎀",part:"ב",id:"breast",name:"הפרעות בשד",hours:6,pages:76,meta:"Breast Cancer · Mastectomy · BRCA · Fibrocystic · שחזור",brunner:"פרק 52",subs:["בדיקת שד עצמית + Mammography, US, MRI, Biopsy, BRCA1/BRCA2","סרטן השד — סוגים, שלבי TNM, גורמי סיכון","טיפול כירורגי: Lumpectomy, Mastectomy, Sentinel Node Biopsy","טיפולים משלימים: קרינה, כימותרפיה, Hormonal, Targeted (Herceptin)","שחזור שד — סוגים ומועד ביצוע","מצבים שפירים: Fibrocystic Changes, Fibroadenoma, LCIS"]},
 ];
 
-const D = id => `https://drive.google.com/file/d/${id}/view`;
-const GD = id => `https://docs.google.com/document/d/${id}/view`;
-const TOPIC_LINKS = {
-  "periop":["1jQuFxSCHLs1idlK9_G9m6kYDvA70wFXD|📖 ברונר 14-16","GD:13fySoMAQcpvEDcymSmnSm7NeAnHtyCmbxmIbLC7uplg|📝 סיכום ברונר 14-16","1_D6MfPcc9IUYTbL7TZiAiIUtRuz3wT7i|📄 סביב ניתוחי","1ODJQF_1K_k-2YKNATSZzsBtIZ0m5ZHXs|📄 הרדמה","1VO_TaGpDRs4ydUNW8hDc1zEB7CaTk1K0|📄 סיבוכי הרדמה","1IPkmqt6Mjy_5QCpaIJh3ZUk22uzopjhI|📄 Post-op כאב","1btpGQB9tCRA7zpHwx4ZX_9eR5pxcXx_0|📄 קטטר שתן"].map(s=>{const[id,label]=s.split('|');const url=id.startsWith('GD:')?GD(id.slice(3)):D(id);return{url,label};}),
-  "shock":["1xhqT0hKshLExY45xNgGjyOtGXc22t6sf|📖 ברונר פרק 11","GD:1EkbNwr2sXrb5dikg1T4Kd2ly2T4wXMzZn58pW37b0og|📝 סיכום ברונר 11","1z6_OIQyHSfQHTK45VMwd6jDaR3WcbZMw|📄 הלם"].map(s=>{const[id,label]=s.split('|');const url=id.startsWith('GD:')?GD(id.slice(3)):D(id);return{url,label};}),
-  "respiratory":["1WgdNCIlxRD8pX11BFZhLOGA4_i6_UAOL|📖 ברונר 17-20","GD:1orwsGmu-S1uW8qKFoTRx-Pk9fs1tXTKtcZmIiZMCXuU|📝 סיכום ברונר 17-20","1ju0Xfs_D3nZF23GaVeyso68fIHIh-oI-|📄 מבוא נשימה","17NiBUnJtkt501KNSL9yiTFL-5JJOXitZ|📄 חומצי-בסיסי","1IAM15GXVVCyByPOCeq2CRtZSZccE_IjZ|📄 Asthma","1WvUOBEDQaEASIYZ1Bsvp6eqqpYi9BjWh|📄 COPD","1CE8PXnB_V5UnPKyBxkMGjPwrHTPJmjCb|📄 Pneumonia & TB","1kuxMNbMIqXqesr7WxDHEdYHKLiLFGbql|📄 ARDS","13berZGzuK9eNR66Tz18As8reqhjj3Ufa|📄 PE","1XtGigEzEIBhuNZXr8dHPs1WOEhKYpsm7|📄 Oxygen & NIV","1kasniRm75oBs06BTMN7wh-LcuOq0keXr|📄 Mechanical Vent."].map(s=>{const[id,label]=s.split('|');const url=id.startsWith('GD:')?GD(id.slice(3)):D(id);return{url,label};}),
-  "cardio":["1rTR6MRb9R3czSEww3Y-o6NfoSbFEZ2nk|📖 ברונר 21-25","GD:1YmC7EGA6IuFLFTbFKkpF8vmMoSgaXLzgn75agKoHZOc|📝 סיכום ברונר 21-25","1dSqhVqflVDDnXphP0_-bQSh5NdXglk2Z|📄 מבוא","1IlQ0qm-7YTeh38PRQjSHUbdDMEQZQAA5|📄 אבחון קרדיו","1zDZNYTlv9wo6gzhOhVkQw-gvBWdISd7r|📄 ECG (1)","15MyGhfP80yWFOSGkGiE1CBbiSMDWI7kq|📄 ECG (2)","1eF_udpOYdh2HvdY3SLngJ4drNWnteX7L|📄 ECG טיפול","145Z-LMOR8omsrjjHqCWQazU-BNyZLRJn|📄 קוצבי לב","1VCaiLtQcrgU196JxsrAXDbLukN6aKwSL|📄 כליליות","1ZBA05heUSFkg2MjV5pYfwVv3Etgo7Y1X|📄 מסתמיות","13MNdVknL1MDb-B93qFi_X9zyni4IWbu2|📄 HF","1vLJph8LIbC3adPLpcM2gIBTFs1CwIUt4|📄 דלקתיות","1XEZls_aqJyIdHL_0RnUhG-95TyIFRxFh|📄 CABG","1WYO9kU9hxn6Or-pURT1WlWCiEmvNqin1|📄 HTN","1R_aUQGdoaOaur4ZzGuQF-FSMmsLyV-xj|📄 קרדיומיופטיה"].map(s=>{const[id,label]=s.split('|');const url=id.startsWith('GD:')?GD(id.slice(3)):D(id);return{url,label};}),
-  "vascular":["1c0upj-F9OxXaZ6IN8Ee5cnX6evQOTLTK|📖 ברונר 26-27","GD:1FWS5Ny-rT3VoHglcA53RI5qwNWEpZhxmBDCqoyYglhc|📝 סיכום ברונר 26-27","1j3x3ZeslaPwy0y1L8D-wMONG-w00w_Tn|📄 אבחון כלי דם","1MSfoQ8BeES1ZI4dhUC5cVr9p5uWGXZF0|📄 Arterial","12A78lGaVC8f5oqolmzdLzBLyBx9ZuPPL|📄 Venous","1N1VS8AWdL5vl5PgyG55VBQHKUZ0Fc5Xl|📄 Lymphatic"].map(s=>{const[id,label]=s.split('|');const url=id.startsWith('GD:')?GD(id.slice(3)):D(id);return{url,label};}),
-  "gastro":["1RdkxUVOay46Vq72ei_9nxuFJF4uqPV0Y|📖 ברונר 38-44","GD:1R5oi_CHerVeXvdAEumFsryPk8NlPYw02KkXE1BbZ8v4|📝 סיכום ברונר 38-44","1oWpvdAUIHRZ5kEzzHsWTQqAhSTnWYr7B|📄 מבוא","1doLgdRwKO7cuzuL1qVNc4BiEs36vbtw6|📄 ושט","1mHoOJ6hs-ZZuypVu6MS6XrD2b61T3zRi|📄 קיבה","1Ve4VJ66yvPgxR_-xhdg3W4rfBCWoIwXS|📄 Obesity","1ieiqAfySkorSuEnB3ZfQnxJq5ChiWi0s|📄 Hepatitis","1V63TPbCwNxUMbIU_X610wL9wCeLvn3v3|📄 Cirrhosis","1BPp9IAh9sPCN4PzB6tLBTIz9H9eopfZ5|📄 כיס מרה","1sEYQqwFaMkVr8f0_ndLAHTvHdg2vgsG-|📄 לבלב","1w0n_LkBI2suXbdlOITskjk3Lqbrx9_h0|📄 מעיים","15ygzkVK-tx8Q0DCgehh6E1yDcFaZsxte|📄 IBD & IBS","1Wmijg_EmNzEn0_-dTHm4a5Yj_tsaUwtg|📄 CRC ברונר","1htj6N8djtdJIt3Q6fN1ewDRjesoONl-p|📄 CRC+Polyps","1N9p7o2J0m3QjJMkaZxBP2z6CvcstZqko|📄 Anorectum","1_gqhuO_8h85y9cr-e0YGF8Hu8xF6UvV1|📄 בקעים","1dixkinGm9MGSjsS785epTo3T4s7wwB2E|📄 סטומה-טיפול","1a94c-qiwY_WM4VVQjaDCPQD_gRGk7cVo|📄 סטומה-סיבוכים"].map(s=>{const[id,label]=s.split('|');const url=id.startsWith('GD:')?GD(id.slice(3)):D(id);return{url,label};}),
-  "endocrine":["1j5LppkkiqG1tsbdbPeR7oST9WtaoiKxO|📖 ברונר 45-46","GD:1hbnI3xboC84uQhD3asE1geTYxy4f5YeRA_guTTzlQYw|📝 סיכום ברונר 45-46","14rnpvkVX_ePDmvgX0MqArhpE9ytUK1PX|📄 היפופיזה","1BTHrRYxHffgY7BXdHRpvkT0-kvFEwQsF|📄 יותרת הכליה","1kWZRcV7InD6UmbfRA0EBgLT-SDl3fXfZ|📄 תריס","1faLioGvdrW2ZCZNwIqHyaAEzi2Fg3Wpq|📄 יותרת התריס","11T1PYY1fnS5CSQBy-4Holx881gnFfERc|📄 סוכרת"].map(s=>{const[id,label]=s.split('|');const url=id.startsWith('GD:')?GD(id.slice(3)):D(id);return{url,label};}),
-    "urology":[
-    {url:D("1ogBkPoAvUP-FC9ATQt_5-tS750rDZgB1"),label:"📖 ברונר 47-49"},
-    {url:GD("1ZQr3sCt_o_XPgvrGkZWG-iR9of6B0xxkIYtahhN8oZQ"),label:"📝 סיכום ברונר 47-49"},
-    {url:D("1K9OVkaHV-yTuHzO6yDf8zsvxmCYiYz0j"),label:"📄 אנטומיה ובדיקות הדמייה"},
-    {url:D("1_yqoqfDrDUTe90tIbDr0Bt5cznBfkSnD"),label:"📄 Urology"},
-    {url:D("1enfmOCL0bMQDaaKB7ivxxdFpRThQ4yXp"),label:"📄 Urinary Incontinence"},
-    {url:D("1N31D_4Vk1XDE03si-_FvfrPrzfAo5ufy"),label:"📄 סרטן שלפוחית"},
-    {url:D("1UtQFG8FxNjWVpvVxSR7I40-yuIi35Zq5"),label:"📄 Renal Cancer"},
-    {url:D("1w5fu60kYhLdaqpcfMxVLzW84J7L0EDU1"),label:"📄 פרוסטטה"},
-    {url:D("1cQkuoMt2mUYzq_NI7WdK_gq4rhgy-DSs"),label:"📄 UTI"},
-    {url:D("13mruwJzXnsQgOdlpFLx_VF53v-ugdGQm"),label:"📄 אבנים בדרכי השתן"},
-    {url:D("1jHOk8-zCprrpVhmuxQ1ognZHyKvLUTB9"),label:"📄 האשך"},
-    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=55216",label:"🎬 הקלטה 24.5"},
-    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=55958",label:"🎬 הקלטה 14.6"},
-  ],
-  "immune":[
-    {url:D("1uV6BbQyFQMggADHuc_40OzgvLEjZqfxJ"),label:"📖 ברונר 31-34"},
-    {url:D("1NNQ7KYApUP2yq2UqQ9AbCHUuQBVRSFhe"),label:"📝 סיכום ברונר 31-34"},
-    {url:D("1BPAFrBMY4VpkhJf6yNv5CWS71b8kh5of"),label:"📄 מבוא למערכת חיסונית"},
-    {url:D("12srfkb9bTuddOYQsH-kjim-EA8CqbrBT"),label:"📄 AIDS"},
-    {url:D("1QaXQR8Looh5Ywg3u61ahlnw_4ZzBUKWj"),label:"📄 מחלות רקמת חיבור"},
-    {url:D("1Ogo2_7ZYmvs5C3ZiS4JT5E9M2tRZhrTH"),label:"📄 תגובה אלרגית"},
-    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=53328",label:"🎬 הקלטה 12.4"},
-    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=53896",label:"🎬 הקלטה 26.4"},
-  ],
-  "skin":[
-    {url:D("1Yy3XmOuKxHsn1fj3GmsXoJXaSVnxAX13"),label:"📖 ברונר 55-56"},
-    {url:GD("1wYHFRSl4cE19v6lDPxgcHAiQf4N-WLL3Ru8suQRIM5Y"),label:"📝 סיכום ברונר 55-56"},
-    {url:D("10hV1MDebRIwPQ4blzACwQ8nYvdog7De4"),label:"📄 בדיקות אבחון בעור"},
-    {url:D("1PnOoBfMyj9n9Bko49MXatNaVGEDujb3G"),label:"📄 מחלות דלקתיות ואלרגיה"},
-    {url:D("1eotESJ8TFCKM_C8GCa9jqvmWXj37Z3Vb"),label:"📄 מחלות זיהומיות"},
-    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=56275",label:"🎬 הקלטה 25.6"},
-  ],
-  "burns":[{url:D("1gPEDxAbPxMWQEnLBPoGkM0g-9OCPcRPL"),label:"📖 ברונר 57"},{url:GD("1UXaltktIECjYUKrXfnIMLsb-AauRyDcPwI-7csTZbWQ"),label:"📝 סיכום ברונר 57"}],
-  "eyes":[
-    {url:D("1dZXTsYCCzUieoGjQlXeUP766MOOpr401"),label:"📖 ברונר 58"},
-    {url:GD("1lB4CBVObNijAMZYzzuxytYi9xoaqtqeR13-a4Cv1qFY"),label:"📝 סיכום ברונר 58"},
-    {url:D("1ZRHEpVUuC1IUoho2ncTecFZNmJR8LvHa"),label:"📄 אנטומיה ואומדן ראייה"},
-    {url:D("13hgHC4XvgAPIr18eTRv0VKDdaI6jWUnF"),label:"📄 גלאוקומה, קטרקט"},
-    {url:D("1LlZmjPiECTPTAh6uJQ25qDjNKHfZQXr2"),label:"📄 הפרעות ברשתית"},
-    {url:D("1SNpEC0nEHOvCYuXO-4Rgyov55rWxtRz4"),label:"📄 מחלות קרנית"},
-    {url:D("1-l9SA9sKudZ135QQ2g8qv1RL5kgH50kQ"),label:"📄 חבלות ומצבי חירום"},
-    {url:D("14HExA5xnBEE83OYSxVy27jms0OzTMQCg"),label:"📄 Conjunctivitis"},
-    {url:D("1T5Lm7RaelOK83XyN2_XdChPGri_xJtFp"),label:"📄 Refraction Errors"},
-    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=55652",label:"🎬 הקלטה 7.6"},
-  ],
-  "ent":[
-    {url:D("1TefxnbnPQmkyFTE2UidfTOAKxYvC2V9J"),label:"📖 ברונר 59"},
-    {url:GD("1zNV8-hL1FRdWvB2q2O8isI252z4iVesLReuTZVSfqVI"),label:"📝 סיכום ברונר 59"},
-    {url:D("1aPF8rxnCefLl2gpLL8P2YYZkumzxSnN9"),label:"📄 הקדמה לאאג"},
-    {url:D("1e027xFEb0reDiNHhvbrT1b29F0TIicm4"),label:"📄 האוזן"},
-    {url:D("1LVtsUdazOidQQTIPBnz-VXRMKSLbYACO"),label:"📄 האף"},
-    {url:D("1pHPmldMJMiOpRXSjuz0h86JmUbxQRXcd"),label:"📄 הצוואר"},
-    {url:D("1t0BdKDF99f12trZM38Xp5XXzpX6bsUPd"),label:"📄 הצוואר + סיכום (PPTX)"},
-    {url:D("15sVykRmgQzvQH1Z9ziMrbsZ7wI2v9wf4"),label:"📄 בדיקות שמיעה"},
-    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=54730",label:"🎬 הקלטה 19.5"},
-  ],
-  "neuro":[
-    {url:D("1tc98vpPJplSGHsRayaHjDdLGFswyXn1e"),label:"📖 ברונר 60-65"},
-    {url:GD("1F6spjD0VuXBYI22QaioUx4He73omBGP5HmHOslYFt8A"),label:"📝 סיכום ברונר 60-65"},
-    {url:D("1ufI-nDwSFPapBMgrbns4Q21Cjosa86OE"),label:"📄 מבוא למערכת העצבים"},
-    {url:D("1hEzV52KSf-0cwxfl05jkJH5-WcNArTg2"),label:"📄 הערכה נוירולוגית ובדיקות"},
-    {url:D("1QmDoAkaC3xeI-dq4PZNX3dXJAry8Li3y"),label:"📄 הערכה נוירופסיכולוגית"},
-    {url:D("1HlaRp6J6DL4i53YvUhNFDyZQKtajo3r_"),label:"📄 שבץ מוחי דימומי"},
-    {url:D("1BtiGduLajVqhvrMDeY_-gkZwo35qA3cK"),label:"📄 שבץ מוחי איסכמי"},
-    {url:D("1yzezCD1uL1kgKKW_U46BAxWbcp-eYuCe"),label:"📄 מיאסטניה וגיאן ברה"},
-    {url:D("13bhuqFKUBHAmXQJQ7QKbgK0Tv9suPwHj"),label:"📄 כאבי ראש"},
-    {url:D("1KjP4RdYjazwSAdeQVQVKRUdgYerFMi8S"),label:"📄 טרשת נפוצה"},
-    {url:D("1A3M6YlSXa3bajRz-ec7RBQCczrYgsjgx"),label:"📄 אפילפסיה ופרכוסים"},
-    {url:D("1iMA1LdiBrA-Itkd33FsJCUd00ln1f7B6"),label:"📄 זיהומים במעמ"},
-    {url:D("1iYD1CtqNuVnjsGqmgQEvc62vO_ZiH12j"),label:"📄 מחלות זיהומיות CJD"},
-    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=56037",label:"🎬 הקלטה 16.6"},
-    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=56116",label:"🎬 הקלטה 18.6"},
-    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=56183",label:"🎬 הקלטה 21.6"},
-  ],
-  "musculoskeletal":[
-    {url:D("1mvpklDzd4qJLnbhpD_3Cri3Ax46UdU0L"),label:"📖 ברונר 35-37"},
-    {url:GD("1szWpoY-QCWOOdcItF5fSyu5afbDIosgU8khN1v4gqSc"),label:"📝 סיכום ברונר 35-37"},
-    {url:D("1XwUsykp2DP0fjD6mhGmRWz1e8-LXKy2H"),label:"📄 מבוא לאורטופדיה"},
-    {url:D("1bnCqxwTJfS6m9nDJufTCqQS7cPiJcX6O"),label:"📄 אומדן ובדיקה פיזיקלית"},
-    {url:D("16nyNnEOENyZY37CB0qhZJtyDWPFiN9oD"),label:"📄 הדמייה"},
-    {url:D("18yCCWd-ZlMaWcnMzPswh71jcIAjkoIcH"),label:"📄 טרואמה וכירורגיה"},
-    {url:D("1f96v5Tk50KUzVDjs2B7nKs7MzXx8W7L2"),label:"📄 סיעוד אורטופדי"},
-    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=55537",label:"🎬 הקלטה 2.6"},
-    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=56252",label:"🎬 הקלטה 23.6"},
-  ],
-  "oncology":[
-    {url:D("1ep4y5yTajntUCYiWPXEi9OltBwmnWOZz"),label:"📖 ברונר 12-13"},
-    {url:GD("1LE4YM2c8Ev4iQuDdlFkY9KWj_-t4mEYfcKhvQcQlfi4"),label:"📝 סיכום ברונר 12-13"},
-    {url:D("1xL-gTqSwGAVkaEknWqzG5bOgsGwwwegx"),label:"📄 מבוא לאונקולוגיה"},
-    {url:D("16HWI4NwoJYhw01hE7MhOIhPnE6ZRPYTf"),label:"📄 הטיפול האונקולוגי"},
-    {url:D("1NNgLpOk9tKVMDxukhjb41CuqiHUotSmU"),label:"📄 מצבי חירום באונקולוגיה"},
-    {url:D("1PJdpxMa4tleSUFDjCvcD0X-ZRdXOeIF1"),label:"📄 טיפול תומך"},
-  ],
-  "hematology":[
-    {url:D("1cPtiIGCcNZuERx8iq3tpjQKt4R2IxPGD"),label:"📖 ברונר 28-30"},
-    {url:GD("1jUompoIgGOD5_hiK2WwjvI9J9wUjlBuUxmV2e9n5bcQ"),label:"📝 סיכום ברונר 28-30"},
-    {url:D("1a3LwBzYAmoKbzmWZkfIVyJrwRZcdokXa"),label:"📄 Hematology - Br15"},
-    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=55245",label:"🎬 הקלטה 26.5"},
-    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=55535",label:"🎬 הקלטה 2.6"},
-  ],
-  "breast":[
-    {url:D("1_cQasyKXKAP-TvcwDaCvnAl094wklHPI"),label:"📖 ברונר 52"},
-    {url:GD("1e6Bd29J8FB0rPH9UADEUKkSeRXZhrmzonSmvBhAZIhE"),label:"📝 סיכום ברונר 52"},
-    {url:D("1yOHTs_y0BSq7FdJ3zt-8-uYnr1CpmwZU"),label:"📄 מחלות שד - ברונר 2025"},
-    {url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=56251",label:"🎬 הקלטה 23.6"},
-  ],
-};
 
 // Exam file links — add Google Drive IDs per topic
 const EXAM_LINKS = {
