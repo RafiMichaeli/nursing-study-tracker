@@ -1,0 +1,993 @@
+// app.js — הלוגיקה של מעקב סיעוד המבוגר (הוצא מ-index.html).
+// טעינה: links.js → data.js → app.js → schedule.js (ר' index.html).
+
+// ── Theme ──────────────────────────────────────────────────
+function initTheme() {
+  const saved = localStorage.getItem('mevak_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  updateThemeIcon(saved);
+}
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('mevak_theme', next);
+  updateThemeIcon(next);
+  // Re-render charts for correct colors
+  if (barChartA) { barChartA.destroy(); barChartA = null; }
+  if (barChartB) { barChartB.destroy(); barChartB = null; }
+  renderBarChart();
+}
+function updateThemeIcon(theme) {
+  const icon = document.getElementById('themeIcon');
+  if (icon) icon.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
+  const mobIcon = document.getElementById('mobThemeIcon');
+  if (mobIcon) mobIcon.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
+}
+
+// ── Mobile bottom nav ──────────────────────────────────────
+function mobFilter(part) {
+  if (part === 'all') {
+    activePart = null;
+  } else {
+    activePart = (activePart === part) ? null : part;
+  }
+  // Sync sidebar chips
+  document.getElementById('chipA').classList.toggle('active', activePart === 'א');
+  document.getElementById('chipB').classList.toggle('active', activePart === 'ב');
+  // Sync chart dimming
+  const wrapA = document.getElementById('chartWrapA');
+  const wrapB = document.getElementById('chartWrapB');
+  if (activePart === 'א') { wrapA.classList.remove('chart-dimmed'); wrapB.classList.add('chart-dimmed'); }
+  else if (activePart === 'ב') { wrapA.classList.add('chart-dimmed'); wrapB.classList.remove('chart-dimmed'); }
+  else { wrapA.classList.remove('chart-dimmed'); wrapB.classList.remove('chart-dimmed'); }
+  // Sync bottom nav buttons
+  document.getElementById('mobBtnAll').classList.toggle('active', !activePart);
+  document.getElementById('mobBtnA').classList.toggle('active', activePart === 'א');
+  document.getElementById('mobBtnB').classList.toggle('active', activePart === 'ב');
+  document.getElementById('mobBtnIncomplete').classList.remove('active');
+  renderAll();
+}
+function mobFilterIncomplete() {
+  filterIncomplete = !filterIncomplete;
+  document.getElementById('mobBtnIncomplete').classList.toggle('active', filterIncomplete);
+  renderTable();
+}
+
+// ── State ──────────────────────────────────────────────────
+let state = {};
+let filterIncomplete = false;
+let activeCat = null;
+let activePart = null; // null = all, 'א' = part A, 'ב' = part B
+let searchQuery = '';
+
+function getTopicState(id) {
+  if (!state[id]) state[id] = { done: false, subs: {}, brunner: false };
+  return state[id];
+}
+
+// "done" is derived: all sub-items checked AND (if the topic has Brunner
+// chapters) the "קראתי ברונר" box checked — matching the in-app help & README.
+// ts.done is kept as a cached copy of this rule (refreshed on every toggle)
+// so progress.json stays backward-compatible and schedule.js keeps working.
+function computeTopicDone(topic, ts) {
+  const allSubs = topic.subs.every((_, i) => ts.subs[i]);
+  return allSubs && (!topic.brunner || !!ts.brunner);
+}
+function refreshTopicDone(id) {
+  const topic = TOPICS.find(t => t.id === id);
+  if (!topic) return;
+  const ts = getTopicState(id);
+  ts.done = computeTopicDone(topic, ts);
+}
+// Normalize loaded state: coerce entry shapes + recompute all done flags
+// (also migrates states saved by the old rule that ignored brunner).
+function normalizeState() {
+  TOPICS.forEach(t => {
+    const ts = getTopicState(t.id);
+    if (!ts.subs || typeof ts.subs !== 'object' || Array.isArray(ts.subs)) ts.subs = {};
+    ts.brunner = !!ts.brunner;
+    ts.done = computeTopicDone(t, ts);
+  });
+}
+// Minimal shape check before accepting an external progress file, so loading
+// the wrong JSON can't silently wipe real progress (and then get auto-saved).
+function isValidProgressData(data) {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return false;
+  return Object.entries(data).every(([k, v]) => {
+    if (k === '_schedule') return !!v && typeof v === 'object' && !Array.isArray(v);
+    if (!v || typeof v !== 'object' || Array.isArray(v)) return false;
+    if ('subs' in v && (!v.subs || typeof v.subs !== 'object' || Array.isArray(v.subs))) return false;
+    return true;
+  });
+}
+
+function saveState() { try { localStorage.setItem('nursingState_adult', JSON.stringify(state)); } catch {} }
+function loadState() {
+  try { const s = localStorage.getItem('nursingState_adult'); if (s) state = JSON.parse(s); } catch {}
+  normalizeState();
+}
+
+// ── Sidebar / layout ───────────────────────────────────────
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const main = document.getElementById('main');
+  const overlay = document.getElementById('sidebarOverlay');
+  const isMobile = window.innerWidth <= 900;
+  if (isMobile) {
+    sb.classList.toggle('open');
+    overlay.style.display = sb.classList.contains('open') ? 'block' : 'none';
+  } else {
+    sb.classList.toggle('collapsed');
+    main.classList.toggle('expanded');
+  }
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').style.display = 'none';
+}
+
+// ── Category filter ────────────────────────────────────────
+function filterCat(cat) {
+  activeCat = cat;
+  document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active'));
+  const key = cat || 'all';
+  const link = document.querySelector(`.sidebar-link[data-cat="${key}"]`);
+  if (link) link.classList.add('active');
+  renderTable();
+  renderBarChart();
+}
+
+// ── Part filter ────────────────────────────────────────────
+function filterPart(part) {
+  // toggle: clicking the active part deselects it
+  activePart = (activePart === part) ? null : part;
+
+  // update chip UI
+  document.getElementById('chipA').classList.toggle('active', activePart === 'א');
+  document.getElementById('chipB').classList.toggle('active', activePart === 'ב');
+
+  // dim/undim bar charts
+  const wrapA = document.getElementById('chartWrapA');
+  const wrapB = document.getElementById('chartWrapB');
+  if (activePart === 'א') {
+    wrapA.classList.remove('chart-dimmed');
+    wrapB.classList.add('chart-dimmed');
+  } else if (activePart === 'ב') {
+    wrapA.classList.add('chart-dimmed');
+    wrapB.classList.remove('chart-dimmed');
+  } else {
+    wrapA.classList.remove('chart-dimmed');
+    wrapB.classList.remove('chart-dimmed');
+  }
+
+  // if category filter is from the wrong part, reset it
+  if (activePart && activeCat) {
+    const topic = TOPICS.find(t => t.cat === activeCat);
+    if (topic && topic.part !== activePart) {
+      activeCat = null;
+      document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active'));
+      const allLink = document.querySelector('.sidebar-link[data-cat="all"]');
+      if (allLink) allLink.classList.add('active');
+    }
+  }
+
+  // sync mobile bottom nav buttons
+  const mbAll = document.getElementById('mobBtnAll');
+  const mbA   = document.getElementById('mobBtnA');
+  const mbB   = document.getElementById('mobBtnB');
+  if (mbAll) mbAll.classList.toggle('active', !activePart);
+  if (mbA)   mbA.classList.toggle('active', activePart === 'א');
+  if (mbB)   mbB.classList.toggle('active', activePart === 'ב');
+
+  renderAll();
+}
+
+// ── Toggle functions ──────────────────────────────────────
+function toggleBrunner(id) {
+  getTopicState(id).brunner = !getTopicState(id).brunner;
+  refreshTopicDone(id);
+  saveState(); renderAll();
+}
+function toggleTopic(id, e) {
+  if (e) e.stopPropagation();
+  const ts = getTopicState(id);
+  const topic = TOPICS.find(t => t.id === id);
+  const willBeDone = !ts.done;
+  // Checking marks everything (subs + brunner); unchecking clears everything —
+  // previously subs stayed checked, so one sub-toggle flipped the topic back to done.
+  topic.subs.forEach((_, i) => { ts.subs[i] = willBeDone; });
+  if (topic.brunner) ts.brunner = willBeDone;
+  ts.done = willBeDone;
+  saveState(); renderAll();
+}
+function toggleSub(topicId, subIdx, e) {
+  if (e) e.stopPropagation();
+  const ts = getTopicState(topicId);
+  ts.subs[subIdx] = !ts.subs[subIdx];
+  refreshTopicDone(topicId);
+  saveState(); renderAll();
+  // (open sub-rows are preserved by renderTable itself)
+}
+function toggleSubRow(topicId) {
+  const subRow = document.getElementById(`subrow-${topicId}`);
+  const chevron = document.getElementById(`chev-${topicId}`);
+  if (!subRow) return;
+  const isOpen = subRow.style.display !== 'none' && subRow.style.display !== '';
+  subRow.style.display = isOpen ? 'none' : 'table-row';
+  if (chevron) {
+    chevron.textContent = isOpen ? 'expand_more' : 'expand_less';
+  }
+}
+function expandAllRows() {
+  document.querySelectorAll('.sub-tr').forEach(el => el.style.display = 'table-row');
+  document.querySelectorAll('[id^="chev-"]').forEach(el => el.textContent = 'expand_less');
+}
+function collapseAllRows() {
+  document.querySelectorAll('.sub-tr').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('[id^="chev-"]').forEach(el => el.textContent = 'expand_more');
+}
+function toggleFilter() {
+  filterIncomplete = !filterIncomplete;
+  const btn = document.getElementById('filterSbBtn');
+  if (btn) btn.classList.toggle('active', filterIncomplete);
+  renderAll();
+}
+function resetAll() {
+  if (!confirm('לאפס את כל הסימונים?')) return;
+  state = {}; saveState(); renderAll();
+}
+
+// ── Search ─────────────────────────────────────────────────
+// Search drives a dropdown "jump to" menu (buildSearchResults /
+// renderSearchDropdown / jumpToTopic below); it does not filter the table.
+function handleSearchInput(value) {
+  searchQuery = value.trim().toLowerCase();
+  const clearBtn = document.getElementById('searchClearBtn');
+  if (clearBtn) clearBtn.classList.toggle('show', searchQuery.length > 0);
+  renderSearchDropdown();
+}
+function clearSearch() {
+  searchQuery = '';
+  const input = document.getElementById('searchInput');
+  if (input) input.value = '';
+  const clearBtn = document.getElementById('searchClearBtn');
+  if (clearBtn) clearBtn.classList.remove('show');
+  renderSearchDropdown();
+}
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function highlightText(text, q) {
+  if (!q) return escapeHtml(text);
+  const idx = text.toLowerCase().indexOf(q);
+  if (idx === -1) return escapeHtml(text);
+  const before = escapeHtml(text.slice(0, idx));
+  const match = escapeHtml(text.slice(idx, idx + q.length));
+  const after = escapeHtml(text.slice(idx + q.length));
+  return `${before}<mark class="search-hit">${match}</mark>${after}`;
+}
+// ── Search dropdown (jump-to menu) ──────────────────────────
+const MAX_DROPDOWN_GROUPS = 8;
+const MAX_SUBS_PER_GROUP = 5;
+
+function buildSearchResults(q) {
+  if (!q) return [];
+  const results = [];
+  for (const t of TOPICS) {
+    const haystack = `${t.name} ${t.meta} ${t.catLabel}`.toLowerCase();
+    const topicMatched = haystack.includes(q);
+    const matchedSubs = [];
+    t.subs.forEach((s, i) => { if (s.toLowerCase().includes(q)) matchedSubs.push(i); });
+    if (topicMatched || matchedSubs.length) {
+      results.push({ topic: t, topicMatched, matchedSubs });
+      if (results.length >= MAX_DROPDOWN_GROUPS) break;
+    }
+  }
+  return results;
+}
+
+function renderSearchDropdown() {
+  const dd = document.getElementById('searchDropdown');
+  if (!dd) return;
+  if (!searchQuery) { dd.classList.remove('show'); dd.innerHTML = ''; return; }
+
+  const results = buildSearchResults(searchQuery);
+  if (!results.length) {
+    dd.innerHTML = `<div class="search-dropdown-empty">אין תוצאות עבור "${escapeHtml(searchQuery)}"</div>`;
+    dd.classList.add('show');
+    return;
+  }
+
+  let html = '';
+  results.forEach(r => {
+    const t = r.topic;
+    html += `<div class="search-dropdown-group">`;
+    html += `
+      <div class="search-dropdown-header" onmousedown="event.preventDefault();jumpToTopic('${t.id}')">
+        <span style="font-size:14px;">${t.icon}</span>
+        <span>${highlightText(t.name, searchQuery)}</span>
+        <span class="cat-tag">${t.catLabel}</span>
+      </div>`;
+    const shown = r.matchedSubs.slice(0, MAX_SUBS_PER_GROUP);
+    shown.forEach(i => {
+      html += `<div class="search-dropdown-sub" onmousedown="event.preventDefault();jumpToTopic('${t.id}',${i})">${highlightText(t.subs[i], searchQuery)}</div>`;
+    });
+    const remaining = r.matchedSubs.length - shown.length;
+    if (remaining > 0) {
+      html += `<div class="search-dropdown-more">+${remaining} סעיפים נוספים</div>`;
+    }
+    html += `</div>`;
+  });
+  dd.innerHTML = html;
+  dd.classList.add('show');
+}
+
+function hideSearchDropdown() {
+  const dd = document.getElementById('searchDropdown');
+  if (dd) dd.classList.remove('show');
+}
+
+function handleSearchFocus() {
+  if (searchQuery) renderSearchDropdown();
+}
+function handleSearchBlur() {
+  // Delay so a click/mousedown on a dropdown entry (jumpToTopic, fired via onmousedown)
+  // has a chance to run before the dropdown disappears.
+  setTimeout(hideSearchDropdown, 150);
+}
+function handleSearchKeydown(e) {
+  if (e.key === 'Escape') {
+    hideSearchDropdown();
+    e.target.blur();
+    // On mobile, Escape also collapses the full-width overlay back to the icon.
+    closeMobileSearch();
+  }
+}
+
+// ── Mobile search: collapsed icon ⇄ full-width overlay ──────
+function openMobileSearch() {
+  const box = document.getElementById('topbarSearch');
+  if (box) box.classList.add('mobile-search-open');
+  const input = document.getElementById('searchInput');
+  // Slight delay before focusing: lets the fixed-position layout settle first,
+  // avoiding a layout/keyboard race on some mobile browsers.
+  if (input) setTimeout(() => input.focus(), 50);
+}
+function closeMobileSearch() {
+  const box = document.getElementById('topbarSearch');
+  if (!box || !box.classList.contains('mobile-search-open')) return;
+  box.classList.remove('mobile-search-open');
+  const input = document.getElementById('searchInput');
+  if (input) input.blur();
+  clearSearch();
+}
+
+function jumpToTopic(topicId, subIdx = -1) {
+  hideSearchDropdown();
+
+  // Reset the other filters so the target topic is guaranteed to be visible, regardless
+  // of whatever part/category/incomplete filter was active — mirrors the reset already
+  // done by filterPart()/filterCat() when toggling those off.
+  activePart = null;
+  activeCat = null;
+  filterIncomplete = false;
+  document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active'));
+  const allLink = document.querySelector('.sidebar-link[data-cat="all"]');
+  if (allLink) allLink.classList.add('active');
+  const chipA = document.getElementById('chipA'); if (chipA) chipA.classList.remove('active');
+  const chipB = document.getElementById('chipB'); if (chipB) chipB.classList.remove('active');
+  const wrapA = document.getElementById('chartWrapA'); if (wrapA) wrapA.classList.remove('chart-dimmed');
+  const wrapB = document.getElementById('chartWrapB'); if (wrapB) wrapB.classList.remove('chart-dimmed');
+  const filterBtn = document.getElementById('filterSbBtn'); if (filterBtn) filterBtn.classList.remove('active');
+
+  renderAll();
+
+  // Force this topic's sub-panel open (all sub-items, not just the matched one).
+  const subRow = document.getElementById(`subrow-${topicId}`);
+  const chevron = document.getElementById(`chev-${topicId}`);
+  if (subRow) subRow.style.display = 'table-row';
+  if (chevron) chevron.textContent = 'expand_less';
+
+  const topicRow = document.getElementById(`topic-${topicId}`);
+  if (topicRow) {
+    topicRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    topicRow.classList.add('jump-flash');
+    setTimeout(() => topicRow.classList.remove('jump-flash'), 1500);
+  }
+
+  if (subIdx !== -1) {
+    setTimeout(() => {
+      const subItem = document.getElementById(`subitem-${topicId}-${subIdx}`);
+      if (subItem) {
+        subItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        subItem.classList.add('jump-flash');
+        setTimeout(() => subItem.classList.remove('jump-flash'), 1500);
+      }
+    }, 300);
+  }
+
+  // On mobile the search bar is a full-width overlay covering the topbar — once a result
+  // is picked there's nothing left to search for, so collapse it back to the icon and
+  // let the jumped-to content take the full screen. No-op on desktop (guarded inside
+  // closeMobileSearch — the class is only ever added by openMobileSearch()).
+  closeMobileSearch();
+}
+
+// ── Stats computation ─────────────────────────────────────
+function calcWeightedProgress(topicList) {
+  const AVG = 35;
+  let total = 0, done = 0;
+  topicList.forEach(t => {
+    const ts = getTopicState(t.id);
+    const w = t.pages || (t.subs.length * AVG);
+    const pps = w / t.subs.length;
+    t.subs.forEach((_, i) => { total += pps; if (ts.subs[i]) done += pps; });
+  });
+  return { total: Math.round(total), done: Math.round(done), pct: total ? Math.round(done/total*100) : 0 };
+}
+
+function updateStats() {
+  // Apply part filter to stat cards when active
+  const viewTopics = activePart ? TOPICS.filter(t => t.part === activePart) : TOPICS;
+
+  const totalTopics = viewTopics.length;
+  const totalHours  = viewTopics.reduce((a,t) => a + t.hours, 0);
+  const totalPages  = viewTopics.reduce((a,t) => a + (t.pages||0), 0);
+  const doneTopics  = viewTopics.filter(t => getTopicState(t.id).done).length;
+  const doneSubs    = viewTopics.reduce((a,t) => { const ts=getTopicState(t.id); return a+t.subs.filter((_,i)=>ts.subs[i]).length; }, 0);
+  const totalSubs   = viewTopics.reduce((a,t) => a+t.subs.length, 0);
+  const doneHours   = viewTopics.filter(t=>getTopicState(t.id).done).reduce((a,t)=>a+t.hours,0);
+  const donePages   = viewTopics.reduce((a,t) => {
+    if (!t.pages) return a;
+    const ts=getTopicState(t.id);
+    return a+Math.round(t.pages*t.subs.filter((_,i)=>ts.subs[i]).length/t.subs.length);
+  }, 0);
+
+  const overall = calcWeightedProgress(viewTopics);
+  const partA   = calcWeightedProgress(TOPICS.filter(t=>t.part==='א'));
+  const partB   = calcWeightedProgress(TOPICS.filter(t=>t.part==='ב'));
+
+  // Topbar
+  document.getElementById('mainBar').style.width = overall.pct + '%';
+  document.getElementById('pctLabel').textContent = overall.pct + '%';
+  document.getElementById('subLabel').textContent = totalPages
+    ? `${donePages} / ${totalPages} עמ'`
+    : `${doneSubs} / ${totalSubs}`;
+
+  // Stat cards
+  document.getElementById('statTopics').textContent = `${doneTopics}/${totalTopics}`;
+  document.getElementById('statSubs').textContent   = doneSubs;
+  document.getElementById('statHours').textContent  = doneHours;
+  document.getElementById('statLeft').textContent   = totalHours - doneHours;
+
+  // Sidebar
+  document.getElementById('sidebarBar').style.width  = overall.pct + '%';
+  document.getElementById('sidebarPct').textContent   = overall.pct + '%';
+  document.getElementById('sidebarPartA').textContent = partA.pct + '%';
+  document.getElementById('sidebarPartB').textContent = partB.pct + '%';
+
+  // Footer
+  const footerEl = document.getElementById('footerStats');
+  if (footerEl) footerEl.textContent = `${doneTopics}/${totalTopics} נושאים · ${doneSubs}/${totalSubs} סעיפים · ${doneHours} ש"א הושלמו`;
+
+  // Sidebar badges
+  CAT_ORDER.forEach(cat => {
+    const el = document.getElementById(`sb-badge-${cat}`);
+    if (!el) return;
+    const catTopics = TOPICS.filter(t=>t.cat===cat);
+    const catDone   = catTopics.filter(t=>getTopicState(t.id).done).length;
+    el.textContent = `${catDone}/${catTopics.length}`;
+    el.className = catDone === catTopics.length ? 'link-badge done-badge' : 'link-badge';
+  });
+  // All badge
+  const allBadge = document.getElementById('sb-badge-all');
+  if (allBadge) allBadge.textContent = `${doneTopics}/${totalTopics}`;
+
+  // Table count label
+  const countEl = document.getElementById('tableCountLabel');
+  if (countEl) {
+    const showing = activeCat ? TOPICS.filter(t=>t.cat===activeCat).length : TOPICS.length;
+    countEl.textContent = activeCat ? `מציג: ${CAT_LABELS[activeCat]}` : `${showing} נושאים`;
+  }
+}
+
+// ── PIE CHARTS (per part) ─────────────────────────────────
+let barChartA = null, barChartB = null;
+
+function isDark() {
+  return document.documentElement.getAttribute('data-theme') !== 'light';
+}
+
+function renderPartChart(part, canvasId, existingChart) {
+  const ctx = document.getElementById(canvasId);
+  if (!ctx) return existingChart;
+
+  const dark = isDark();
+  const mainColor   = part === 'א' ? '#4f80ff' : '#a78bfa';
+  const doneColor   = '#1cbb8c';
+  const warnColor   = '#fcb92c';
+  const emptyColor  = dark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)';
+  const textColor   = dark ? '#c8cdd8' : '#495057';
+  const tooltipBg   = dark ? '#1a1c2a' : '#fff';
+  const tooltipTitle = dark ? '#e8eaf0' : '#343a40';
+
+  const seenCats = [];
+  const labels = [], data = [], colors = [], catPcts = [];
+
+  TOPICS.filter(t => t.part === part).forEach(t => {
+    if (seenCats.includes(t.cat)) return;
+    seenCats.push(t.cat);
+    const catTopics = TOPICS.filter(x => x.cat === t.cat);
+    const totalS = catTopics.reduce((a,x) => a + x.subs.length, 0);
+    const doneS  = catTopics.reduce((a,x) => {
+      const ts = getTopicState(x.id);
+      return a + x.subs.filter((_,i) => ts.subs[i]).length;
+    }, 0);
+    const pct = totalS ? Math.round(doneS / totalS * 100) : 0;
+    const totalHours = catTopics.reduce((a,x) => a + x.hours, 0);
+    labels.push(t.catLabel.length > 13 ? t.catLabel.substring(0,13) + '…' : t.catLabel);
+    data.push(totalHours || totalS);
+    catPcts.push(pct);
+    colors.push(pct === 100 ? doneColor : pct >= 50 ? mainColor : pct > 0 ? warnColor : emptyColor);
+  });
+
+  // Skip the destroy/recreate cycle when nothing the chart shows has changed —
+  // renderAll() runs on every checkbox toggle and used to rebuild both pies each time.
+  const sig = JSON.stringify({ dark, labels, data, catPcts });
+  if (existingChart && existingChart._sig === sig) return existingChart;
+
+  if (existingChart) { existingChart.destroy(); }
+  const chart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: colors,
+        borderColor: dark ? 'rgba(255,255,255,0.06)' : '#fff',
+        borderWidth: 2,
+        hoverOffset: 10,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom',
+          labels: { font: { size: 10 }, boxWidth: 10, padding: 6, color: textColor }
+        },
+        tooltip: {
+          rtl: true,
+          backgroundColor: tooltipBg,
+          titleColor: tooltipTitle,
+          bodyColor: textColor,
+          borderColor: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+          borderWidth: 1,
+          callbacks: {
+            label: c => ` ${c.label}: ${catPcts[c.dataIndex]}% הושלם`
+          }
+        }
+      }
+    }
+  });
+  chart._sig = sig;
+  return chart;
+}
+
+function renderBarChart() {
+  barChartA = renderPartChart('א', 'progressChartA', barChartA);
+  barChartB = renderPartChart('ב', 'progressChartB', barChartB);
+}
+
+// ── TABLE (Latest Projects) ────────────────────────────────
+function renderTable() {
+  const tbody = document.getElementById('topicsTableBody');
+  if (!tbody) return;
+  // Preserve which sub-row panels are open, so re-renders (every checkbox
+  // toggle calls renderAll) don't collapse panels the user expanded.
+  const openRows = new Set();
+  tbody.querySelectorAll('.sub-tr').forEach(el => { if (el.style.display === 'table-row') openRows.add(el.id); });
+  tbody.innerHTML = '';
+
+  let topics = [...TOPICS];
+  if (activePart) topics = topics.filter(t => t.part === activePart);
+  if (activeCat) topics = topics.filter(t => t.cat === activeCat);
+  if (filterIncomplete) topics = topics.filter(t => !getTopicState(t.id).done);
+
+  if (topics.length === 0) {
+    let emptyMsg = 'אין נושאים להצגה';
+    if (filterIncomplete) emptyMsg = 'כל הנושאים הושלמו! 🎉';
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted);">
+      ${emptyMsg}
+    </td></tr>`;
+    return;
+  }
+
+  // Sort by CAT_ORDER
+  topics.sort((a,b) => {
+    const ia = CAT_ORDER.indexOf(a.cat), ib = CAT_ORDER.indexOf(b.cat);
+    return ia !== ib ? ia - ib : 0;
+  });
+
+  topics.forEach(t => {
+    const ts = getTopicState(t.id);
+    const subsDone = t.subs.filter((_,i) => ts.subs[i]).length;
+    const subsPct  = t.subs.length ? Math.round(subsDone / t.subs.length * 100) : 0;
+    const isDone   = ts.done;
+    const isInProg = !isDone && subsDone > 0;
+
+    const statusBadge = isDone
+      ? `<span class="badge badge-success" data-tooltip="כל הסעיפים וברונר הושלמו">הושלם</span>`
+      : isInProg
+        ? `<span class="badge badge-warning" data-tooltip="חלק מהסעיפים הושלמו — המשך ללמוד">בתהליך</span>`
+        : `<span class="badge badge-secondary" data-tooltip="טרם התחלת ללמוד נושא זה">טרם החל</span>`;
+
+    const partBadge = t.part === 'א'
+      ? `<span class="badge badge-primary">חלק א׳</span>`
+      : `<span class="badge badge-purple">חלק ב׳</span>`;
+
+    const miniBarCls = isDone ? 'topic-mini-bar done' : 'topic-mini-bar';
+
+    // Was this topic's sub-panel open before the re-render?
+    const wasOpen = openRows.has(`subrow-${t.id}`);
+
+    // Main row
+    const tr = document.createElement('tr');
+    tr.className = `topic-tr${isDone ? ' row-done' : ''}`;
+    tr.id = `topic-${t.id}`;
+    tr.onclick = () => toggleSubRow(t.id);
+    tr.innerHTML = `
+      <td onclick="event.stopPropagation()">
+        <input type="checkbox" class="topic-cb" ${isDone ? 'checked' : ''}
+          onchange="toggleTopic('${t.id}', event)" data-tooltip="סמן לסיום מהיר של הנושא כולו">
+      </td>
+      <td>
+        <div class="topic-name-wrap">
+          <span class="topic-name-title ${isDone ? 'done' : ''}">${t.name}</span>
+          <span class="topic-name-meta">${t.meta}</span>
+          <div class="topic-mini-bar-bg">
+            <div class="${miniBarCls}" style="width:${subsPct}%"></div>
+          </div>
+        </div>
+      </td>
+      <td class="col-hide">
+        <div class="cat-cell">
+          <span class="cat-icon">${t.icon}</span>
+          <span class="cat-name">${t.catLabel}</span>
+        </div>
+      </td>
+      <td>
+        <span class="badge badge-hours" data-tooltip="שעות אקדמיות מוקצות לנושא">${t.hours} ש"א</span>
+        ${t.pages ? `<br><span class="badge badge-pages" style="margin-top:3px;" data-tooltip="עמודי ברונר לנושא זה">${t.pages} עמ'</span>` : ''}
+      </td>
+      <td>
+        <span class="subs-count">${subsDone}</span>
+        <span class="subs-total">/${t.subs.length}</span>
+      </td>
+      <td>${statusBadge}</td>
+      <td class="col-hide">${partBadge}</td>
+      <td onclick="event.stopPropagation()">
+        <button class="expand-btn" onclick="toggleSubRow('${t.id}')" data-tooltip="פתח/סגור סעיפי הנושא" data-tip-pos="left-edge">
+          <span class="material-icons" id="chev-${t.id}">${wasOpen ? 'expand_less' : 'expand_more'}</span>
+        </button>
+      </td>
+    `;
+
+    // Sub row (open state preserved across re-renders; jumpToTopic() can force it open)
+    const subTr = document.createElement('tr');
+    subTr.className = 'sub-tr';
+    subTr.id = `subrow-${t.id}`;
+    subTr.style.display = wasOpen ? 'table-row' : 'none';
+
+    let subHTML = `<td colspan="8"><div class="sub-content">`;
+
+    // Sub-progress bar
+    subHTML += `
+      <div class="sub-prog-row">
+        <div class="sub-prog-bg">
+          <div class="sub-prog-fill" style="width:${subsPct}%"></div>
+        </div>
+        <span class="sub-prog-txt" data-tooltip="סעיפים שסימנת כהושלמו מתוך סך הסעיפים בנושא">${subsDone} / ${t.subs.length} סעיפים · ${subsPct}%</span>
+      </div>
+    `;
+
+    // 3-column layout
+    subHTML += `<div class="sub-cols">`;
+
+    // ── Column 1: sub-items + brunner ──
+    subHTML += `<div class="sub-col-items">`;
+    subHTML += `<div class="sub-col-header" data-tooltip="רשימת הסעיפים לסימון — V ליד כל סעיף שלמדת">📋 סעיפי לימוד</div>`;
+    subHTML += `<div class="sub-grid">`;
+    // The id on the wrapper div lets jumpToTopic() scroll to a specific sub-item.
+    t.subs.forEach((sub, i) => {
+      const done = !!ts.subs[i];
+      subHTML += `
+        <div class="sub-item" id="subitem-${t.id}-${i}" onclick="toggleSub('${t.id}',${i},event)">
+          <input type="checkbox" id="sub-${t.id}-${i}" ${done ? 'checked' : ''}>
+          <label for="sub-${t.id}-${i}" class="${done ? 'done' : ''}" onclick="event.stopPropagation()">${sub}</label>
+        </div>`;
+    });
+    subHTML += `</div>`;
+    if (t.brunner) {
+      subHTML += `
+        <div class="brunner-row" onclick="toggleBrunner('${t.id}')" data-tooltip="סמן לאחר קריאת פרקי הברונר — נדרש להשלמת הנושא">
+          <input type="checkbox" ${ts.brunner ? 'checked' : ''} onclick="event.stopPropagation();toggleBrunner('${t.id}')">
+          <label class="${ts.brunner ? 'done' : ''}" onclick="event.stopPropagation()">
+            📖 קראתי ברונר — ${t.brunner}
+          </label>
+        </div>`;
+    }
+    subHTML += `</div>`;
+
+    // ── Column 2: study links ──
+    const links = TOPIC_LINKS[t.id] || [];
+    subHTML += `<div class="sub-col-links">`;
+    subHTML += `<div class="sub-col-header" data-tooltip="קישורים לשקפי ההרצאות ולפרקי הברונר ב-Google Drive">📄 חומר לימוד</div>`;
+    if (links.length) {
+      subHTML += `<div class="sub-links">`;
+      links.forEach(link => {
+        subHTML += `<a href="${link.url}" target="_blank" class="topic-link-btn" onclick="event.stopPropagation()">${link.label}</a>`;
+      });
+      subHTML += `</div>`;
+    } else {
+      subHTML += `<span style="font-size:12px;color:var(--muted);">—</span>`;
+    }
+    subHTML += `</div>`;
+
+    // ── Column 3: exam-prompt copy button ──
+    subHTML += `<div class="sub-col-exams">`;
+    subHTML += `<div class="sub-col-header" data-tooltip="צור מבחן אמריקאי על הנושא בעזרת AI">📝 בחינות</div>`;
+    subHTML += `<button class="exam-gen-btn" onclick="event.stopPropagation();copyExamPrompt('${t.id}',this)" data-tooltip="מעתיק פרומפט מוכן — הדבק ב-Claude, ChatGPT וכו' לקבלת 20 שאלות אמריקאיות בעברית">
+      <span class="material-icons" style="font-size:14px;vertical-align:middle">content_copy</span> העתק פרומפט ליצירת מבחן במערכת AI
+    </button>`;
+    subHTML += `</div>`;
+
+    subHTML += `</div>`; // /sub-cols
+
+    subHTML += `</div></td>`;
+    subTr.innerHTML = subHTML;
+
+    tbody.appendChild(tr);
+    tbody.appendChild(subTr);
+  });
+}
+
+// ── RENDER ALL ─────────────────────────────────────────────
+function renderAll() {
+  // Rebuilding the table momentarily changes document height, which lets the
+  // browser's scroll anchoring nudge the viewport — pin the scroll position.
+  const sx = window.scrollX, sy = window.scrollY;
+  updateStats();
+  renderTable();
+  renderBarChart();
+  window.scrollTo(sx, sy);
+}
+
+// ── SAVE / LOAD ────────────────────────────────────────────
+function openHandleDB() {
+  return new Promise((res,rej) => {
+    const r = indexedDB.open('nursingTrackerDB_adult', 1);
+    r.onupgradeneeded = e => e.target.result.createObjectStore('handles');
+    r.onsuccess = e => res(e.target.result);
+    r.onerror = rej;
+  });
+}
+async function getStoredHandle() {
+  try {
+    const db = await openHandleDB();
+    return await new Promise(res => {
+      const tx = db.transaction('handles','readonly');
+      const req = tx.objectStore('handles').get('progress');
+      req.onsuccess = e => res(e.target.result || null);
+      req.onerror = () => res(null);
+    });
+  } catch { return null; }
+}
+async function storeHandle(handle) {
+  try {
+    const db = await openHandleDB();
+    await new Promise(res => {
+      const tx = db.transaction('handles','readwrite');
+      tx.objectStore('handles').put(handle,'progress');
+      tx.oncomplete = res;
+    });
+  } catch {}
+}
+// ── AUTO-SAVE ──────────────────────────────────────────────
+let autoSaveInterval = null;
+const AUTO_SAVE_MS = 5 * 60 * 1000; // 5 minutes
+
+function showSaveToast(msg, isAuto = false) {
+  let toast = document.getElementById('saveToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'saveToast';
+    toast.style.cssText = [
+      'position:fixed','bottom:20px','left:20px','z-index:9999',
+      'background:var(--card-bg)','border:1px solid var(--card-border)',
+      'border-radius:8px','padding:9px 16px','font-size:13px',
+      'color:var(--text)','box-shadow:0 4px 20px rgba(0,0,0,0.4)',
+      'opacity:0','transition:opacity 0.25s','pointer-events:none',
+    ].join(';');
+    document.body.appendChild(toast);
+  }
+  toast.innerHTML = msg;
+  toast.style.opacity = '1';
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => { toast.style.opacity = '0'; }, isAuto ? 2500 : 2000);
+}
+
+function updateAutoSaveStatus(lastTime) {
+  const chip  = document.getElementById('autoSaveChip');
+  const label = document.getElementById('autoSaveLabel');
+  const time  = document.getElementById('autoSaveTime');
+  if (!chip) return;
+  if (autoSaveInterval) {
+    chip.className = 'autosave-chip active';
+    label.textContent = 'שמירה אוטומטית פעילה';
+    time.textContent  = lastTime ? 'נשמר לאחרונה · ' + lastTime : 'כל 5 דקות';
+  } else {
+    chip.className = 'autosave-chip inactive';
+    label.textContent = 'שמירה אוטומטית לא פעילה';
+    time.textContent  = 'לחץ "שמור" להפעלה';
+  }
+}
+
+function startAutoSave() {
+  if (autoSaveInterval) return; // already running
+  autoSaveInterval = setInterval(async () => {
+    const handle = await getStoredHandle();
+    if (!handle) return;
+    try {
+      const perm = await handle.queryPermission({mode:'readwrite'});
+      if (perm !== 'granted') return; // don't prompt in background
+      const w = await handle.createWritable();
+      await w.write(JSON.stringify(state, null, 2));
+      await w.close();
+      const t = new Date().toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit'});
+      showSaveToast(`<span style="color:var(--success)">✓</span> נשמר אוטומטית · ${t}`, true);
+      updateAutoSaveStatus(t);
+    } catch {}
+  }, AUTO_SAVE_MS);
+}
+
+async function saveProgress() {
+  const data = JSON.stringify(state, null, 2);
+  const fallback = () => {
+    const blob = new Blob([data],{type:'application/json'});
+    const url  = URL.createObjectURL(blob);
+    const a = Object.assign(document.createElement('a'),{href:url,download:'progress.json'});
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+  if (!window.showSaveFilePicker) { fallback(); return; }
+
+  let handle = await getStoredHandle();
+  if (handle) {
+    try {
+      const perm = await handle.queryPermission({mode:'readwrite'});
+      if (perm !== 'granted') { const r = await handle.requestPermission({mode:'readwrite'}); if (r !== 'granted') handle = null; }
+    } catch { handle = null; }
+  }
+  if (!handle) {
+    try {
+      handle = await window.showSaveFilePicker({
+        suggestedName: 'progress.json',
+        types: [{description:'JSON',accept:{'application/json':['.json']}}]
+      });
+      await storeHandle(handle);
+      startAutoSave(); // begin auto-save after first successful pick
+      updateAutoSaveStatus(null);
+    } catch(e) { if (e.name==='AbortError') return; fallback(); return; }
+  }
+
+  try {
+    const w = await handle.createWritable();
+    await w.write(data); await w.close();
+    const btn = document.querySelector('[onclick="saveProgress()"]');
+    if (btn) {
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<span class="material-icons" style="font-size:18px;vertical-align:middle">check</span> נשמר!';
+      setTimeout(() => { btn.innerHTML = orig; }, 1800);
+    }
+    const _st = new Date().toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit'});
+    showSaveToast(`<span style="color:var(--success)">✓</span> נשמר בהצלחה · ${_st}`);
+    updateAutoSaveStatus(_st);
+  } catch(e) { alert('שגיאה בשמירה: ' + e.message); }
+}
+// Parse + validate an external progress file; only replace state if it passes,
+// so a wrong file can't wipe real progress (which auto-save would then persist).
+function applyLoadedProgress(text) {
+  let data;
+  try { data = JSON.parse(text); } catch { return false; }
+  if (!isValidProgressData(data)) return false;
+  state = data;
+  normalizeState();
+  saveState(); renderAll();
+  return true;
+}
+const LOAD_ERR_MSG = 'שגיאה בטעינה — הקובץ שנבחר אינו קובץ התקדמות תקין. ההתקדמות הקיימת לא נגעה.';
+
+async function loadProgress(e) {
+  const file = e?.target?.files?.[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = ev => { if (!applyLoadedProgress(ev.target.result)) alert(LOAD_ERR_MSG); };
+    reader.readAsText(file); e.target.value = ''; return;
+  }
+  if (!window.showOpenFilePicker) { document.getElementById('loadInput').click(); return; }
+  try {
+    const [handle] = await window.showOpenFilePicker({types:[{description:'JSON',accept:{'application/json':['.json']}}]});
+    const f = await handle.getFile();
+    if (!applyLoadedProgress(await f.text())) { alert(LOAD_ERR_MSG); return; }
+    // Only adopt the handle for auto-save once the file proved valid
+    await storeHandle(handle);
+    startAutoSave(); updateAutoSaveStatus(null);
+  } catch(e) { if (e.name !== 'AbortError') alert('שגיאה בטעינה'); }
+}
+
+// ── EXAM PROMPT (copy to clipboard, paste into any AI chat) ─
+// SECURITY: an older in-app exam generator stored an Anthropic API key in
+// localStorage and called the API directly from the browser. The feature was
+// removed; this one-time cleanup purges any key left behind in existing browsers.
+try { localStorage.removeItem('anthropic_api_key_v1'); } catch {}
+
+function copyExamPrompt(topicId, btnEl) {
+  const topic = TOPICS.find(t => t.id === topicId);
+  if (!topic) return;
+  const subsText = topic.subs.map((s, i) => `${i+1}. ${s}`).join('\n');
+  const brunnerRef = topic.brunner ? `\nחומר מקור: ברונר ${topic.brunner}` : '';
+  const prompt =
+    `אתה מרצה לסיעוד. צור 20 שאלות אמריקאיות בעברית רפואית על הנושא: "${topic.name}" (${topic.meta}).${brunnerRef}\n\n` +
+    `הסעיפים לכסות:\n${subsText}\n\n` +
+    `כללים:\n` +
+    `- כל שאלה: 4 אפשרויות תשובה (א, ב, ג, ד), תשובה נכונה אחת\n` +
+    `- שאלות הבנה קלינית, לא רק שינון\n` +
+    `- גוון: תרחישים קליניים, הגדרות, השוואות, מנגנונים\n` +
+    `- הסבר קצר (2-3 משפטים) לתשובה הנכונה\n` +
+    `- רמת קושי מתאימה לבחינת סיעוד`;
+
+  const orig = btnEl.innerHTML;
+  const ok = () => {
+    btnEl.innerHTML = '<span class="material-icons" style="font-size:14px;vertical-align:middle">check</span> הועתק!';
+    btnEl.style.background = 'var(--green,#1cbb8c)';
+    setTimeout(() => { btnEl.innerHTML = orig; btnEl.style.background = ''; }, 2000);
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(prompt).then(ok).catch(() => fallbackCopy(prompt, ok));
+  } else {
+    fallbackCopy(prompt, ok);
+  }
+}
+
+function fallbackCopy(text, callback) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try { document.execCommand('copy'); callback(); } catch(e) { alert('העתקה נכשלה — אנא העתק ידנית'); }
+  document.body.removeChild(ta);
+}
+
+function openHelp() {
+  document.getElementById('helpOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeHelp() {
+  document.getElementById('helpOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeHelp(); });
+
+// ── Startup ────────────────────────────────────────────────
+initTheme();
+loadState();
+renderAll();
+// Resume auto-save if a file handle was stored from a previous session
+getStoredHandle().then(handle => { if (handle) { startAutoSave(); updateAutoSaveStatus(null); } });
+
