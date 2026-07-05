@@ -5,6 +5,7 @@ progress.json
 
 # Large course material folders & zips
 ספר ברונר/
+סיכומי פרקים ברונר/
 סיעוד המבוגר - פנימי - מבחן חלק א/
 סיעוד המבוגר - כירורוגי - מבחן חלק ב/
 סיעוד המבוגר - פנימי-L225-L9-2025_20260628_2316/
@@ -12,3 +13,11 @@ progress.json
 מחסן/
 *.zip
 github-setup.sh
+לוח_לימודים_חלק*
+סילבוס סיעוד המבוגר.pdf
+סילבוס סיעוד המבוגר.docx
+מעקב_סיעוד_המבוגר.html
+testfile_delete_me.txt
+SECURITY.md
+feature-topic-search.bundle
+deployment-plan.md
