@@ -343,8 +343,13 @@
     // מתחילת המעקב — כדי שהתחזית תשקף שיפור/האטה אמיתיים ולא תיטשטש עם הזמן.
     // אם המעקב צעיר מ-14 יום, החלון מצטמצם לכל הימים שחלפו (=daysElapsed),
     // כלומר מתנהג בדיוק כמו הממוצע המצטבר הישן עד שיש מספיק נתונים.
+    // cutoff הוא גבול תחתון *לא-כולל*: החלון הוא (cutoff, today] — בדיוק
+    // effectiveWindowDays ימים. קודם נספרו 15 ימי עבודה וחולקו ב-14, מה
+    // שניפח את הקצב בכ-7%. כשהמעקב צעיר מהחלון, הגבול הוא יום לפני תאריך
+    // ההתחלה כך שיום ההתחלה עצמו נספר.
     const windowStartRaw = addDays(today, -RECENT_PACE_WINDOW_DAYS);
-    const cutoff = windowStartRaw > startDate ? windowStartRaw : startDate;
+    const dayBeforeStart = addDays(startDate, -1);
+    const cutoff = windowStartRaw > dayBeforeStart ? windowStartRaw : dayBeforeStart;
     const effectiveWindowDays = Math.max(1, Math.round((today - cutoff) / 86400000));
     let recentDone = 0;
     topics.forEach(t => {
@@ -354,7 +359,7 @@
         const dstr = sd[i];
         if (!dstr) return;
         const d = dateFromStr(dstr);
-        if (d >= cutoff && d <= today) recentDone++;
+        if (d > cutoff && d <= today) recentDone++;
       });
     });
     const rate = recentDone / effectiveWindowDays; // subs/day, קצב אחרון
@@ -384,13 +389,17 @@
       : subsAheadBehind < 0
         ? `<span class="sched-mini-chip sched-behind">מאחר (${-subsAheadBehind})</span>`
         : `<span class="sched-mini-chip sched-ontrack">בלו"ז</span>`;
-    const finishLabel = data.finishDeltaDays === null
-      ? (data.doneSubs > 0
-          ? `אין התקדמות ב-${RECENT_PACE_WINDOW_DAYS} הימים האחרונים — אין תחזית זמינה`
-          : 'אין עדיין מספיק נתונים לתחזית')
-      : data.finishDeltaDays <= 0
-        ? `לפי הקצב הנוכחי: סיום ${fmtDate(data.projectedFinishDate)} (${-data.finishDeltaDays} ימים לפני המתוכנן)`
-        : `לפי הקצב הנוכחי: סיום ${fmtDate(data.projectedFinishDate)} (${data.finishDeltaDays} ימים אחרי המתוכנן)`;
+    const finishLabel = data.doneSubs === data.totalSubs
+      ? 'מעבר הלימוד הושלם ✔️'
+      : data.finishDeltaDays === null
+        ? (data.doneSubs > 0
+            ? `אין התקדמות ב-${RECENT_PACE_WINDOW_DAYS} הימים האחרונים — אין תחזית זמינה`
+            : 'אין עדיין מספיק נתונים לתחזית')
+        : data.finishDeltaDays === 0
+          ? `לפי הקצב הנוכחי: סיום ${fmtDate(data.projectedFinishDate)} (בדיוק בזמן)`
+          : data.finishDeltaDays < 0
+            ? `לפי הקצב הנוכחי: סיום ${fmtDate(data.projectedFinishDate)} (${-data.finishDeltaDays} ימים לפני המתוכנן)`
+            : `לפי הקצב הנוכחי: סיום ${fmtDate(data.projectedFinishDate)} (${data.finishDeltaDays} ימים אחרי המתוכנן)`;
     return `
       <div class="sched-dash-part">
         <div class="sched-dash-part-title">חלק ${data.part}׳</div>

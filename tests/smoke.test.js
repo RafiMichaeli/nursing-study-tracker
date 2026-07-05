@@ -109,6 +109,25 @@ const link = d.querySelector('#subrow-gastro a.topic-link-btn');
 A(link !== null, 'study links rendered');
 if (link) { click(link); A(d.getElementById('subrow-gastro').style.display === openState, 'link click does not toggle the row'); }
 
+console.log('10. schedule dashboard');
+// enable schedule with a start date 5 days ago; complete all of part-B "burns"
+run(`(() => {
+  const d = new Date(); d.setDate(d.getDate() - 5);
+  const s = \`\${d.getFullYear()}-\${String(d.getMonth()+1).padStart(2,'0')}-\${String(d.getDate()).padStart(2,'0')}\`;
+  state._schedule.enabled = true;
+  state._schedule.startDates['ב'] = s;
+  renderAll();
+})()`);
+const dash = d.getElementById('sched-dashboard');
+A(dash !== null, 'dashboard renders when enabled with a start date');
+A(dash.textContent.includes('חלק ב׳'), 'part B section shown');
+// forecast line exists and is not the nonsense "no progress" message when everything is done:
+// complete every part-B topic, then check the completed message
+run(`TOPICS.filter(t=>t.part==='ב').forEach(t => { if (!getTopicState(t.id).done) toggleTopic(t.id, null); })`);
+A(d.getElementById('sched-dashboard').textContent.includes('מעבר הלימוד הושלם'), 'completed part shows הושלם, not "אין תחזית"');
+run(`TOPICS.filter(t=>t.part==='ב').forEach(t => { if (getTopicState(t.id).done) toggleTopic(t.id, null); }); state._schedule.enabled = false; state._schedule.startDates['ב'] = null; renderAll();`);
+A(d.getElementById('sched-dashboard') === null, 'dashboard removed when disabled');
+
 A(errors.length === 0, 'no window errors: ' + (errors.join('; ') || '—'));
 
 console.log(fails ? `\n✗ ${fails} FAILURE(S)` : '\n✓ ALL TESTS PASSED');
