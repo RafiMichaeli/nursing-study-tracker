@@ -596,7 +596,14 @@
       try {
         ensureDefaults();
         const willBeDone = !getTopicState(id).done;
-        if (willBeDone) stampAllSubs(id);
+        if (willBeDone) {
+          stampAllSubs(id);
+        } else {
+          // הנושא מבוטל — האפליקציה הראשית מנקה עכשיו גם את כל הסעיפים,
+          // אז מוחקים גם את תאריכי ההשלמה שלהם (אחרת תחזית הקצב תספור אותם).
+          const t = TOPICS.find(x => x.id === id);
+          if (t) t.subs.forEach((_, i) => stampSub(id, i, false));
+        }
       } catch (err) { console.error('[schedule] stampAllSubs failed', err); }
       return _toggleTopic.apply(this, arguments);
     };

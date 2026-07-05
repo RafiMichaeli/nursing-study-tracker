@@ -1495,8 +1495,48 @@ function getTopicState(id) {
   if (!state[id]) state[id] = { done: false, subs: {}, brunner: false };
   return state[id];
 }
+
+// "done" is derived: all sub-items checked AND (if the topic has Brunner
+// chapters) the "קראתי ברונר" box checked — matching the in-app help & README.
+// ts.done is kept as a cached copy of this rule (refreshed on every toggle)
+// so progress.json stays backward-compatible and schedule.js keeps working.
+function computeTopicDone(topic, ts) {
+  const allSubs = topic.subs.every((_, i) => ts.subs[i]);
+  return allSubs && (!topic.brunner || !!ts.brunner);
+}
+function refreshTopicDone(id) {
+  const topic = TOPICS.find(t => t.id === id);
+  if (!topic) return;
+  const ts = getTopicState(id);
+  ts.done = computeTopicDone(topic, ts);
+}
+// Normalize loaded state: coerce entry shapes + recompute all done flags
+// (also migrates states saved by the old rule that ignored brunner).
+function normalizeState() {
+  TOPICS.forEach(t => {
+    const ts = getTopicState(t.id);
+    if (!ts.subs || typeof ts.subs !== 'object' || Array.isArray(ts.subs)) ts.subs = {};
+    ts.brunner = !!ts.brunner;
+    ts.done = computeTopicDone(t, ts);
+  });
+}
+// Minimal shape check before accepting an external progress file, so loading
+// the wrong JSON can't silently wipe real progress (and then get auto-saved).
+function isValidProgressData(data) {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return false;
+  return Object.entries(data).every(([k, v]) => {
+    if (k === '_schedule') return !!v && typeof v === 'object' && !Array.isArray(v);
+    if (!v || typeof v !== 'object' || Array.isArray(v)) return false;
+    if ('subs' in v && (!v.subs || typeof v.subs !== 'object' || Array.isArray(v.subs))) return false;
+    return true;
+  });
+}
+
 function saveState() { try { localStorage.setItem('nursingState_adult', JSON.stringify(state)); } catch {} }
-function loadState() { try { const s = localStorage.getItem('nursingState_adult'); if (s) state = JSON.parse(s); } catch {} }
+function loadState() {
+  try { const s = localStorage.getItem('nursingState_adult'); if (s) state = JSON.parse(s); } catch {}
+  normalizeState();
+}
 
 // ── Sidebar / layout ───────────────────────────────────────
 function toggleSidebar() {
@@ -1576,22 +1616,26 @@ function filterPart(part) {
 // ── Toggle functions ──────────────────────────────────────
 function toggleBrunner(id) {
   getTopicState(id).brunner = !getTopicState(id).brunner;
+  refreshTopicDone(id);
   saveState(); renderAll();
 }
 function toggleTopic(id, e) {
   if (e) e.stopPropagation();
   const ts = getTopicState(id);
-  ts.done = !ts.done;
   const topic = TOPICS.find(t => t.id === id);
-  if (ts.done) topic.subs.forEach((_, i) => { ts.subs[i] = true; });
+  const willBeDone = !ts.done;
+  // Checking marks everything (subs + brunner); unchecking clears everything —
+  // previously subs stayed checked, so one sub-toggle flipped the topic back to done.
+  topic.subs.forEach((_, i) => { ts.subs[i] = willBeDone; });
+  if (topic.brunner) ts.brunner = willBeDone;
+  ts.done = willBeDone;
   saveState(); renderAll();
 }
 function toggleSub(topicId, subIdx, e) {
   if (e) e.stopPropagation();
   const ts = getTopicState(topicId);
   ts.subs[subIdx] = !ts.subs[subIdx];
-  const topic = TOPICS.find(t => t.id === topicId);
-  ts.done = topic.subs.every((_, i) => ts.subs[i]);
+  refreshTopicDone(topicId);
   saveState(); renderAll();
   // Keep subrow open
   const subRow = document.getElementById(`subrow-${topicId}`);
@@ -2080,8 +2124,7 @@ function renderTable() {
       const done = !!ts.subs[i];
       subHTML += `
         <div class="sub-item" id="subitem-${t.id}-${i}" onclick="toggleSub('${t.id}',${i},event)">
-          <input type="checkbox" id="sub-${t.id}-${i}" ${done ? 'checked' : ''}
-            onclick="toggleSub('${t.id}',${i},event)" onchange="toggleSub('${t.id}',${i},event)">
+          <input type="checkbox" id="sub-${t.id}-${i}" ${done ? 'checked' : ''}>
           <label for="sub-${t.id}-${i}" class="${done ? 'done' : ''}" onclick="event.stopPropagation()">${sub}</label>
         </div>`;
     });
@@ -2269,19 +2312,33 @@ async function saveProgress() {
     updateAutoSaveStatus(_st);
   } catch(e) { alert('שגיאה בשמירה: ' + e.message); }
 }
+// Parse + validate an external progress file; only replace state if it passes,
+// so a wrong file can't wipe real progress (which auto-save would then persist).
+function applyLoadedProgress(text) {
+  let data;
+  try { data = JSON.parse(text); } catch { return false; }
+  if (!isValidProgressData(data)) return false;
+  state = data;
+  normalizeState();
+  saveState(); renderAll();
+  return true;
+}
+const LOAD_ERR_MSG = 'שגיאה בטעינה — הקובץ שנבחר אינו קובץ התקדמות תקין. ההתקדמות הקיימת לא נגעה.';
+
 async function loadProgress(e) {
   const file = e?.target?.files?.[0];
   if (file) {
     const reader = new FileReader();
-    reader.onload = ev => { try { state = JSON.parse(ev.target.result); saveState(); renderAll(); } catch { alert('שגיאה בטעינת הקובץ'); } };
+    reader.onload = ev => { if (!applyLoadedProgress(ev.target.result)) alert(LOAD_ERR_MSG); };
     reader.readAsText(file); e.target.value = ''; return;
   }
   if (!window.showOpenFilePicker) { document.getElementById('loadInput').click(); return; }
   try {
     const [handle] = await window.showOpenFilePicker({types:[{description:'JSON',accept:{'application/json':['.json']}}]});
-    await storeHandle(handle);
     const f = await handle.getFile();
-    state = JSON.parse(await f.text()); saveState(); renderAll();
+    if (!applyLoadedProgress(await f.text())) { alert(LOAD_ERR_MSG); return; }
+    // Only adopt the handle for auto-save once the file proved valid
+    await storeHandle(handle);
     startAutoSave(); updateAutoSaveStatus(null);
   } catch(e) { if (e.name !== 'AbortError') alert('שגיאה בטעינה'); }
 }
