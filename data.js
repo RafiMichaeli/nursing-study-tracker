@@ -26,6 +26,9 @@ const TOPICS = [
 ];
 
 
+// תאריכי מבחנים (ברירת מחדל למעקב הלו"ז — ניתן לשינוי בפאנל ההגדרות)
+const EXAM_DATES = { "א": "2026-08-02", "ב": "2026-09-06" };
+
 const CAT_ORDER = ["surgery_shock","respiratory","cardio","gastro","endocrine","urology","immune_rheum","skin_burns","senses","neuro","musculoskeletal","onco_hematology"];
 const CAT_LABELS = {};
 TOPICS.forEach(t => { CAT_LABELS[t.cat] = t.catLabel; });

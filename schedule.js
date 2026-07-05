@@ -47,6 +47,12 @@
     if (!s.subDates || typeof s.subDates !== 'object') s.subDates = {};
     if (!s.review || typeof s.review !== 'object') s.review = {};
     if (typeof s.enabled !== 'boolean') s.enabled = false;
+    // תאריכי מבחנים: ברירת מחדל מ-EXAM_DATES (data.js), ניתן לעריכה בהגדרות.
+    // ממלאים ברירת מחדל רק אם המפתח לא קיים כלל — ניקוי מפורש (null) נשמר.
+    if (!s.examDates || typeof s.examDates !== 'object') s.examDates = {};
+    ['א', 'ב'].forEach(p => {
+      if (!(p in s.examDates) && typeof EXAM_DATES !== 'undefined' && EXAM_DATES[p]) s.examDates[p] = EXAM_DATES[p];
+    });
   }
 
   // ── Date helpers (local dates, no timezone drift) ─────────
@@ -370,10 +376,22 @@
     const plannedFinishDate = addDays(startDate, lastPass1Offset);
     const finishDeltaDays = projectedFinishDate ? Math.round((projectedFinishDate - plannedFinishDate) / 86400000) : null;
 
+    // ── מבחן: ספירה לאחור + האם מסיימים (לימוד + ריענון) לפני המבחן ──
+    const examStr = state._schedule.examDates[part];
+    const examDate = examStr ? dateFromStr(examStr) : null;
+    const daysToExam = examDate ? Math.round((examDate - today) / 86400000) : null;
+    // כמה ימי ריענון מתוכננים לחלק הזה (לפי הקצב והמקדם שהוגדרו)
+    const reviewDaysPlanned = Math.max(0, lastReviewOffset - lastPass1Offset);
+    // מרווח בין סיום הלימוד הצפוי (לפי הקצב בפועל) לבין המבחן
+    const examMarginDays = (examDate && projectedFinishDate)
+      ? Math.round((examDate - projectedFinishDate) / 86400000)
+      : null;
+
     return {
       part, totalSubs, doneSubs, expectedSubs,
       totalTopics, reviewedTopics, expectedReviewedTopics,
       plannedFinishDate, projectedFinishDate, finishDeltaDays,
+      examDate, daysToExam, examMarginDays, reviewDaysPlanned,
     };
   }
 
@@ -400,9 +418,35 @@
           : data.finishDeltaDays < 0
             ? `לפי הקצב הנוכחי: סיום ${fmtDate(data.projectedFinishDate)} (${-data.finishDeltaDays} ימים לפני המתוכנן)`
             : `לפי הקצב הנוכחי: סיום ${fmtDate(data.projectedFinishDate)} (${data.finishDeltaDays} ימים אחרי המתוכנן)`;
+    // ── שורת מבחן: ספירה לאחור + פסיקה האם הקצב מספיק ──
+    let examRow = '';
+    if (data.examDate) {
+      const countdown = data.daysToExam > 0
+        ? `בעוד ${data.daysToExam} ימים`
+        : data.daysToExam === 0 ? 'היום!' : 'עבר';
+      let verdict = '';
+      if (data.daysToExam >= 0 && data.doneSubs < data.totalSubs) {
+        if (data.examMarginDays === null) {
+          verdict = ''; // אין קצב מדוד — אין פסיקה
+        } else if (data.examMarginDays < 0) {
+          verdict = `<span class="sched-mini-chip sched-behind">בקצב הנוכחי לא מסיימים לפני המבחן (${-data.examMarginDays} ימים חסרים)</span>`;
+        } else if (data.examMarginDays < data.reviewDaysPlanned) {
+          verdict = `<span class="sched-mini-chip sched-behind">נשארים רק ${data.examMarginDays} ימים לריענון (תוכנן: ${data.reviewDaysPlanned})</span>`;
+        } else {
+          verdict = `<span class="sched-mini-chip sched-ahead">מספיק: ${data.examMarginDays} ימים לריענון לפני המבחן</span>`;
+        }
+      }
+      examRow = `
+        <div class="sched-dash-row">
+          <span>🎓 מבחן: ${fmtDate(data.examDate)} · ${countdown}</span>
+          ${verdict}
+        </div>`;
+    }
+
     return `
       <div class="sched-dash-part">
         <div class="sched-dash-part-title">חלק ${data.part}׳</div>
+        ${examRow}
         <div class="sched-dash-row">
           <span>לימוד: ${data.doneSubs}/${data.totalSubs} סעיפים (ציפייה להיום: ${data.expectedSubs})</span>
           ${subsLabel}
@@ -491,7 +535,9 @@
         <h2>מעקב לו"ז (חדש)</h2>
         <p>תוסף אופציונלי — כבוי כברירת מחדל — שמוסיף תזמון וציוני דרך על גבי המעקב הקיים.</p>
         <h3><span class="material-icons">event</span> הפעלה</h3>
-        <p>כפתור <strong>"מעקב לו&quot;ז"</strong> בתחתית הסרגל השמאלי (מתחת לרשימת הנושאים, ליד שמור/טען/אפס) פותח פאנל הגדרות: הפעל/כבה, תאריך התחלה לחלק א׳ (ואופציונלית לחלק ב׳), וקצב לימוד יומי בשעות — בנפרד למעבר הלמידה ולמעבר הריענון.</p>
+        <p>כפתור <strong>"מעקב לו&quot;ז"</strong> בתחתית הסרגל השמאלי (מתחת לרשימת הנושאים, ליד שמור/טען/אפס) פותח פאנל הגדרות: הפעל/כבה, תאריך התחלה לחלק א׳ (ואופציונלית לחלק ב׳), תאריכי המבחנים של שני החלקים, וקצב לימוד יומי בשעות — בנפרד למעבר הלמידה ולמעבר הריענון.</p>
+        <h3><span class="material-icons">school</span> ספירה לאחור למבחן</h3>
+        <p>הדשבורד מציג לכל חלק את תאריך המבחן, כמה ימים נותרו, והאם בקצב הנוכחי מסיימים את הלימוד עם מספיק ימי ריענון לפני המבחן.</p>
         <h3><span class="material-icons">flag</span> צ'יפ סטטוס לכל נושא</h3>
         <ul>
           <li>🟢 מקדים — עברת יותר סעיפים ממה שהיה מתוכנן עד היום.</li>
@@ -534,6 +580,12 @@
           <label>תאריך התחלה — חלק ב׳ <span class="sched-optional">(אופציונלי, אפשר למלא בהמשך)</span>
             <input type="date" id="sched-start-b" value="${s.startDates['ב'] || ''}">
           </label>
+          <label>🎓 תאריך מבחן — חלק א׳
+            <input type="date" id="sched-exam-a" value="${s.examDates['א'] || ''}">
+          </label>
+          <label>🎓 תאריך מבחן — חלק ב׳
+            <input type="date" id="sched-exam-b" value="${s.examDates['ב'] || ''}">
+          </label>
           <label>קצב לימוד יומי — מעבר ראשון (שעות)
             <input type="number" id="sched-pace" step="0.5" min="0.5" value="${s.paceHoursPerDay}">
           </label>
@@ -558,6 +610,10 @@
       const startB = document.getElementById('sched-start-b').value;
       s2.startDates['א'] = startA || null;
       s2.startDates['ב'] = startB || null;
+      const examA = document.getElementById('sched-exam-a').value;
+      const examB = document.getElementById('sched-exam-b').value;
+      s2.examDates['א'] = examA || null;
+      s2.examDates['ב'] = examB || null;
       const pace = parseFloat(document.getElementById('sched-pace').value);
       s2.paceHoursPerDay = isFinite(pace) && pace > 0 ? pace : 2.5;
       const paceReview = parseFloat(document.getElementById('sched-pace-review').value);

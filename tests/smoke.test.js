@@ -121,6 +121,14 @@ run(`(() => {
 const dash = d.getElementById('sched-dashboard');
 A(dash !== null, 'dashboard renders when enabled with a start date');
 A(dash.textContent.includes('חלק ב׳'), 'part B section shown');
+// exam dates: defaults come from EXAM_DATES (data.js) and render a countdown row
+A(run(`state._schedule.examDates['ב']`) === run(`EXAM_DATES['ב']`), 'exam date defaulted from data.js');
+A(dash.textContent.includes('מבחן:'), 'exam countdown row rendered');
+// explicit clear must survive ensureDefaults (not re-filled from defaults)
+run(`state._schedule.examDates['ב'] = null; renderAll();`);
+A(run(`state._schedule.examDates['ב']`) === null, 'cleared exam date stays cleared');
+A(!d.getElementById('sched-dashboard').textContent.includes('מבחן:'), 'no exam row when date cleared');
+run(`state._schedule.examDates['ב'] = EXAM_DATES['ב']; renderAll();`);
 // forecast line exists and is not the nonsense "no progress" message when everything is done:
 // complete every part-B topic, then check the completed message
 run(`TOPICS.filter(t=>t.part==='ב').forEach(t => { if (!getTopicState(t.id).done) toggleTopic(t.id, null); })`);
