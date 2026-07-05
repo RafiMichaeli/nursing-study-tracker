@@ -2,6 +2,7 @@
 *.command
 *.py
 progress.json
+node_modules/
 
 # Large course material folders & zips
 ספר ברונר/

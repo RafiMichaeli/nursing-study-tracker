@@ -21,3 +21,9 @@ jobs:
             echo "checking $f"
             node --check "$f"
           done
+      # DOM smoke suite: loads index.html + all scripts in jsdom and drives
+      # the UI through real clicks (see tests/smoke.test.js)
+      - name: install test deps
+        run: npm install --no-audit --no-fund
+      - name: run smoke tests
+        run: npm test
