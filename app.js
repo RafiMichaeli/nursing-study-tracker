@@ -1,9 +1,24 @@
 // app.js — הלוגיקה של מעקב סיעוד המבוגר (הוצא מ-index.html).
 // טעינה: links.js → data.js → app.js → schedule.js (ר' index.html).
 
+// ── localStorage keys (all in one place) ───────────────────
+const LS_THEME_KEY = 'mevak_theme';
+const LS_STATE_KEY = 'nursingState_adult';
+
+// ── Extension hooks ─────────────────────────────────────────
+// Official plug-in points for add-on scripts (schedule.js). Register with the
+// on*() functions instead of monkey-patching renderAll/toggleSub/toggleTopic.
+const APP_HOOKS = { afterRender: [], beforeSubToggle: [], beforeTopicToggle: [] };
+function onAfterRender(cb)       { APP_HOOKS.afterRender.push(cb); }
+function onBeforeSubToggle(cb)   { APP_HOOKS.beforeSubToggle.push(cb); }
+function onBeforeTopicToggle(cb) { APP_HOOKS.beforeTopicToggle.push(cb); }
+function runHooks(list, ...args) {
+  list.forEach(cb => { try { cb(...args); } catch (e) { console.error('[hook] failed', e); } });
+}
+
 // ── Theme ──────────────────────────────────────────────────
 function initTheme() {
-  const saved = localStorage.getItem('mevak_theme') || 'dark';
+  const saved = localStorage.getItem(LS_THEME_KEY) || 'dark';
   document.documentElement.setAttribute('data-theme', saved);
   updateThemeIcon(saved);
 }
@@ -11,12 +26,12 @@ function toggleTheme() {
   const current = document.documentElement.getAttribute('data-theme') || 'dark';
   const next = current === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', next);
-  localStorage.setItem('mevak_theme', next);
+  localStorage.setItem(LS_THEME_KEY, next);
   updateThemeIcon(next);
   // Re-render charts for correct colors
-  if (barChartA) { barChartA.destroy(); barChartA = null; }
-  if (barChartB) { barChartB.destroy(); barChartB = null; }
-  renderBarChart();
+  if (pieChartA) { pieChartA.destroy(); pieChartA = null; }
+  if (pieChartB) { pieChartB.destroy(); pieChartB = null; }
+  renderPieCharts();
 }
 function updateThemeIcon(theme) {
   const icon = document.getElementById('themeIcon');
@@ -32,26 +47,13 @@ function mobFilter(part) {
   } else {
     activePart = (activePart === part) ? null : part;
   }
-  // Sync sidebar chips
-  document.getElementById('chipA').classList.toggle('active', activePart === 'א');
-  document.getElementById('chipB').classList.toggle('active', activePart === 'ב');
-  // Sync chart dimming
-  const wrapA = document.getElementById('chartWrapA');
-  const wrapB = document.getElementById('chartWrapB');
-  if (activePart === 'א') { wrapA.classList.remove('chart-dimmed'); wrapB.classList.add('chart-dimmed'); }
-  else if (activePart === 'ב') { wrapA.classList.add('chart-dimmed'); wrapB.classList.remove('chart-dimmed'); }
-  else { wrapA.classList.remove('chart-dimmed'); wrapB.classList.remove('chart-dimmed'); }
-  // Sync bottom nav buttons
-  document.getElementById('mobBtnAll').classList.toggle('active', !activePart);
-  document.getElementById('mobBtnA').classList.toggle('active', activePart === 'א');
-  document.getElementById('mobBtnB').classList.toggle('active', activePart === 'ב');
-  document.getElementById('mobBtnIncomplete').classList.remove('active');
+  syncFilterUI();
   renderAll();
 }
 function mobFilterIncomplete() {
   filterIncomplete = !filterIncomplete;
-  document.getElementById('mobBtnIncomplete').classList.toggle('active', filterIncomplete);
-  renderTable();
+  syncFilterUI();
+  renderAll();
 }
 
 // ── State ──────────────────────────────────────────────────
@@ -102,9 +104,9 @@ function isValidProgressData(data) {
   });
 }
 
-function saveState() { try { localStorage.setItem('nursingState_adult', JSON.stringify(state)); } catch {} }
+function saveState() { try { localStorage.setItem(LS_STATE_KEY, JSON.stringify(state)); } catch {} }
 function loadState() {
-  try { const s = localStorage.getItem('nursingState_adult'); if (s) state = JSON.parse(s); } catch {}
+  try { const s = localStorage.getItem(LS_STATE_KEY); if (s) state = JSON.parse(s); } catch {}
   normalizeState();
 }
 
@@ -127,59 +129,56 @@ function closeSidebar() {
   document.getElementById('sidebarOverlay').style.display = 'none';
 }
 
-// ── Category filter ────────────────────────────────────────
-function filterCat(cat) {
-  activeCat = cat;
+// ── Filters ─────────────────────────────────────────────────
+// Single source of truth for filter-related UI: sidebar chips, chart dimming,
+// sidebar category links, mobile bottom-nav buttons, and the "לא-גמורים" button.
+// Every function that changes activePart/activeCat/filterIncomplete calls this
+// once instead of hand-syncing its own subset (which used to drift).
+function syncFilterUI() {
+  const setActive = (id, on) => { const el = document.getElementById(id); if (el) el.classList.toggle('active', on); };
+
+  // Part chips (sidebar)
+  setActive('chipA', activePart === 'א');
+  setActive('chipB', activePart === 'ב');
+
+  // Chart dimming
+  const wrapA = document.getElementById('chartWrapA');
+  const wrapB = document.getElementById('chartWrapB');
+  if (wrapA) wrapA.classList.toggle('chart-dimmed', activePart === 'ב');
+  if (wrapB) wrapB.classList.toggle('chart-dimmed', activePart === 'א');
+
+  // Sidebar category links
   document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active'));
-  const key = cat || 'all';
-  const link = document.querySelector(`.sidebar-link[data-cat="${key}"]`);
+  const link = document.querySelector(`.sidebar-link[data-cat="${activeCat || 'all'}"]`);
   if (link) link.classList.add('active');
-  renderTable();
-  renderBarChart();
+
+  // Mobile bottom-nav buttons
+  setActive('mobBtnAll', !activePart);
+  setActive('mobBtnA', activePart === 'א');
+  setActive('mobBtnB', activePart === 'ב');
+  setActive('mobBtnIncomplete', filterIncomplete);
+
+  // "לא-גמורים בלבד" sidebar button
+  setActive('filterSbBtn', filterIncomplete);
 }
 
-// ── Part filter ────────────────────────────────────────────
+function filterCat(cat) {
+  activeCat = cat;
+  syncFilterUI();
+  renderAll();
+}
+
 function filterPart(part) {
   // toggle: clicking the active part deselects it
   activePart = (activePart === part) ? null : part;
 
-  // update chip UI
-  document.getElementById('chipA').classList.toggle('active', activePart === 'א');
-  document.getElementById('chipB').classList.toggle('active', activePart === 'ב');
-
-  // dim/undim bar charts
-  const wrapA = document.getElementById('chartWrapA');
-  const wrapB = document.getElementById('chartWrapB');
-  if (activePart === 'א') {
-    wrapA.classList.remove('chart-dimmed');
-    wrapB.classList.add('chart-dimmed');
-  } else if (activePart === 'ב') {
-    wrapA.classList.add('chart-dimmed');
-    wrapB.classList.remove('chart-dimmed');
-  } else {
-    wrapA.classList.remove('chart-dimmed');
-    wrapB.classList.remove('chart-dimmed');
-  }
-
-  // if category filter is from the wrong part, reset it
+  // if the category filter is from the wrong part, reset it
   if (activePart && activeCat) {
     const topic = TOPICS.find(t => t.cat === activeCat);
-    if (topic && topic.part !== activePart) {
-      activeCat = null;
-      document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active'));
-      const allLink = document.querySelector('.sidebar-link[data-cat="all"]');
-      if (allLink) allLink.classList.add('active');
-    }
+    if (topic && topic.part !== activePart) activeCat = null;
   }
 
-  // sync mobile bottom nav buttons
-  const mbAll = document.getElementById('mobBtnAll');
-  const mbA   = document.getElementById('mobBtnA');
-  const mbB   = document.getElementById('mobBtnB');
-  if (mbAll) mbAll.classList.toggle('active', !activePart);
-  if (mbA)   mbA.classList.toggle('active', activePart === 'א');
-  if (mbB)   mbB.classList.toggle('active', activePart === 'ב');
-
+  syncFilterUI();
   renderAll();
 }
 
@@ -194,6 +193,7 @@ function toggleTopic(id, e) {
   const ts = getTopicState(id);
   const topic = TOPICS.find(t => t.id === id);
   const willBeDone = !ts.done;
+  runHooks(APP_HOOKS.beforeTopicToggle, id, willBeDone);
   // Checking marks everything (subs + brunner); unchecking clears everything —
   // previously subs stayed checked, so one sub-toggle flipped the topic back to done.
   topic.subs.forEach((_, i) => { ts.subs[i] = willBeDone; });
@@ -204,7 +204,9 @@ function toggleTopic(id, e) {
 function toggleSub(topicId, subIdx, e) {
   if (e) e.stopPropagation();
   const ts = getTopicState(topicId);
-  ts.subs[subIdx] = !ts.subs[subIdx];
+  const willBeDone = !ts.subs[subIdx];
+  runHooks(APP_HOOKS.beforeSubToggle, topicId, subIdx, willBeDone);
+  ts.subs[subIdx] = willBeDone;
   refreshTopicDone(topicId);
   saveState(); renderAll();
   // (open sub-rows are preserved by renderTable itself)
@@ -229,8 +231,7 @@ function collapseAllRows() {
 }
 function toggleFilter() {
   filterIncomplete = !filterIncomplete;
-  const btn = document.getElementById('filterSbBtn');
-  if (btn) btn.classList.toggle('active', filterIncomplete);
+  syncFilterUI();
   renderAll();
 }
 function resetAll() {
@@ -366,20 +367,12 @@ function closeMobileSearch() {
 function jumpToTopic(topicId, subIdx = -1) {
   hideSearchDropdown();
 
-  // Reset the other filters so the target topic is guaranteed to be visible, regardless
-  // of whatever part/category/incomplete filter was active — mirrors the reset already
-  // done by filterPart()/filterCat() when toggling those off.
+  // Reset the other filters so the target topic is guaranteed to be visible,
+  // regardless of whatever part/category/incomplete filter was active.
   activePart = null;
   activeCat = null;
   filterIncomplete = false;
-  document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active'));
-  const allLink = document.querySelector('.sidebar-link[data-cat="all"]');
-  if (allLink) allLink.classList.add('active');
-  const chipA = document.getElementById('chipA'); if (chipA) chipA.classList.remove('active');
-  const chipB = document.getElementById('chipB'); if (chipB) chipB.classList.remove('active');
-  const wrapA = document.getElementById('chartWrapA'); if (wrapA) wrapA.classList.remove('chart-dimmed');
-  const wrapB = document.getElementById('chartWrapB'); if (wrapB) wrapB.classList.remove('chart-dimmed');
-  const filterBtn = document.getElementById('filterSbBtn'); if (filterBtn) filterBtn.classList.remove('active');
+  syncFilterUI();
 
   renderAll();
 
@@ -493,7 +486,7 @@ function updateStats() {
 }
 
 // ── PIE CHARTS (per part) ─────────────────────────────────
-let barChartA = null, barChartB = null;
+let pieChartA = null, pieChartB = null;
 
 function isDark() {
   return document.documentElement.getAttribute('data-theme') !== 'light';
@@ -577,9 +570,9 @@ function renderPartChart(part, canvasId, existingChart) {
   return chart;
 }
 
-function renderBarChart() {
-  barChartA = renderPartChart('א', 'progressChartA', barChartA);
-  barChartB = renderPartChart('ב', 'progressChartB', barChartB);
+function renderPieCharts() {
+  pieChartA = renderPartChart('א', 'progressChartA', pieChartA);
+  pieChartB = renderPartChart('ב', 'progressChartB', pieChartB);
 }
 
 // ── TABLE (Latest Projects) ────────────────────────────────
@@ -634,15 +627,17 @@ function renderTable() {
     // Was this topic's sub-panel open before the re-render?
     const wasOpen = openRows.has(`subrow-${t.id}`);
 
-    // Main row
+    // Main row (all interaction handled by the delegated tbody listener —
+    // see initTableEvents; templates carry data-action instead of inline JS)
     const tr = document.createElement('tr');
     tr.className = `topic-tr${isDone ? ' row-done' : ''}`;
     tr.id = `topic-${t.id}`;
-    tr.onclick = () => toggleSubRow(t.id);
+    tr.dataset.topicId = t.id;
+    tr.tabIndex = 0; // keyboard: Enter/Space toggles the sub-panel
     tr.innerHTML = `
-      <td onclick="event.stopPropagation()">
+      <td>
         <input type="checkbox" class="topic-cb" ${isDone ? 'checked' : ''}
-          onchange="toggleTopic('${t.id}', event)" data-tooltip="סמן לסיום מהיר של הנושא כולו">
+          data-action="toggle-topic" data-tooltip="סמן לסיום מהיר של הנושא כולו">
       </td>
       <td>
         <div class="topic-name-wrap">
@@ -669,8 +664,8 @@ function renderTable() {
       </td>
       <td>${statusBadge}</td>
       <td class="col-hide">${partBadge}</td>
-      <td onclick="event.stopPropagation()">
-        <button class="expand-btn" onclick="toggleSubRow('${t.id}')" data-tooltip="פתח/סגור סעיפי הנושא" data-tip-pos="left-edge">
+      <td>
+        <button class="expand-btn" data-action="toggle-subrow" data-tooltip="פתח/סגור סעיפי הנושא" data-tip-pos="left-edge">
           <span class="material-icons" id="chev-${t.id}">${wasOpen ? 'expand_less' : 'expand_more'}</span>
         </button>
       </td>
@@ -680,6 +675,7 @@ function renderTable() {
     const subTr = document.createElement('tr');
     subTr.className = 'sub-tr';
     subTr.id = `subrow-${t.id}`;
+    subTr.dataset.topicId = t.id;
     subTr.style.display = wasOpen ? 'table-row' : 'none';
 
     let subHTML = `<td colspan="8"><div class="sub-content">`;
@@ -705,17 +701,17 @@ function renderTable() {
     t.subs.forEach((sub, i) => {
       const done = !!ts.subs[i];
       subHTML += `
-        <div class="sub-item" id="subitem-${t.id}-${i}" onclick="toggleSub('${t.id}',${i},event)">
-          <input type="checkbox" id="sub-${t.id}-${i}" ${done ? 'checked' : ''}>
-          <label for="sub-${t.id}-${i}" class="${done ? 'done' : ''}" onclick="event.stopPropagation()">${sub}</label>
+        <div class="sub-item" id="subitem-${t.id}-${i}" data-action="toggle-sub" data-sub-idx="${i}">
+          <input type="checkbox" ${done ? 'checked' : ''}>
+          <label class="${done ? 'done' : ''}">${sub}</label>
         </div>`;
     });
     subHTML += `</div>`;
     if (t.brunner) {
       subHTML += `
-        <div class="brunner-row" onclick="toggleBrunner('${t.id}')" data-tooltip="סמן לאחר קריאת פרקי הברונר — נדרש להשלמת הנושא">
-          <input type="checkbox" ${ts.brunner ? 'checked' : ''} onclick="event.stopPropagation();toggleBrunner('${t.id}')">
-          <label class="${ts.brunner ? 'done' : ''}" onclick="event.stopPropagation()">
+        <div class="brunner-row" data-action="toggle-brunner" data-tooltip="סמן לאחר קריאת פרקי הברונר — נדרש להשלמת הנושא">
+          <input type="checkbox" ${ts.brunner ? 'checked' : ''}>
+          <label class="${ts.brunner ? 'done' : ''}">
             📖 קראתי ברונר — ${t.brunner}
           </label>
         </div>`;
@@ -729,7 +725,7 @@ function renderTable() {
     if (links.length) {
       subHTML += `<div class="sub-links">`;
       links.forEach(link => {
-        subHTML += `<a href="${link.url}" target="_blank" class="topic-link-btn" onclick="event.stopPropagation()">${link.label}</a>`;
+        subHTML += `<a href="${link.url}" target="_blank" class="topic-link-btn">${link.label}</a>`;
       });
       subHTML += `</div>`;
     } else {
@@ -740,7 +736,7 @@ function renderTable() {
     // ── Column 3: exam-prompt copy button ──
     subHTML += `<div class="sub-col-exams">`;
     subHTML += `<div class="sub-col-header" data-tooltip="צור מבחן אמריקאי על הנושא בעזרת AI">📝 בחינות</div>`;
-    subHTML += `<button class="exam-gen-btn" onclick="event.stopPropagation();copyExamPrompt('${t.id}',this)" data-tooltip="מעתיק פרומפט מוכן — הדבק ב-Claude, ChatGPT וכו' לקבלת 20 שאלות אמריקאיות בעברית">
+    subHTML += `<button class="exam-gen-btn" data-action="copy-exam" data-tooltip="מעתיק פרומפט מוכן — הדבק ב-Claude, ChatGPT וכו' לקבלת 20 שאלות אמריקאיות בעברית">
       <span class="material-icons" style="font-size:14px;vertical-align:middle">content_copy</span> העתק פרומפט ליצירת מבחן במערכת AI
     </button>`;
     subHTML += `</div>`;
@@ -755,6 +751,45 @@ function renderTable() {
   });
 }
 
+// ── Table event delegation ──────────────────────────────────
+// One listener on the tbody replaces the per-row inline handlers the templates
+// used to generate (and their '${id}'-quoting hazards). Rows/controls carry
+// data-action + data-topic-id instead.
+function onTableActivate(e) {
+  const tbody = e.currentTarget;
+  if (e.target.closest('a')) return; // let study links navigate, don't toggle the row
+
+  const actEl = e.target.closest('[data-action]');
+  if (actEl && tbody.contains(actEl)) {
+    const host = actEl.closest('[data-topic-id]');
+    const topicId = host ? host.dataset.topicId : null;
+    if (!topicId) return;
+    switch (actEl.dataset.action) {
+      case 'toggle-topic':   toggleTopic(topicId); return;
+      case 'toggle-sub':     toggleSub(topicId, Number(actEl.dataset.subIdx)); return;
+      case 'toggle-brunner': toggleBrunner(topicId); return;
+      case 'toggle-subrow':  toggleSubRow(topicId); return;
+      case 'copy-exam':      copyExamPrompt(topicId, actEl); return;
+    }
+    return;
+  }
+  // Default: clicking anywhere else on a topic row toggles its sub-panel
+  const row = e.target.closest('tr.topic-tr');
+  if (row && row.dataset.topicId) toggleSubRow(row.dataset.topicId);
+}
+
+function initTableEvents() {
+  const tbody = document.getElementById('topicsTableBody');
+  if (!tbody) return;
+  tbody.addEventListener('click', onTableActivate);
+  // Keyboard: rows are focusable (tabIndex=0); Enter/Space toggles the panel
+  tbody.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const row = e.target.closest && e.target.closest('tr.topic-tr');
+    if (row && e.target === row) { e.preventDefault(); toggleSubRow(row.dataset.topicId); }
+  });
+}
+
 // ── RENDER ALL ─────────────────────────────────────────────
 function renderAll() {
   // Rebuilding the table momentarily changes document height, which lets the
@@ -762,8 +797,9 @@ function renderAll() {
   const sx = window.scrollX, sy = window.scrollY;
   updateStats();
   renderTable();
-  renderBarChart();
+  renderPieCharts();
   window.scrollTo(sx, sy);
+  runHooks(APP_HOOKS.afterRender);
 }
 
 // ── SAVE / LOAD ────────────────────────────────────────────
@@ -887,7 +923,7 @@ async function saveProgress() {
   try {
     const w = await handle.createWritable();
     await w.write(data); await w.close();
-    const btn = document.querySelector('[onclick="saveProgress()"]');
+    const btn = document.getElementById('saveProgressBtn');
     if (btn) {
       const orig = btn.innerHTML;
       btn.innerHTML = '<span class="material-icons" style="font-size:18px;vertical-align:middle">check</span> נשמר!';
@@ -986,6 +1022,7 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeHelp
 
 // ── Startup ────────────────────────────────────────────────
 initTheme();
+initTableEvents();
 loadState();
 renderAll();
 // Resume auto-save if a file handle was stored from a previous session

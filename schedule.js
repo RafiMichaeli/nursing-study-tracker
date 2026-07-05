@@ -564,53 +564,39 @@
     document.getElementById('sched-cancel').addEventListener('click', closeSettingsPanel);
   }
 
-  // ── Hook into the existing app (no edits to the main file) ─
+  // ── Hook into the app via its official extension hooks ─────
+  // app.js (שנטען לפנינו) חושף onAfterRender / onBeforeSubToggle /
+  // onBeforeTopicToggle — אין יותר עטיפת פונקציות גלובליות (monkey-patching),
+  // כך ששינוי שמות פנימי ב-app.js לא ישבור אותנו בשקט.
   function install() {
-    if (typeof window.renderAll !== 'function' || typeof window.toggleSub !== 'function' || typeof window.toggleTopic !== 'function') {
-      // המסך הראשי עדיין לא סיים לטעון — ננסה שוב בעוד רגע
-      setTimeout(install, 50);
+    if (typeof window.onAfterRender !== 'function') {
+      console.error('[schedule] app hooks not found — was app.js loaded first?');
       return;
     }
     if (window.__scheduleInstalled) return;
     window.__scheduleInstalled = true;
 
-    const _renderAll = window.renderAll;
-    window.renderAll = function (...args) {
-      const r = _renderAll.apply(this, args);
-      try { decorate(); } catch (e) { console.error('[schedule] decorate failed', e); }
-      return r;
-    };
+    onAfterRender(decorate);
 
-    const _toggleSub = window.toggleSub;
-    window.toggleSub = function (topicId, subIdx, e) {
-      try {
-        ensureDefaults();
-        const willBeDone = !getTopicState(topicId).subs[subIdx];
-        stampSub(topicId, subIdx, willBeDone);
-      } catch (err) { console.error('[schedule] stampSub failed', err); }
-      return _toggleSub.apply(this, arguments);
-    };
+    onBeforeSubToggle((topicId, subIdx, willBeDone) => {
+      ensureDefaults();
+      stampSub(topicId, subIdx, willBeDone);
+    });
 
-    const _toggleTopic = window.toggleTopic;
-    window.toggleTopic = function (id, e) {
-      try {
-        ensureDefaults();
-        const willBeDone = !getTopicState(id).done;
-        if (willBeDone) {
-          stampAllSubs(id);
-        } else {
-          // הנושא מבוטל — האפליקציה הראשית מנקה עכשיו גם את כל הסעיפים,
-          // אז מוחקים גם את תאריכי ההשלמה שלהם (אחרת תחזית הקצב תספור אותם).
-          const t = TOPICS.find(x => x.id === id);
-          if (t) t.subs.forEach((_, i) => stampSub(id, i, false));
-        }
-      } catch (err) { console.error('[schedule] stampAllSubs failed', err); }
-      return _toggleTopic.apply(this, arguments);
-    };
+    onBeforeTopicToggle((id, willBeDone) => {
+      ensureDefaults();
+      if (willBeDone) {
+        stampAllSubs(id);
+      } else {
+        // הנושא מבוטל — האפליקציה הראשית מנקה גם את כל הסעיפים,
+        // אז מוחקים גם את תאריכי ההשלמה שלהם (אחרת תחזית הקצב תספור אותם).
+        const t = TOPICS.find(x => x.id === id);
+        if (t) t.subs.forEach((_, i) => stampSub(id, i, false));
+      }
+    });
 
-    // ה-renderAll הראשוני של האפליקציה כבר רץ (loadState()+renderAll() בסוף
-    // הסקריפט הראשי, שרץ לפני שהקובץ הזה נטען) — לכן קוראים ל-decorate פעם
-    // אחת ידנית כדי "לתפוס" את המצב הנוכחי מיד.
+    // ה-renderAll הראשוני של האפליקציה כבר רץ לפני שהקובץ הזה נטען —
+    // לכן קוראים ל-decorate פעם אחת ידנית כדי "לתפוס" את המצב הנוכחי מיד.
     ensureDefaults();
     decorate();
     injectHelpSection();

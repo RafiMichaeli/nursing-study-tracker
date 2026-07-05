@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Syntax-check every JS file (no build step in this project —
+      # a parse error would otherwise only surface in the browser console)
+      - name: node --check all JS files
+        run: |
+          for f in *.js; do
+            echo "checking $f"
+            node --check "$f"
+          done
