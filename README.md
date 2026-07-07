@@ -21,6 +21,7 @@
 - לחיצה על **"חלק א׳"** או **"חלק ב׳"** מסננת את הטבלה לנושאים של אותו חלק בלבד. לחיצה שנייה מבטלת את הסינון.
 - קישורים מהירים לקפיצה לכל קטגוריה (כירורגיה, קרדיולוגיה, נשימה וכו׳).
 - כפתור **"לא-גמורים בלבד"** מסנן את הטבלה לנושאים שטרם הושלמו.
+- כפתור **"לחזור על"** מסנן לנושאים חלשים — ציון מבחן אחרון מתחת ל-70, או נושאים שהושלמו לפני 21+ יום בלי מעבר ריענון.
 - ציון מצב שמירה אוטומטית (chip ירוק = פעיל, כולל שעת שמירה אחרונה).
 - בתחתית הסרגל: **שמור התקדמות**, **טען התקדמות**, **אפס הכל** (מוחק לצמיתות את כל הסימונים), ו-**הוראות שימוש** (פותח מדריך שימוש מובנה בתוך הדשבורד).
 
@@ -56,6 +57,16 @@
 
 **3 — בחינות**
 - **"העתק פרומפט ליצירת מבחן במערכת AI"** — מעתיק לקליפבורד פרומפט מוכן. הדבק אותו ב-Claude, ChatGPT וכו׳ לקבלת 20 שאלות אמריקאיות בעברית עם הסברים, ברמת סיעוד.
+- **שמירת ציונים**: אחרי כל מבחן, הזן את הציון (0–100) ולחץ **"שמור ציון"**. כל הציונים נשמרים ומוצגים ברשימה (החדש למעלה) עם תאריך — לחיצה על **×** מוחקת ציון.
+- **ממוצע לנושא** מוצג מתחת לרשימה, ו**תג ציון** צבעוני מופיע בשורת הנושא לפי הציון האחרון (ירוק ≥85 · צהוב 60–84 · אדום <60).
+- **כרטיס "ממוצע מבחנים"** בראש המסך מסכם את כל הציונים — וכפוף לסינון **חלק א׳ / חלק ב׳**, כך שרואים ממוצע נפרד לכל חלק.
+- הציונים לא משפיעים על סטטוס "הושלם" — הם מדד מוכנות נפרד, ונשמרים באותו `progress.json`.
+
+---
+
+### התקנה כאפליקציה (PWA)
+
+מהאתר החי אפשר להוסיף את המעקב למסך הבית: באנדרואיד — תפריט ⋮ → "הוספה למסך הבית"; באייפון — שיתוף → "הוסף למסך הבית". האפליקציה נפתחת במסך מלא ועובדת גם ללא אינטרנט (עם הגרסה האחרונה שנצפתה).
 
 ---
 
@@ -114,6 +125,9 @@ Interactive study tracker for the Adult Nursing course — Ichilov Sheinbrunn, 2
 - **Expand/collapse all** — open or close every topic's detail panel at once; open panels survive re-renders
 - **Study material links** — direct links to lecture slides and Brunner chapters on Google Drive
 - **AI exam generator** — one-click prompt copy for Claude / ChatGPT to generate 20 MCQs
+- **Grade tracking** — save each practice-exam grade per topic; full history list with per-grade delete (×), per-topic average, color-coded last-grade badge on the row, and an overall "ממוצע מבחנים" stat card that respects the part-A/B filter
+- **"לחזור על" filter** — weak-topic triage: last grade under 70, or topics finished 21+ days ago with no review pass
+- **Installable PWA** — add to home screen from the live site; opens standalone and works offline
 - **Reset** — wipe all saved progress in the browser (irreversible)
 - **Built-in help guide** — in-app instructions modal, no need to leave the page
 - **Auto-save** — saves progress to a local `progress.json` every 5 minutes; loaded files are validated before replacing existing progress
