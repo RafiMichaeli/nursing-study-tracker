@@ -509,6 +509,20 @@ function updateStats() {
   document.getElementById('statHours').textContent  = doneHours;
   document.getElementById('statLeft').textContent   = totalHours - doneHours;
 
+  // Quiz average — over every saved attempt in the visible topics; since
+  // viewTopics is filtered by activePart, the חלק א׳/ב׳ buttons scope it too
+  const allScores = [];
+  viewTopics.forEach(t => {
+    const q = getTopicState(t.id).quizzes;
+    if (Array.isArray(q)) q.forEach(a => allScores.push(a.score));
+  });
+  const avgEl  = document.getElementById('statQuizAvg');
+  const avgLbl = document.getElementById('statQuizAvgLabel');
+  if (avgEl)  avgEl.textContent  = allScores.length ? String(Math.round(allScores.reduce((a, b) => a + b, 0) / allScores.length)) : '—';
+  if (avgLbl) avgLbl.textContent = allScores.length
+    ? `${allScores.length} מבחנים${activePart ? ` · חלק ${activePart}׳` : ''}`
+    : 'טרם נשמרו ציונים';
+
   // Sidebar
   document.getElementById('sidebarBar').style.width  = overall.pct + '%';
   document.getElementById('sidebarPct').textContent   = overall.pct + '%';
@@ -803,13 +817,29 @@ function renderTable() {
       <span class="material-icons" style="font-size:14px;vertical-align:middle">content_copy</span> העתק פרומפט ליצירת מבחן במערכת AI
     </button>`;
     // Quiz-score entry: record the result of each practice exam
-    const attempts = Array.isArray(ts.quizzes) ? ts.quizzes.length : 0;
+    const quizzes = Array.isArray(ts.quizzes) ? ts.quizzes : [];
     subHTML += `
       <div class="quiz-score-row">
         <input type="number" class="quiz-score-input" id="quiz-input-${t.id}" min="0" max="100" inputmode="numeric" placeholder="ציון">
         <button class="quiz-score-save" data-action="save-quiz-score" data-tooltip="שמור את ציון המבחן — נושאים עם ציון נמוך יופיעו בסינון 'לחזור על'">שמור ציון</button>
-        <span class="quiz-score-last">${lastQuiz ? `אחרון: <b>${lastQuiz.score}</b> · ${attempts} נסיונות` : 'טרם נשמר ציון'}</span>
       </div>`;
+    // Saved-grades list (newest first) + per-topic average
+    if (quizzes.length) {
+      const topicAvg = Math.round(quizzes.reduce((a, q) => a + q.score, 0) / quizzes.length);
+      subHTML += `<div class="quiz-list">`;
+      quizzes.map((q, i) => ({ q, i })).reverse().forEach(({ q, i }) => {
+        subHTML += `
+          <div class="quiz-list-item">
+            <span class="quiz-list-score ${quizBadgeClass(q.score)}">${q.score}</span>
+            <span class="quiz-list-date">${q.date}</span>
+            <button class="quiz-del" data-action="delete-quiz" data-quiz-idx="${i}" aria-label="מחק ציון" data-tooltip="מחק ציון זה">×</button>
+          </div>`;
+      });
+      subHTML += `</div>`;
+      subHTML += `<div class="quiz-avg">ממוצע: <b>${topicAvg}</b> · ${quizzes.length} ${quizzes.length === 1 ? 'מבחן' : 'מבחנים'}</div>`;
+    } else {
+      subHTML += `<div class="quiz-avg">טרם נשמרו ציונים</div>`;
+    }
     subHTML += `</div>`;
 
     subHTML += `</div>`; // /sub-cols
@@ -844,6 +874,15 @@ function onTableActivate(e) {
       case 'save-quiz-score': {
         const input = document.getElementById(`quiz-input-${topicId}`);
         if (input) saveQuizScore(topicId, input.value);
+        return;
+      }
+      case 'delete-quiz': {
+        const idx = Number(actEl.dataset.quizIdx);
+        const q = getTopicState(topicId).quizzes;
+        if (Array.isArray(q) && idx >= 0 && idx < q.length) {
+          q.splice(idx, 1);
+          saveState(); renderAll();
+        }
         return;
       }
     }

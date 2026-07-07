@@ -194,6 +194,35 @@ A(manifest.icons.every(i => fsx.existsSync(path.join(DIR, i.src))), 'all manifes
 const swSrc = fsx.readFileSync(path.join(DIR, 'sw.js'), 'utf8');
 A(['index.html','styles.css','app.js','data.js','links.js','schedule.js','schedule.css'].every(f => swSrc.includes(f)), 'sw shell covers all app files');
 
+console.log('15. grade list, delete, averages');
+// vascular has scores 55, 90 from scenario 11; add one more
+click(d.getElementById('topic-vascular'));
+d.getElementById('quiz-input-vascular').value = '71';
+click(d.querySelector('#subrow-vascular [data-action="save-quiz-score"]'));
+A(d.querySelectorAll('#subrow-vascular .quiz-list-item').length === 3, 'all saved grades listed');
+const firstListed = d.querySelector('#subrow-vascular .quiz-list-score');
+A(firstListed && firstListed.textContent === '71', 'newest grade listed first');
+A(d.querySelector('#subrow-vascular .quiz-avg').textContent.includes('72'), 'per-topic average shown (72)');
+// delete the middle grade (90, original idx 1) via its X
+click(d.querySelector('#subrow-vascular [data-action="delete-quiz"][data-quiz-idx="1"]'));
+A(run(`getTopicState('vascular').quizzes.map(q=>q.score).join(',')`) === '55,71', 'X deletes the right grade');
+A(d.querySelectorAll('#subrow-vascular .quiz-list-item').length === 2, 'list updates after delete');
+A(d.querySelector('#subrow-vascular .quiz-avg').textContent.includes('63'), 'topic average recalculated (63)');
+A(d.getElementById('subrow-vascular').style.display === 'table-row', 'panel stays open after delete');
+
+console.log('16. overall average respects part filter');
+// vascular (א): 55,71 → avg 63 · ent (ב): 40 from scenario 12
+A(d.getElementById('statQuizAvg').textContent === '55', 'overall average, all parts (55,71,40 → 55)');
+run(`filterPart('א')`);
+A(d.getElementById('statQuizAvg').textContent === '63', 'part-א filter → only א grades (63)');
+A(d.getElementById('statQuizAvgLabel').textContent.includes('חלק א'), 'label names the filtered part');
+run(`filterPart('ב')`);
+A(d.getElementById('statQuizAvg').textContent === '40', 'part-ב filter → only ב grades (40)');
+run(`filterPart('ב')`); // toggle off
+A(d.getElementById('statQuizAvg').textContent === '55', 'filter off → all grades again');
+run(`getTopicState('vascular').quizzes = []; getTopicState('ent').quizzes = []; renderAll();`);
+A(d.getElementById('statQuizAvg').textContent === '—', 'no grades → dash');
+
 A(errors.length === 0, 'no window errors: ' + (errors.join('; ') || '—'));
 
 console.log(fails ? `\n✗ ${fails} FAILURE(S)` : '\n✓ ALL TESTS PASSED');

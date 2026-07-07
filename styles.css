@@ -357,7 +357,7 @@ mark.search-hit { background: var(--warning-lt); color: var(--text-dark); border
 /* ── STAT CARDS (Analytics Dashboard) ───────────────── */
 .stats-row {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 12px;
   margin-bottom: 12px;
 }
@@ -546,6 +546,31 @@ mark.search-hit { background: var(--warning-lt); color: var(--text-dark); border
 }
 .quiz-score-save:hover { filter: brightness(1.15); }
 .quiz-score-last { font-size: 12px; color: var(--muted); }
+
+/* Saved-grades list */
+.quiz-list { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; max-height: 132px; overflow-y: auto; }
+.quiz-list-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 3px 6px; border-radius: 6px;
+  background: rgba(255,255,255,0.04);
+}
+[data-theme="light"] .quiz-list-item { background: rgba(0,0,0,0.03); }
+.quiz-list-score {
+  min-width: 30px; text-align: center;
+  font-size: 12px; font-weight: 700; padding: 1px 6px; border-radius: 4px;
+}
+.quiz-list-score.quiz-good { background: var(--success-lt); color: var(--success); }
+.quiz-list-score.quiz-mid  { background: var(--warning-lt); color: #8a6500; }
+.quiz-list-score.quiz-low  { background: rgba(231,76,60,0.15); color: #e74c3c; }
+.quiz-list-date { font-size: 11.5px; color: var(--muted); flex: 1; direction: ltr; text-align: right; }
+.quiz-del {
+  border: none; background: none; cursor: pointer;
+  font-size: 15px; line-height: 1; padding: 2px 6px; border-radius: 4px;
+  color: var(--muted); font-family: inherit;
+}
+.quiz-del:hover { color: #e74c3c; background: rgba(231,76,60,0.12); }
+.quiz-avg { font-size: 12px; color: var(--muted); margin-top: 7px; }
+.quiz-avg b { color: var(--text-dark); }
 
 /* Subs count */
 .subs-count { font-size: 14px; font-weight: 600; color: var(--text-dark); }
