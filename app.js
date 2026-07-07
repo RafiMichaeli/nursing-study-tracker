@@ -5,6 +5,11 @@
 const LS_THEME_KEY = 'mevak_theme';
 const LS_STATE_KEY = 'nursingState_adult';
 
+// "YYYY-MM-DD" local date (no timezone drift) — same format schedule.js uses
+function localDateStr(d = new Date()) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 // ── Extension hooks ─────────────────────────────────────────
 // Official plug-in points for add-on scripts (schedule.js). Register with the
 // on*() functions instead of monkey-patching renderAll/toggleSub/toggleTopic.
@@ -59,6 +64,7 @@ function mobFilterIncomplete() {
 // ── State ──────────────────────────────────────────────────
 let state = {};
 let filterIncomplete = false;
+let filterReview = false; // "לחזור על" — weak/stale topics
 let activeCat = null;
 let activePart = null; // null = all, 'א' = part A, 'ב' = part B
 let searchQuery = '';
@@ -89,8 +95,48 @@ function normalizeState() {
     const ts = getTopicState(t.id);
     if (!ts.subs || typeof ts.subs !== 'object' || Array.isArray(ts.subs)) ts.subs = {};
     ts.brunner = !!ts.brunner;
+    if (ts.quizzes !== undefined && !Array.isArray(ts.quizzes)) delete ts.quizzes;
     ts.done = computeTopicDone(t, ts);
   });
+}
+
+// ── Quiz scores (exam-readiness signal, separate from "done") ──
+function getLastQuizScore(id) {
+  const q = getTopicState(id).quizzes;
+  return (Array.isArray(q) && q.length) ? q[q.length - 1] : null;
+}
+function saveQuizScore(topicId, value) {
+  const n = Number(value);
+  if (value === '' || !Number.isFinite(n) || n < 0 || n > 100) {
+    showSaveToast('<span style="color:var(--warning,#fcb92c)">⚠</span> ציון חייב להיות מספר בין 0 ל-100');
+    return false;
+  }
+  const ts = getTopicState(topicId);
+  if (!Array.isArray(ts.quizzes)) ts.quizzes = [];
+  ts.quizzes.push({ score: Math.round(n), date: localDateStr() });
+  saveState(); renderAll();
+  return true;
+}
+function quizBadgeClass(score) {
+  return score >= 85 ? 'quiz-good' : score >= 60 ? 'quiz-mid' : 'quiz-low';
+}
+// "לחזור על": weak topics — low last quiz score, or done a while ago with no review pass
+const REVIEW_SCORE_THRESHOLD = 70;
+const REVIEW_STALE_DAYS = 21;
+function needsReview(t) {
+  const ts = getTopicState(t.id);
+  const last = getLastQuizScore(t.id);
+  if (last && last.score < REVIEW_SCORE_THRESHOLD) return true;
+  if (ts.done) {
+    const sched = state._schedule || {};
+    const reviewed = sched.review && sched.review[t.id] && sched.review[t.id].done;
+    if (!reviewed) {
+      const dates = sched.subDates && sched.subDates[t.id] ? Object.values(sched.subDates[t.id]) : [];
+      const lastDone = dates.sort().pop();
+      if (lastDone && (new Date() - new Date(lastDone)) / 86400000 >= REVIEW_STALE_DAYS) return true;
+    }
+  }
+  return false;
 }
 // Minimal shape check before accepting an external progress file, so loading
 // the wrong JSON can't silently wipe real progress (and then get auto-saved).
@@ -160,6 +206,9 @@ function syncFilterUI() {
 
   // "לא-גמורים בלבד" sidebar button
   setActive('filterSbBtn', filterIncomplete);
+
+  // "לחזור על" sidebar button
+  setActive('reviewSbBtn', filterReview);
 }
 
 function filterCat(cat) {
@@ -231,6 +280,11 @@ function collapseAllRows() {
 }
 function toggleFilter() {
   filterIncomplete = !filterIncomplete;
+  syncFilterUI();
+  renderAll();
+}
+function toggleReviewFilter() {
+  filterReview = !filterReview;
   syncFilterUI();
   renderAll();
 }
@@ -372,6 +426,7 @@ function jumpToTopic(topicId, subIdx = -1) {
   activePart = null;
   activeCat = null;
   filterIncomplete = false;
+  filterReview = false;
   syncFilterUI();
 
   renderAll();
@@ -589,10 +644,12 @@ function renderTable() {
   if (activePart) topics = topics.filter(t => t.part === activePart);
   if (activeCat) topics = topics.filter(t => t.cat === activeCat);
   if (filterIncomplete) topics = topics.filter(t => !getTopicState(t.id).done);
+  if (filterReview) topics = topics.filter(needsReview);
 
   if (topics.length === 0) {
     let emptyMsg = 'אין נושאים להצגה';
     if (filterIncomplete) emptyMsg = 'כל הנושאים הושלמו! 🎉';
+    if (filterReview) emptyMsg = 'אין נושאים לחזרה — כל הציונים טובים והריענונים עדכניים 💪';
     tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted);">
       ${emptyMsg}
     </td></tr>`;
@@ -623,6 +680,12 @@ function renderTable() {
       : `<span class="badge badge-purple">חלק ב׳</span>`;
 
     const miniBarCls = isDone ? 'topic-mini-bar done' : 'topic-mini-bar';
+
+    // Last quiz score badge (exam-readiness — independent of "done")
+    const lastQuiz = getLastQuizScore(t.id);
+    const scoreBadge = lastQuiz
+      ? `<span class="badge quiz-badge ${quizBadgeClass(lastQuiz.score)}" data-tooltip="ציון המבחן האחרון (${lastQuiz.date})">📝 ${lastQuiz.score}</span>`
+      : '';
 
     // Was this topic's sub-panel open before the re-render?
     const wasOpen = openRows.has(`subrow-${t.id}`);
@@ -662,7 +725,7 @@ function renderTable() {
         <span class="subs-count">${subsDone}</span>
         <span class="subs-total">/${t.subs.length}</span>
       </td>
-      <td>${statusBadge}</td>
+      <td>${statusBadge}${scoreBadge ? '<br>' + scoreBadge : ''}</td>
       <td class="col-hide">${partBadge}</td>
       <td>
         <button class="expand-btn" data-action="toggle-subrow" data-tooltip="פתח/סגור סעיפי הנושא" data-tip-pos="left-edge">
@@ -739,6 +802,14 @@ function renderTable() {
     subHTML += `<button class="exam-gen-btn" data-action="copy-exam" data-tooltip="מעתיק פרומפט מוכן — הדבק ב-Claude, ChatGPT וכו' לקבלת 20 שאלות אמריקאיות בעברית">
       <span class="material-icons" style="font-size:14px;vertical-align:middle">content_copy</span> העתק פרומפט ליצירת מבחן במערכת AI
     </button>`;
+    // Quiz-score entry: record the result of each practice exam
+    const attempts = Array.isArray(ts.quizzes) ? ts.quizzes.length : 0;
+    subHTML += `
+      <div class="quiz-score-row">
+        <input type="number" class="quiz-score-input" id="quiz-input-${t.id}" min="0" max="100" inputmode="numeric" placeholder="ציון">
+        <button class="quiz-score-save" data-action="save-quiz-score" data-tooltip="שמור את ציון המבחן — נושאים עם ציון נמוך יופיעו בסינון 'לחזור על'">שמור ציון</button>
+        <span class="quiz-score-last">${lastQuiz ? `אחרון: <b>${lastQuiz.score}</b> · ${attempts} נסיונות` : 'טרם נשמר ציון'}</span>
+      </div>`;
     subHTML += `</div>`;
 
     subHTML += `</div>`; // /sub-cols
@@ -770,6 +841,11 @@ function onTableActivate(e) {
       case 'toggle-brunner': toggleBrunner(topicId); return;
       case 'toggle-subrow':  toggleSubRow(topicId); return;
       case 'copy-exam':      copyExamPrompt(topicId, actEl); return;
+      case 'save-quiz-score': {
+        const input = document.getElementById(`quiz-input-${topicId}`);
+        if (input) saveQuizScore(topicId, input.value);
+        return;
+      }
     }
     return;
   }
@@ -1025,6 +1101,11 @@ initTheme();
 initTableEvents();
 loadState();
 renderAll();
+// PWA: register the service worker on https (GitHub Pages) / localhost only —
+// opening index.html directly from disk (file://) keeps working without it.
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  navigator.serviceWorker.register('sw.js').catch(() => { /* offline support is best-effort */ });
+}
 // Resume auto-save if a file handle was stored from a previous session
 getStoredHandle().then(handle => { if (handle) { startAutoSave(); updateAutoSaveStatus(null); } });
 

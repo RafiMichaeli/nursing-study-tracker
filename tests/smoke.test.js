@@ -136,6 +136,64 @@ A(d.getElementById('sched-dashboard').textContent.includes('מעבר הלימו�
 run(`TOPICS.filter(t=>t.part==='ב').forEach(t => { if (getTopicState(t.id).done) toggleTopic(t.id, null); }); state._schedule.enabled = false; state._schedule.startDates['ב'] = null; renderAll();`);
 A(d.getElementById('sched-dashboard') === null, 'dashboard removed when disabled');
 
+console.log('11. quiz scores');
+click(d.getElementById('topic-vascular')); // open panel
+const qInput = d.getElementById('quiz-input-vascular');
+A(qInput !== null, 'score input rendered in exam column');
+qInput.value = '55';
+click(d.querySelector('#subrow-vascular [data-action="save-quiz-score"]'));
+A(run(`getTopicState('vascular').quizzes.length`) === 1, 'score saved to state');
+A(run(`getLastQuizScore('vascular').score`) === 55, 'score value correct');
+A(d.querySelector('#topic-vascular .quiz-badge.quiz-low') !== null, 'low-score badge on row');
+// invalid input rejected without touching state
+d.getElementById('quiz-input-vascular').value = '150';
+click(d.querySelector('#subrow-vascular [data-action="save-quiz-score"]'));
+A(run(`getTopicState('vascular').quizzes.length`) === 1, 'invalid score (150) rejected');
+// better score updates badge color
+d.getElementById('quiz-input-vascular').value = '90';
+click(d.querySelector('#subrow-vascular [data-action="save-quiz-score"]'));
+A(d.querySelector('#topic-vascular .quiz-badge.quiz-good') !== null, 'badge reflects last score');
+A(run(`getTopicState('vascular').quizzes.length`) === 2, 'attempts accumulate');
+
+console.log('12. לחזור על filter');
+run(`getTopicState('ent').quizzes = [{score: 40, date: '2026-07-01'}]; renderAll();`);
+run(`toggleReviewFilter()`);
+A(d.getElementById('reviewSbBtn').classList.contains('active'), 'review filter button synced');
+const shownRows = [...d.querySelectorAll('#topicsTableBody tr.topic-tr')].map(r => r.dataset.topicId);
+A(shownRows.includes('ent'), 'low-score topic shown in review filter');
+A(!shownRows.includes('vascular'), 'good-score topic (90) not in review filter');
+run(`toggleReviewFilter()`);
+A(d.querySelectorAll('#topicsTableBody tr.topic-tr').length === 18, 'filter off restores all topics');
+
+console.log('13. review forecast (measured vs planned)');
+run(`(() => {
+  const d5 = new Date(); d5.setDate(d5.getDate() - 5);
+  const s = \`\${d5.getFullYear()}-\${String(d5.getMonth()+1).padStart(2,'0')}-\${String(d5.getDate()).padStart(2,'0')}\`;
+  state._schedule.enabled = true;
+  state._schedule.startDates['ב'] = s;
+  // strong measured learning pace + small remainder → projected finish well before the exam
+  TOPICS.filter(t => t.part === 'ב' && t.id !== 'breast').forEach(t => { if (!getTopicState(t.id).done) toggleTopic(t.id, null); });
+})()`);
+let dashTxt = d.getElementById('sched-dashboard').textContent;
+A(dashTxt.includes('לפי התכנון'), 'no review data → verdict uses planned pace');
+run(`Schedule.toggleScheduleReview('burns')`); // one real review pass today
+dashTxt = d.getElementById('sched-dashboard').textContent;
+A(dashTxt.includes('לפי קצב מדוד'), 'with review data → verdict uses measured pace');
+run(`Schedule.toggleScheduleReview('burns');
+  TOPICS.filter(t => t.part === 'ב').forEach(t => { if (getTopicState(t.id).done) toggleTopic(t.id, null); });
+  state._schedule.enabled = false; state._schedule.startDates['ב'] = null; renderAll();`);
+
+console.log('14. PWA wiring');
+A(d.querySelector('link[rel="manifest"]') !== null, 'manifest linked in head');
+A(d.querySelector('link[rel="apple-touch-icon"]') !== null, 'apple-touch-icon linked');
+const fsx = require('fs');
+A(fsx.existsSync(path.join(DIR, 'manifest.webmanifest')), 'manifest file exists');
+A(fsx.existsSync(path.join(DIR, 'sw.js')), 'sw.js exists');
+const manifest = JSON.parse(fsx.readFileSync(path.join(DIR, 'manifest.webmanifest'), 'utf8'));
+A(manifest.icons.every(i => fsx.existsSync(path.join(DIR, i.src))), 'all manifest icons exist');
+const swSrc = fsx.readFileSync(path.join(DIR, 'sw.js'), 'utf8');
+A(['index.html','styles.css','app.js','data.js','links.js','schedule.js','schedule.css'].every(f => swSrc.includes(f)), 'sw shell covers all app files');
+
 A(errors.length === 0, 'no window errors: ' + (errors.join('; ') || '—'));
 
 console.log(fails ? `\n✗ ${fails} FAILURE(S)` : '\n✓ ALL TESTS PASSED');

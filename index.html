@@ -16,6 +16,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>סיעוד המבוגר — מעקב לימודים</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>%F0%9F%A7%91%E2%80%8D%E2%9A%95%EF%B8%8F</text></svg>">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#141720">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -158,6 +161,9 @@
       </div>
       <button class="sb-btn" id="filterSbBtn" onclick="toggleFilter()" data-tooltip="הצג רק נושאים שטרם הושלמו">
         <span class="material-icons">filter_list</span> לא-גמורים בלבד
+      </button>
+      <button class="sb-btn" id="reviewSbBtn" onclick="toggleReviewFilter()" data-tooltip="נושאים עם ציון מבחן נמוך מ-70, או שהושלמו לפני 21+ יום בלי ריענון">
+        <span class="material-icons">assignment_late</span> לחזור על
       </button>
       <button class="sb-btn" id="saveProgressBtn" onclick="saveProgress()" data-tooltip="שמור התקדמות לקובץ JSON. לאחר שמירה ראשונה — שמירה אוטומטית כל 5 דקות">
         <span class="material-icons">save</span> שמור התקדמות

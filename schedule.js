@@ -382,6 +382,28 @@
     const daysToExam = examDate ? Math.round((examDate - today) / 86400000) : null;
     // כמה ימי ריענון מתוכננים לחלק הזה (לפי הקצב והמקדם שהוגדרו)
     const reviewDaysPlanned = Math.max(0, lastReviewOffset - lastPass1Offset);
+
+    // ── קצב ריענון מדוד: שעות-ריענון/יום בחלון הנע (אותו חלון כמו הלימוד) ──
+    // כשיש ריענונים אמיתיים בחלון — התחזית עוברת מהתכנון לקצב המדוד.
+    const s = state._schedule;
+    let reviewedRecentHours = 0, remainingReviewHours = 0;
+    topics.forEach(t => {
+      const rh = (t.hours || 1) * s.reviewHoursFactor;
+      const rs = getReviewState(t.id);
+      if (rs.done && rs.date) {
+        const d = dateFromStr(rs.date);
+        if (d > cutoff && d <= today) reviewedRecentHours += rh;
+      } else if (!rs.done) {
+        remainingReviewHours += rh;
+      }
+    });
+    const reviewRate = reviewedRecentHours / effectiveWindowDays; // שעות-ריענון/יום
+    const projectedReviewDays = remainingReviewHours === 0
+      ? 0
+      : reviewRate > 0 ? Math.ceil(remainingReviewHours / reviewRate) : null;
+    const reviewMode = projectedReviewDays !== null ? 'measured' : 'planned';
+    const reviewDaysForVerdict = projectedReviewDays !== null ? projectedReviewDays : reviewDaysPlanned;
+
     // מרווח בין סיום הלימוד הצפוי (לפי הקצב בפועל) לבין המבחן
     const examMarginDays = (examDate && projectedFinishDate)
       ? Math.round((examDate - projectedFinishDate) / 86400000)
@@ -391,7 +413,8 @@
       part, totalSubs, doneSubs, expectedSubs,
       totalTopics, reviewedTopics, expectedReviewedTopics,
       plannedFinishDate, projectedFinishDate, finishDeltaDays,
-      examDate, daysToExam, examMarginDays, reviewDaysPlanned,
+      examDate, daysToExam, examMarginDays,
+      reviewDaysPlanned, reviewDaysForVerdict, reviewMode,
     };
   }
 
@@ -426,14 +449,17 @@
         : data.daysToExam === 0 ? 'היום!' : 'עבר';
       let verdict = '';
       if (data.daysToExam >= 0 && data.doneSubs < data.totalSubs) {
+        // ימי הריענון הנדרשים: לפי קצב ריענון מדוד אם קיים, אחרת לפי התכנון
+        const need = data.reviewDaysForVerdict;
+        const needSrc = data.reviewMode === 'measured' ? 'לפי קצב מדוד' : 'לפי התכנון';
         if (data.examMarginDays === null) {
           verdict = ''; // אין קצב מדוד — אין פסיקה
         } else if (data.examMarginDays < 0) {
           verdict = `<span class="sched-mini-chip sched-behind">בקצב הנוכחי לא מסיימים לפני המבחן (${-data.examMarginDays} ימים חסרים)</span>`;
-        } else if (data.examMarginDays < data.reviewDaysPlanned) {
-          verdict = `<span class="sched-mini-chip sched-behind">נשארים רק ${data.examMarginDays} ימים לריענון (תוכנן: ${data.reviewDaysPlanned})</span>`;
+        } else if (data.examMarginDays < need) {
+          verdict = `<span class="sched-mini-chip sched-behind">נשארים רק ${data.examMarginDays} ימים לריענון (נדרש ${needSrc}: ${need})</span>`;
         } else {
-          verdict = `<span class="sched-mini-chip sched-ahead">מספיק: ${data.examMarginDays} ימים לריענון לפני המבחן</span>`;
+          verdict = `<span class="sched-mini-chip sched-ahead">מספיק: ${data.examMarginDays} ימים לריענון (נדרש ${needSrc}: ${need})</span>`;
         }
       }
       examRow = `

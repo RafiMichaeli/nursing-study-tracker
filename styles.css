@@ -524,6 +524,29 @@ mark.search-hit { background: var(--warning-lt); color: var(--text-dark); border
 .badge-hours    { background: var(--primary-lt); color: var(--primary); }
 .badge-pages    { background: var(--info-lt); color: var(--info); }
 
+/* Quiz-score badge (last practice-exam result) */
+.quiz-badge { margin-top: 3px; }
+.quiz-badge.quiz-good { background: var(--success-lt); color: var(--success); }
+.quiz-badge.quiz-mid  { background: var(--warning-lt); color: #8a6500; }
+.quiz-badge.quiz-low  { background: rgba(231,76,60,0.15); color: #e74c3c; }
+
+/* Quiz-score entry row (בחינות column) */
+.quiz-score-row { display: flex; align-items: center; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.quiz-score-input {
+  width: 62px; padding: 6px 8px; border-radius: 6px; font-size: 13px;
+  font-family: inherit; text-align: center;
+  background: rgba(255,255,255,0.06); color: var(--text);
+  border: 1px solid var(--card-border);
+}
+[data-theme="light"] .quiz-score-input { background: rgba(0,0,0,0.04); }
+.quiz-score-save {
+  padding: 6px 11px; border-radius: 6px; font-size: 12px; font-weight: 600;
+  cursor: pointer; font-family: inherit; border: none;
+  background: var(--primary-lt); color: var(--primary);
+}
+.quiz-score-save:hover { filter: brightness(1.15); }
+.quiz-score-last { font-size: 12px; color: var(--muted); }
+
 /* Subs count */
 .subs-count { font-size: 14px; font-weight: 600; color: var(--text-dark); }
 .subs-total { font-size: 13px; color: var(--muted); }
