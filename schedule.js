@@ -220,15 +220,17 @@
     return { level: 'behind', delta: -delta };
   }
 
+  function escAttr(s) { return String(s).replace(/"/g, '&quot;'); }
+
   function chipHTML(status) {
     if (!status) return '';
     if (status.level === 'ahead') {
-      return `<span class="sched-chip sched-ahead" data-tooltip="לפני הלו&quot;ז שקבעת">🟢 מקדים${status.delta > 1 ? ` (${status.delta})` : ''}</span>`;
+      return `<span class="sched-chip sched-ahead" data-tooltip="${escAttr(t('sched.aheadTooltip'))}">🟢 ${t('sched.ahead')}${status.delta > 1 ? ` (${status.delta})` : ''}</span>`;
     }
     if (status.level === 'ontrack') {
-      return `<span class="sched-chip sched-ontrack" data-tooltip="בקצב שתכננת">🔵 בלו&quot;ז</span>`;
+      return `<span class="sched-chip sched-ontrack" data-tooltip="${escAttr(t('sched.ontrackTooltip'))}">🔵 ${t('sched.ontrack')}</span>`;
     }
-    return `<span class="sched-chip sched-behind" data-tooltip="מאחורי הלו&quot;ז שקבעת">🔴 מאחר${status.delta > 1 ? ` (${status.delta})` : ''}</span>`;
+    return `<span class="sched-chip sched-behind" data-tooltip="${escAttr(t('sched.behindTooltip'))}">🔴 ${t('sched.behind')}${status.delta > 1 ? ` (${status.delta})` : ''}</span>`;
   }
 
   // ── סטטוס נקודתי למעבר הריענון (נושא שלם, לא סעיף-סעיף) ───
@@ -252,18 +254,19 @@
 
   function reviewChipHTML(status) {
     if (!status) return '';
-    if (status.level === 'ahead') return `<span class="sched-chip sched-ahead" data-tooltip="ריענון לפני הזמן">🟢 מקדים</span>`;
-    if (status.level === 'ontrack') return `<span class="sched-chip sched-ontrack" data-tooltip="ריענון בזמן">🔵 בזמן</span>`;
-    return `<span class="sched-chip sched-behind" data-tooltip="ריענון מאחר">🔴 מאחר${status.delta > 1 ? ` (${status.delta})` : ''}</span>`;
+    if (status.level === 'ahead') return `<span class="sched-chip sched-ahead" data-tooltip="${escAttr(t('sched.revAheadTooltip'))}">🟢 ${t('sched.ahead')}</span>`;
+    if (status.level === 'ontrack') return `<span class="sched-chip sched-ontrack" data-tooltip="${escAttr(t('sched.revOnTimeTooltip'))}">🔵 ${t('sched.revOnTime')}</span>`;
+    return `<span class="sched-chip sched-behind" data-tooltip="${escAttr(t('sched.revLateTooltip'))}">🔴 ${t('sched.behind')}${status.delta > 1 ? ` (${status.delta})` : ''}</span>`;
   }
 
   function reviewRowHTML(t) {
+    // NOTE: here `t` is the topic — use the global alias T() for i18n
     const rs = getReviewState(t.id);
     const status = computeReviewStatus(t);
     return `
-      <div class="brunner-row sched-review-row" data-topic-id="${t.id}" data-tooltip="סמן אחרי שעברת שוב על הנושא במעבר הריענון">
+      <div class="brunner-row sched-review-row" data-topic-id="${t.id}" data-tooltip="${escAttr(T('sched.reviewDoneTooltip'))}">
         <input type="checkbox" ${rs.done ? 'checked' : ''}>
-        <label class="${rs.done ? 'done' : ''}">🔁 סיימתי ריענון</label>
+        <label class="${rs.done ? 'done' : ''}">${T('sched.reviewDone')}</label>
         ${reviewChipHTML(status)}
       </div>`;
   }
@@ -420,65 +423,65 @@
 
   function fmtDate(d) {
     if (!d) return '—';
-    return d.toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return d.toLocaleDateString(I18N.locale(), { day: '2-digit', month: '2-digit', year: 'numeric' });
   }
 
   function dashboardPartHTML(data) {
     const subsAheadBehind = data.doneSubs - data.expectedSubs;
     const subsLabel = subsAheadBehind > 0
-      ? `<span class="sched-mini-chip sched-ahead">מקדים (${subsAheadBehind})</span>`
+      ? `<span class="sched-mini-chip sched-ahead">${t('sched.ahead')} (${subsAheadBehind})</span>`
       : subsAheadBehind < 0
-        ? `<span class="sched-mini-chip sched-behind">מאחר (${-subsAheadBehind})</span>`
-        : `<span class="sched-mini-chip sched-ontrack">בלו"ז</span>`;
+        ? `<span class="sched-mini-chip sched-behind">${t('sched.behind')} (${-subsAheadBehind})</span>`
+        : `<span class="sched-mini-chip sched-ontrack">${t('sched.ontrack')}</span>`;
     const finishLabel = data.doneSubs === data.totalSubs
-      ? 'מעבר הלימוד הושלם ✔️'
+      ? t('sched.pass1Done')
       : data.finishDeltaDays === null
         ? (data.doneSubs > 0
-            ? `אין התקדמות ב-${RECENT_PACE_WINDOW_DAYS} הימים האחרונים — אין תחזית זמינה`
-            : 'אין עדיין מספיק נתונים לתחזית')
+            ? t('sched.noProgress', { n: RECENT_PACE_WINDOW_DAYS })
+            : t('sched.noData'))
         : data.finishDeltaDays === 0
-          ? `לפי הקצב הנוכחי: סיום ${fmtDate(data.projectedFinishDate)} (בדיוק בזמן)`
+          ? t('sched.finishOnTime', { date: fmtDate(data.projectedFinishDate) })
           : data.finishDeltaDays < 0
-            ? `לפי הקצב הנוכחי: סיום ${fmtDate(data.projectedFinishDate)} (${-data.finishDeltaDays} ימים לפני המתוכנן)`
-            : `לפי הקצב הנוכחי: סיום ${fmtDate(data.projectedFinishDate)} (${data.finishDeltaDays} ימים אחרי המתוכנן)`;
+            ? t('sched.finishEarly', { date: fmtDate(data.projectedFinishDate), n: -data.finishDeltaDays })
+            : t('sched.finishLate', { date: fmtDate(data.projectedFinishDate), n: data.finishDeltaDays });
     // ── שורת מבחן: ספירה לאחור + פסיקה האם הקצב מספיק ──
     let examRow = '';
     if (data.examDate) {
       const countdown = data.daysToExam > 0
-        ? `בעוד ${data.daysToExam} ימים`
-        : data.daysToExam === 0 ? 'היום!' : 'עבר';
+        ? t('sched.inDays', { n: data.daysToExam })
+        : data.daysToExam === 0 ? t('sched.today') : t('sched.past');
       let verdict = '';
       if (data.daysToExam >= 0 && data.doneSubs < data.totalSubs) {
         // ימי הריענון הנדרשים: לפי קצב ריענון מדוד אם קיים, אחרת לפי התכנון
         const need = data.reviewDaysForVerdict;
-        const needSrc = data.reviewMode === 'measured' ? 'לפי קצב מדוד' : 'לפי התכנון';
+        const needSrc = data.reviewMode === 'measured' ? t('sched.byMeasured') : t('sched.byPlan');
         if (data.examMarginDays === null) {
           verdict = ''; // אין קצב מדוד — אין פסיקה
         } else if (data.examMarginDays < 0) {
-          verdict = `<span class="sched-mini-chip sched-behind">בקצב הנוכחי לא מסיימים לפני המבחן (${-data.examMarginDays} ימים חסרים)</span>`;
+          verdict = `<span class="sched-mini-chip sched-behind">${t('sched.verdictMiss', { n: -data.examMarginDays })}</span>`;
         } else if (data.examMarginDays < need) {
-          verdict = `<span class="sched-mini-chip sched-behind">נשארים רק ${data.examMarginDays} ימים לריענון (נדרש ${needSrc}: ${need})</span>`;
+          verdict = `<span class="sched-mini-chip sched-behind">${t('sched.verdictTight', { m: data.examMarginDays, src: needSrc, need })}</span>`;
         } else {
-          verdict = `<span class="sched-mini-chip sched-ahead">מספיק: ${data.examMarginDays} ימים לריענון (נדרש ${needSrc}: ${need})</span>`;
+          verdict = `<span class="sched-mini-chip sched-ahead">${t('sched.verdictOk', { m: data.examMarginDays, src: needSrc, need })}</span>`;
         }
       }
       examRow = `
         <div class="sched-dash-row">
-          <span>🎓 מבחן: ${fmtDate(data.examDate)} · ${countdown}</span>
+          <span>${t('sched.examLine', { date: fmtDate(data.examDate), countdown })}</span>
           ${verdict}
         </div>`;
     }
 
     return `
       <div class="sched-dash-part">
-        <div class="sched-dash-part-title">חלק ${data.part}׳</div>
+        <div class="sched-dash-part-title">${partLabel(data.part)}</div>
         ${examRow}
         <div class="sched-dash-row">
-          <span>לימוד: ${data.doneSubs}/${data.totalSubs} סעיפים (ציפייה להיום: ${data.expectedSubs})</span>
+          <span>${t('sched.study', { d: data.doneSubs, t: data.totalSubs, e: data.expectedSubs })}</span>
           ${subsLabel}
         </div>
         <div class="sched-dash-row">
-          <span>ריענון: ${data.reviewedTopics}/${data.totalTopics} נושאים (ציפייה להיום: ${data.expectedReviewedTopics})</span>
+          <span>${t('sched.reviewLine', { d: data.reviewedTopics, t: data.totalTopics, e: data.expectedReviewedTopics })}</span>
         </div>
         <div class="sched-dash-forecast">${finishLabel}</div>
       </div>`;
@@ -497,7 +500,7 @@
       if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(el, anchor.nextSibling);
       else document.body.insertBefore(el, document.body.firstChild);
     }
-    el.innerHTML = `<div class="sched-dash-header">📅 מעקב לו"ז</div>` +
+    el.innerHTML = `<div class="sched-dash-header">${t('sched.title')}</div>` +
       (dataA ? dashboardPartHTML(dataA) : '') +
       (dataB ? dashboardPartHTML(dataB) : '');
   }
@@ -537,8 +540,10 @@
     btn.id = 'sched-sidebar-btn';
     btn.className = 'sb-btn';
     btn.type = 'button';
-    btn.setAttribute('data-tooltip', 'הגדרות מעקב לו"ז — תאריך התחלה, קצב יומי וסטטוס לכל נושא');
-    btn.innerHTML = `<span class="material-icons">event</span> מעקב לו"ז`;
+    // data-i18n attributes so I18N.applyStatic() re-labels the button on switch
+    btn.setAttribute('data-i18n-tooltip', 'sched.btnTooltip');
+    btn.setAttribute('data-tooltip', t('sched.btnTooltip'));
+    btn.innerHTML = `<span class="material-icons">event</span> <span data-i18n="sched.btn">${t('sched.btn')}</span>`;
     btn.addEventListener('click', openSettingsPanel);
     footer.insertAdjacentElement('afterbegin', btn);
   }
@@ -593,36 +598,36 @@
     overlay.addEventListener('click', (e) => { if (e.target === overlay) closeSettingsPanel(); });
 
     overlay.innerHTML = `
-      <div class="sched-panel" role="dialog" aria-label="הגדרות מעקב לו&quot;ז">
-        <h3>📅 מעקב לו"ז</h3>
+      <div class="sched-panel" role="dialog" aria-label="${escAttr(t('sched.aria'))}">
+        <h3>${t('sched.title')}</h3>
         <label class="sched-toggle-row">
           <input type="checkbox" id="sched-enabled" ${s.enabled ? 'checked' : ''}>
-          <span>הפעל מעקב לו"ז</span>
+          <span>${t('sched.enable')}</span>
         </label>
         <div class="sched-fields">
-          <label>תאריך התחלה — חלק א׳
+          <label>${t('sched.start')} — ${partLabel('א')}
             <input type="date" id="sched-start-a" value="${s.startDates['א'] || ''}">
           </label>
-          <label>תאריך התחלה — חלק ב׳ <span class="sched-optional">(אופציונלי, אפשר למלא בהמשך)</span>
+          <label>${t('sched.start')} — ${partLabel('ב')} <span class="sched-optional">${t('sched.optional')}</span>
             <input type="date" id="sched-start-b" value="${s.startDates['ב'] || ''}">
           </label>
-          <label>🎓 תאריך מבחן — חלק א׳
+          <label>${t('sched.exam')} — ${partLabel('א')}
             <input type="date" id="sched-exam-a" value="${s.examDates['א'] || ''}">
           </label>
-          <label>🎓 תאריך מבחן — חלק ב׳
+          <label>${t('sched.exam')} — ${partLabel('ב')}
             <input type="date" id="sched-exam-b" value="${s.examDates['ב'] || ''}">
           </label>
-          <label>קצב לימוד יומי — מעבר ראשון (שעות)
+          <label>${t('sched.pace1')}
             <input type="number" id="sched-pace" step="0.5" min="0.5" value="${s.paceHoursPerDay}">
           </label>
-          <label>קצב לימוד יומי — ריענון (שעות)
+          <label>${t('sched.paceReview')}
             <input type="number" id="sched-pace-review" step="0.5" min="0.5" value="${s.paceHoursPerDayReview}">
           </label>
         </div>
-        <p class="sched-note">💡 אם תכבה את המעקב — הצ'יפים ייעלמו, אבל כל התאריכים שכבר נרשמו יישמרו, ויחזרו להופיע ברגע שתדליק שוב.</p>
+        <p class="sched-note">${t('sched.note')}</p>
         <div class="sched-actions">
-          <button type="button" id="sched-save" class="sched-btn-primary">שמור</button>
-          <button type="button" id="sched-cancel" class="sched-btn-secondary">ביטול</button>
+          <button type="button" id="sched-save" class="sched-btn-primary">${t('sched.saveBtn')}</button>
+          <button type="button" id="sched-cancel" class="sched-btn-secondary">${t('sched.cancel')}</button>
         </div>
       </div>
     `;

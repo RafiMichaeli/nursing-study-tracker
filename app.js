@@ -108,7 +108,7 @@ function getLastQuizScore(id) {
 function saveQuizScore(topicId, value) {
   const n = Number(value);
   if (value === '' || !Number.isFinite(n) || n < 0 || n > 100) {
-    showSaveToast('<span style="color:var(--warning,#fcb92c)">⚠</span> ציון חייב להיות מספר בין 0 ל-100');
+    showSaveToast(`<span style="color:var(--warning,#fcb92c)">⚠</span> ${t('quiz.invalid')}`);
     return false;
   }
   const ts = getTopicState(topicId);
@@ -289,7 +289,7 @@ function toggleReviewFilter() {
   renderAll();
 }
 function resetAll() {
-  if (!confirm('לאפס את כל הסימונים?')) return;
+  if (!confirm(t('confirm.reset'))) return;
   state = {}; saveState(); renderAll();
 }
 
@@ -349,7 +349,7 @@ function renderSearchDropdown() {
 
   const results = buildSearchResults(searchQuery);
   if (!results.length) {
-    dd.innerHTML = `<div class="search-dropdown-empty">אין תוצאות עבור "${escapeHtml(searchQuery)}"</div>`;
+    dd.innerHTML = `<div class="search-dropdown-empty">${t('search.noResults', { q: escapeHtml(searchQuery) })}</div>`;
     dd.classList.add('show');
     return;
   }
@@ -370,7 +370,7 @@ function renderSearchDropdown() {
     });
     const remaining = r.matchedSubs.length - shown.length;
     if (remaining > 0) {
-      html += `<div class="search-dropdown-more">+${remaining} סעיפים נוספים</div>`;
+      html += `<div class="search-dropdown-more">${t('search.more', { n: remaining })}</div>`;
     }
     html += `</div>`;
   });
@@ -500,7 +500,7 @@ function updateStats() {
   document.getElementById('mainBar').style.width = overall.pct + '%';
   document.getElementById('pctLabel').textContent = overall.pct + '%';
   document.getElementById('subLabel').textContent = totalPages
-    ? `${donePages} / ${totalPages} עמ'`
+    ? `${donePages} / ${totalPages} ${t('unit.pages')}`
     : `${doneSubs} / ${totalSubs}`;
 
   // Stat cards
@@ -520,8 +520,8 @@ function updateStats() {
   const avgLbl = document.getElementById('statQuizAvgLabel');
   if (avgEl)  avgEl.textContent  = allScores.length ? String(Math.round(allScores.reduce((a, b) => a + b, 0) / allScores.length)) : '—';
   if (avgLbl) avgLbl.textContent = allScores.length
-    ? `${allScores.length} מבחנים${activePart ? ` · חלק ${activePart}׳` : ''}`
-    : 'טרם נשמרו ציונים';
+    ? `${allScores.length} ${I18N.quizWord(allScores.length)}${activePart ? ` · ${partLabel(activePart)}` : ''}`
+    : t('stat.noScores');
 
   // Sidebar
   document.getElementById('sidebarBar').style.width  = overall.pct + '%';
@@ -531,7 +531,7 @@ function updateStats() {
 
   // Footer
   const footerEl = document.getElementById('footerStats');
-  if (footerEl) footerEl.textContent = `${doneTopics}/${totalTopics} נושאים · ${doneSubs}/${totalSubs} סעיפים · ${doneHours} ש"א הושלמו`;
+  if (footerEl) footerEl.textContent = t('footer.stats', { dt: doneTopics, tt: totalTopics, ds: doneSubs, ts: totalSubs, dh: doneHours });
 
   // Sidebar badges
   CAT_ORDER.forEach(cat => {
@@ -550,7 +550,7 @@ function updateStats() {
   const countEl = document.getElementById('tableCountLabel');
   if (countEl) {
     const showing = activeCat ? TOPICS.filter(t=>t.cat===activeCat).length : TOPICS.length;
-    countEl.textContent = activeCat ? `מציג: ${CAT_LABELS[activeCat]}` : `${showing} נושאים`;
+    countEl.textContent = activeCat ? t('table.showing', { label: CAT_LABELS[activeCat] }) : t('table.count', { n: showing });
   }
 }
 
@@ -596,7 +596,7 @@ function renderPartChart(part, canvasId, existingChart) {
 
   // Skip the destroy/recreate cycle when nothing the chart shows has changed —
   // renderAll() runs on every checkbox toggle and used to rebuild both pies each time.
-  const sig = JSON.stringify({ dark, labels, data, catPcts });
+  const sig = JSON.stringify({ dark, labels, data, catPcts, lang: I18N.lang });
   if (existingChart && existingChart._sig === sig) return existingChart;
 
   if (existingChart) { existingChart.destroy(); }
@@ -622,14 +622,14 @@ function renderPartChart(part, canvasId, existingChart) {
           labels: { font: { size: 10 }, boxWidth: 10, padding: 6, color: textColor }
         },
         tooltip: {
-          rtl: true,
+          rtl: I18N.isRTL(),
           backgroundColor: tooltipBg,
           titleColor: tooltipTitle,
           bodyColor: textColor,
           borderColor: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
           borderWidth: 1,
           callbacks: {
-            label: c => ` ${c.label}: ${catPcts[c.dataIndex]}% הושלם`
+            label: c => ` ${c.label}: ${catPcts[c.dataIndex]}% ${t('chart.completed')}`
           }
         }
       }
@@ -661,9 +661,9 @@ function renderTable() {
   if (filterReview) topics = topics.filter(needsReview);
 
   if (topics.length === 0) {
-    let emptyMsg = 'אין נושאים להצגה';
-    if (filterIncomplete) emptyMsg = 'כל הנושאים הושלמו! 🎉';
-    if (filterReview) emptyMsg = 'אין נושאים לחזרה — כל הציונים טובים והריענונים עדכניים 💪';
+    let emptyMsg = t('empty.none');
+    if (filterIncomplete) emptyMsg = t('empty.allDone');
+    if (filterReview) emptyMsg = t('empty.review');
     tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted);">
       ${emptyMsg}
     </td></tr>`;
@@ -683,22 +683,23 @@ function renderTable() {
     const isDone   = ts.done;
     const isInProg = !isDone && subsDone > 0;
 
+    // NOTE: inside this forEach `t` is the topic — use the global alias T() for i18n
     const statusBadge = isDone
-      ? `<span class="badge badge-success" data-tooltip="כל הסעיפים וברונר הושלמו">הושלם</span>`
+      ? `<span class="badge badge-success" data-tooltip="${T('status.doneTooltip')}">${T('status.done')}</span>`
       : isInProg
-        ? `<span class="badge badge-warning" data-tooltip="חלק מהסעיפים הושלמו — המשך ללמוד">בתהליך</span>`
-        : `<span class="badge badge-secondary" data-tooltip="טרם התחלת ללמוד נושא זה">טרם החל</span>`;
+        ? `<span class="badge badge-warning" data-tooltip="${T('status.inprogTooltip')}">${T('status.inprog')}</span>`
+        : `<span class="badge badge-secondary" data-tooltip="${T('status.notStartedTooltip')}">${T('status.notStarted')}</span>`;
 
     const partBadge = t.part === 'א'
-      ? `<span class="badge badge-primary">חלק א׳</span>`
-      : `<span class="badge badge-purple">חלק ב׳</span>`;
+      ? `<span class="badge badge-primary">${partLabel('א')}</span>`
+      : `<span class="badge badge-purple">${partLabel('ב')}</span>`;
 
     const miniBarCls = isDone ? 'topic-mini-bar done' : 'topic-mini-bar';
 
     // Last quiz score badge (exam-readiness — independent of "done")
     const lastQuiz = getLastQuizScore(t.id);
     const scoreBadge = lastQuiz
-      ? `<span class="badge quiz-badge ${quizBadgeClass(lastQuiz.score)}" data-tooltip="ציון המבחן האחרון (${lastQuiz.date})">📝 ${lastQuiz.score}</span>`
+      ? `<span class="badge quiz-badge ${quizBadgeClass(lastQuiz.score)}" data-tooltip="${T('quiz.lastTooltip', { date: lastQuiz.date })}">📝 ${lastQuiz.score}</span>`
       : '';
 
     // Was this topic's sub-panel open before the re-render?
@@ -714,7 +715,7 @@ function renderTable() {
     tr.innerHTML = `
       <td>
         <input type="checkbox" class="topic-cb" ${isDone ? 'checked' : ''}
-          data-action="toggle-topic" data-tooltip="סמן לסיום מהיר של הנושא כולו">
+          data-action="toggle-topic" data-tooltip="${T('topic.checkboxTooltip')}">
       </td>
       <td>
         <div class="topic-name-wrap">
@@ -732,8 +733,8 @@ function renderTable() {
         </div>
       </td>
       <td>
-        <span class="badge badge-hours" data-tooltip="שעות אקדמיות מוקצות לנושא">${t.hours} ש"א</span>
-        ${t.pages ? `<br><span class="badge badge-pages" style="margin-top:3px;" data-tooltip="עמודי ברונר לנושא זה">${t.pages} עמ'</span>` : ''}
+        <span class="badge badge-hours" data-tooltip="${T('badge.hoursTooltip')}">${t.hours} ${T('unit.hours')}</span>
+        ${t.pages ? `<br><span class="badge badge-pages" style="margin-top:3px;" data-tooltip="${T('badge.pagesTooltip')}">${t.pages} ${T('unit.pages')}</span>` : ''}
       </td>
       <td>
         <span class="subs-count">${subsDone}</span>
@@ -742,7 +743,7 @@ function renderTable() {
       <td>${statusBadge}${scoreBadge ? '<br>' + scoreBadge : ''}</td>
       <td class="col-hide">${partBadge}</td>
       <td>
-        <button class="expand-btn" data-action="toggle-subrow" data-tooltip="פתח/סגור סעיפי הנושא" data-tip-pos="left-edge">
+        <button class="expand-btn" data-action="toggle-subrow" data-tooltip="${T('row.expandTooltip')}" data-tip-pos="left-edge">
           <span class="material-icons" id="chev-${t.id}">${wasOpen ? 'expand_less' : 'expand_more'}</span>
         </button>
       </td>
@@ -763,7 +764,7 @@ function renderTable() {
         <div class="sub-prog-bg">
           <div class="sub-prog-fill" style="width:${subsPct}%"></div>
         </div>
-        <span class="sub-prog-txt" data-tooltip="סעיפים שסימנת כהושלמו מתוך סך הסעיפים בנושא">${subsDone} / ${t.subs.length} סעיפים · ${subsPct}%</span>
+        <span class="sub-prog-txt" data-tooltip="${T('sub.progressTooltip')}">${T('sub.progress', { done: subsDone, total: t.subs.length, pct: subsPct })}</span>
       </div>
     `;
 
@@ -772,7 +773,7 @@ function renderTable() {
 
     // ── Column 1: sub-items + brunner ──
     subHTML += `<div class="sub-col-items">`;
-    subHTML += `<div class="sub-col-header" data-tooltip="רשימת הסעיפים לסימון — V ליד כל סעיף שלמדת">📋 סעיפי לימוד</div>`;
+    subHTML += `<div class="sub-col-header" data-tooltip="${T('col.subsTooltip')}">${T('col.subs')}</div>`;
     subHTML += `<div class="sub-grid">`;
     // The id on the wrapper div lets jumpToTopic() scroll to a specific sub-item.
     t.subs.forEach((sub, i) => {
@@ -786,10 +787,10 @@ function renderTable() {
     subHTML += `</div>`;
     if (t.brunner) {
       subHTML += `
-        <div class="brunner-row" data-action="toggle-brunner" data-tooltip="סמן לאחר קריאת פרקי הברונר — נדרש להשלמת הנושא">
+        <div class="brunner-row" data-action="toggle-brunner" data-tooltip="${T('brunner.tooltip')}">
           <input type="checkbox" ${ts.brunner ? 'checked' : ''}>
           <label class="${ts.brunner ? 'done' : ''}">
-            📖 קראתי ברונר — ${t.brunner}
+            ${T('brunner.read', { ref: t.brunner })}
           </label>
         </div>`;
     }
@@ -798,7 +799,7 @@ function renderTable() {
     // ── Column 2: study links ──
     const links = TOPIC_LINKS[t.id] || [];
     subHTML += `<div class="sub-col-links">`;
-    subHTML += `<div class="sub-col-header" data-tooltip="קישורים לשקפי ההרצאות ולפרקי הברונר ב-Google Drive">📄 חומר לימוד</div>`;
+    subHTML += `<div class="sub-col-header" data-tooltip="${T('col.materialsTooltip')}">${T('col.materials')}</div>`;
     if (links.length) {
       subHTML += `<div class="sub-links">`;
       links.forEach(link => {
@@ -812,16 +813,16 @@ function renderTable() {
 
     // ── Column 3: exam-prompt copy button ──
     subHTML += `<div class="sub-col-exams">`;
-    subHTML += `<div class="sub-col-header" data-tooltip="צור מבחן אמריקאי על הנושא בעזרת AI">📝 בחינות</div>`;
-    subHTML += `<button class="exam-gen-btn" data-action="copy-exam" data-tooltip="מעתיק פרומפט מוכן — הדבק ב-Claude, ChatGPT וכו' לקבלת 20 שאלות אמריקאיות בעברית">
-      <span class="material-icons" style="font-size:14px;vertical-align:middle">content_copy</span> העתק פרומפט ליצירת מבחן במערכת AI
+    subHTML += `<div class="sub-col-header" data-tooltip="${T('col.examsTooltip')}">${T('col.exams')}</div>`;
+    subHTML += `<button class="exam-gen-btn" data-action="copy-exam" data-tooltip="${T('exam.copyTooltip')}">
+      <span class="material-icons" style="font-size:14px;vertical-align:middle">content_copy</span> ${T('exam.copyBtn')}
     </button>`;
     // Quiz-score entry: record the result of each practice exam
     const quizzes = Array.isArray(ts.quizzes) ? ts.quizzes : [];
     subHTML += `
       <div class="quiz-score-row">
-        <input type="number" class="quiz-score-input" id="quiz-input-${t.id}" min="0" max="100" inputmode="numeric" placeholder="ציון">
-        <button class="quiz-score-save" data-action="save-quiz-score" data-tooltip="שמור את ציון המבחן — נושאים עם ציון נמוך יופיעו בסינון 'לחזור על'">שמור ציון</button>
+        <input type="number" class="quiz-score-input" id="quiz-input-${t.id}" min="0" max="100" inputmode="numeric" placeholder="${T('quiz.placeholder')}">
+        <button class="quiz-score-save" data-action="save-quiz-score" data-tooltip="${T('quiz.saveTooltip')}">${T('quiz.saveBtn')}</button>
       </div>`;
     // Saved-grades list (newest first) + per-topic average
     if (quizzes.length) {
@@ -832,13 +833,13 @@ function renderTable() {
           <div class="quiz-list-item">
             <span class="quiz-list-score ${quizBadgeClass(q.score)}">${q.score}</span>
             <span class="quiz-list-date">${q.date}</span>
-            <button class="quiz-del" data-action="delete-quiz" data-quiz-idx="${i}" aria-label="מחק ציון" data-tooltip="מחק ציון זה">×</button>
+            <button class="quiz-del" data-action="delete-quiz" data-quiz-idx="${i}" aria-label="${T('quiz.delete')}" data-tooltip="${T('quiz.delete')}">×</button>
           </div>`;
       });
       subHTML += `</div>`;
-      subHTML += `<div class="quiz-avg">ממוצע: <b>${topicAvg}</b> · ${quizzes.length} ${quizzes.length === 1 ? 'מבחן' : 'מבחנים'}</div>`;
+      subHTML += `<div class="quiz-avg">${T('quiz.avg')}: <b>${topicAvg}</b> · ${quizzes.length} ${I18N.quizWord(quizzes.length)}</div>`;
     } else {
-      subHTML += `<div class="quiz-avg">טרם נשמרו ציונים</div>`;
+      subHTML += `<div class="quiz-avg">${T('stat.noScores')}</div>`;
     }
     subHTML += `</div>`;
 
@@ -978,13 +979,17 @@ function updateAutoSaveStatus(lastTime) {
   if (!chip) return;
   if (autoSaveInterval) {
     chip.className = 'autosave-chip active';
-    label.textContent = 'שמירה אוטומטית פעילה';
-    time.textContent  = lastTime ? 'נשמר לאחרונה · ' + lastTime : 'כל 5 דקות';
+    label.textContent = t('autosave.active');
+    time.textContent  = lastTime ? t('autosave.lastSaved', { time: lastTime }) : t('autosave.every5');
   } else {
     chip.className = 'autosave-chip inactive';
-    label.textContent = 'שמירה אוטומטית לא פעילה';
-    time.textContent  = 'לחץ "שמור" להפעלה';
+    label.textContent = t('autosave.inactive');
+    time.textContent  = t('autosave.clickToStart');
   }
+  // These labels are set dynamically from here on — drop the static-DOM i18n
+  // tags so a later language switch doesn't overwrite the live status text.
+  label.removeAttribute('data-i18n');
+  time.removeAttribute('data-i18n');
 }
 
 function startAutoSave() {
@@ -998,9 +1003,9 @@ function startAutoSave() {
       const w = await handle.createWritable();
       await w.write(JSON.stringify(state, null, 2));
       await w.close();
-      const t = new Date().toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit'});
-      showSaveToast(`<span style="color:var(--success)">✓</span> נשמר אוטומטית · ${t}`, true);
-      updateAutoSaveStatus(t);
+      const now = new Date().toLocaleTimeString(I18N.locale(), {hour:'2-digit', minute:'2-digit'});
+      showSaveToast(`<span style="color:var(--success)">✓</span> ${t('toast.autoSaved', { time: now })}`, true);
+      updateAutoSaveStatus(now);
     } catch {}
   }, AUTO_SAVE_MS);
 }
@@ -1041,13 +1046,13 @@ async function saveProgress() {
     const btn = document.getElementById('saveProgressBtn');
     if (btn) {
       const orig = btn.innerHTML;
-      btn.innerHTML = '<span class="material-icons" style="font-size:18px;vertical-align:middle">check</span> נשמר!';
+      btn.innerHTML = `<span class="material-icons" style="font-size:18px;vertical-align:middle">check</span> ${t('btn.savedFlash')}`;
       setTimeout(() => { btn.innerHTML = orig; }, 1800);
     }
-    const _st = new Date().toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit'});
-    showSaveToast(`<span style="color:var(--success)">✓</span> נשמר בהצלחה · ${_st}`);
+    const _st = new Date().toLocaleTimeString(I18N.locale(), {hour:'2-digit', minute:'2-digit'});
+    showSaveToast(`<span style="color:var(--success)">✓</span> ${t('toast.saved', { time: _st })}`);
     updateAutoSaveStatus(_st);
-  } catch(e) { alert('שגיאה בשמירה: ' + e.message); }
+  } catch(e) { alert(t('err.save', { msg: e.message })); }
 }
 // Parse + validate an external progress file; only replace state if it passes,
 // so a wrong file can't wipe real progress (which auto-save would then persist).
@@ -1060,24 +1065,24 @@ function applyLoadedProgress(text) {
   saveState(); renderAll();
   return true;
 }
-const LOAD_ERR_MSG = 'שגיאה בטעינה — הקובץ שנבחר אינו קובץ התקדמות תקין. ההתקדמות הקיימת לא נגעה.';
+const LOAD_ERR_MSG = () => t('err.loadInvalid');
 
 async function loadProgress(e) {
   const file = e?.target?.files?.[0];
   if (file) {
     const reader = new FileReader();
-    reader.onload = ev => { if (!applyLoadedProgress(ev.target.result)) alert(LOAD_ERR_MSG); };
+    reader.onload = ev => { if (!applyLoadedProgress(ev.target.result)) alert(LOAD_ERR_MSG()); };
     reader.readAsText(file); e.target.value = ''; return;
   }
   if (!window.showOpenFilePicker) { document.getElementById('loadInput').click(); return; }
   try {
     const [handle] = await window.showOpenFilePicker({types:[{description:'JSON',accept:{'application/json':['.json']}}]});
     const f = await handle.getFile();
-    if (!applyLoadedProgress(await f.text())) { alert(LOAD_ERR_MSG); return; }
+    if (!applyLoadedProgress(await f.text())) { alert(LOAD_ERR_MSG()); return; }
     // Only adopt the handle for auto-save once the file proved valid
     await storeHandle(handle);
     startAutoSave(); updateAutoSaveStatus(null);
-  } catch(e) { if (e.name !== 'AbortError') alert('שגיאה בטעינה'); }
+  } catch(e) { if (e.name !== 'AbortError') alert(t('err.load')); }
 }
 
 // ── EXAM PROMPT (copy to clipboard, paste into any AI chat) ─
@@ -1103,7 +1108,7 @@ function copyExamPrompt(topicId, btnEl) {
 
   const orig = btnEl.innerHTML;
   const ok = () => {
-    btnEl.innerHTML = '<span class="material-icons" style="font-size:14px;vertical-align:middle">check</span> הועתק!';
+    btnEl.innerHTML = `<span class="material-icons" style="font-size:14px;vertical-align:middle">check</span> ${t('exam.copied')}`;
     btnEl.style.background = 'var(--green,#1cbb8c)';
     setTimeout(() => { btnEl.innerHTML = orig; btnEl.style.background = ''; }, 2000);
   };
@@ -1121,8 +1126,61 @@ function fallbackCopy(text, callback) {
   ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
   document.body.appendChild(ta);
   ta.focus(); ta.select();
-  try { document.execCommand('copy'); callback(); } catch(e) { alert('העתקה נכשלה — אנא העתק ידנית'); }
+  try { document.execCommand('copy'); callback(); } catch(e) { alert(t('err.copy')); }
   document.body.removeChild(ta);
+}
+
+// ── TOOLTIP LAYER ───────────────────────────────────────────
+// Single fixed-position element on <body>, shared by every [data-tooltip]
+// trigger (incl. ones injected later by schedule.js — event delegation).
+// Replaces the old CSS ::after tooltips, which were clipped by overflow
+// ancestors (table scroller, cards). Positions above the trigger (or below
+// with data-tip-pos="below"), flips when there's no room, and clamps to the
+// viewport so long translations (en/ru) stay fully visible at screen edges.
+let _tipEl = null, _tipTarget = null;
+function ensureTipEl() {
+  if (_tipEl) return _tipEl;
+  _tipEl = document.createElement('div');
+  _tipEl.id = 'tipLayer';
+  _tipEl.setAttribute('role', 'tooltip');
+  document.body.appendChild(_tipEl);
+  return _tipEl;
+}
+function showTip(target) {
+  const text = target.getAttribute('data-tooltip');
+  if (!text) return;
+  const el = ensureTipEl();
+  el.textContent = text;
+  el.style.visibility = 'hidden';
+  el.classList.add('show');
+  const r = target.getBoundingClientRect();
+  const tw = el.offsetWidth, th = el.offsetHeight;
+  const pos = target.getAttribute('data-tip-pos');
+  let top = (pos === 'below') ? r.bottom + 8 : r.top - th - 8;
+  if (top < 8) top = r.bottom + 8;                              // no room above → flip below
+  if (top + th > window.innerHeight - 8) top = r.top - th - 8;  // no room below → flip above
+  let left = r.left + r.width / 2 - tw / 2;
+  left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));   // clamp horizontally
+  top  = Math.max(8, Math.min(top,  window.innerHeight - th - 8));  // clamp vertically
+  el.style.left = left + 'px';
+  el.style.top  = top + 'px';
+  el.style.visibility = '';
+}
+function hideTip() {
+  if (_tipEl) _tipEl.classList.remove('show');
+  _tipTarget = null;
+}
+function initTooltips() {
+  document.addEventListener('mouseover', (e) => {
+    const tgt = e.target.closest ? e.target.closest('[data-tooltip]') : null;
+    if (tgt === _tipTarget) return;
+    _tipTarget = tgt;
+    if (tgt) showTip(tgt); else hideTip();
+  });
+  // Leaving the window entirely
+  document.addEventListener('mouseleave', hideTip);
+  // Any scroll invalidates the fixed position — just hide
+  window.addEventListener('scroll', hideTip, true);
 }
 
 function openHelp() {
@@ -1138,6 +1196,7 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeHelp
 // ── Startup ────────────────────────────────────────────────
 initTheme();
 initTableEvents();
+initTooltips();
 loadState();
 renderAll();
 // PWA: register the service worker on https (GitHub Pages) / localhost only —

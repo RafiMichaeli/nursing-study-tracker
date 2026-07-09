@@ -8,6 +8,7 @@ const SHELL = [
   './index.html',
   './styles.css',
   './schedule.css',
+  './i18n.js',
   './app.js',
   './data.js',
   './links.js',

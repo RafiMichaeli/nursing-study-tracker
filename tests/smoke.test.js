@@ -26,7 +26,7 @@ w.addEventListener('error', (e) => errors.push(e.message));
 // Load all scripts in ONE eval so top-level const/let share a scope, exactly
 // like sequential <script> tags do in a real browser. __run() lets the tests
 // evaluate expressions inside that same scope.
-const src = ['links.js', 'data.js', 'app.js', 'schedule.js']
+const src = ['i18n.js', 'links.js', 'data.js', 'app.js', 'schedule.js']
   .map((f) => fs.readFileSync(path.join(DIR, f), 'utf8')).join('\n;\n')
   + '\n;window.__run = (code) => eval(code);';
 try { w.eval(src); } catch (e) { console.error('LOAD FAIL: ' + e.message); process.exit(1); }
@@ -192,7 +192,7 @@ A(fsx.existsSync(path.join(DIR, 'sw.js')), 'sw.js exists');
 const manifest = JSON.parse(fsx.readFileSync(path.join(DIR, 'manifest.webmanifest'), 'utf8'));
 A(manifest.icons.every(i => fsx.existsSync(path.join(DIR, i.src))), 'all manifest icons exist');
 const swSrc = fsx.readFileSync(path.join(DIR, 'sw.js'), 'utf8');
-A(['index.html','styles.css','app.js','data.js','links.js','schedule.js','schedule.css'].every(f => swSrc.includes(f)), 'sw shell covers all app files');
+A(['index.html','styles.css','app.js','data.js','links.js','schedule.js','schedule.css','i18n.js'].every(f => swSrc.includes(f)), 'sw shell covers all app files');
 
 console.log('15. grade list, delete, averages');
 // vascular has scores 55, 90 from scenario 11; add one more
@@ -222,6 +222,48 @@ run(`filterPart('ב')`); // toggle off
 A(d.getElementById('statQuizAvg').textContent === '55', 'filter off → all grades again');
 run(`getTopicState('vascular').quizzes = []; getTopicState('ent').quizzes = []; renderAll();`);
 A(d.getElementById('statQuizAvg').textContent === '—', 'no grades → dash');
+
+console.log('17. i18n (he/en/ru)');
+run(`I18N.init()`); // mimics the inline init in index.html (runs after all scripts)
+// dictionary parity: every en/ru key exists in he and vice versa
+A(run(`(() => {
+  const d = I18N.dict, he = Object.keys(d.he).sort().join('|');
+  return ['en','ru'].every(l => Object.keys(d[l]).sort().join('|') === he);
+})()`) === true, 'en/ru dictionaries cover exactly the he keys');
+A(d.documentElement.getAttribute('dir') === 'rtl', 'default dir is rtl (he)');
+run(`setLanguage('en')`);
+A(d.documentElement.getAttribute('dir') === 'ltr', 'en switches dir to ltr');
+A(d.documentElement.getAttribute('lang') === 'en', 'html lang updated');
+A(d.querySelector('#filterSbBtn [data-i18n]').textContent === 'Unfinished only', 'static sidebar button translated');
+A(d.querySelector('#topic-shock .badge') !== null && d.getElementById('topicsTableBody').textContent.includes('Not started'), 'rendered table strings translated');
+A(d.querySelector('#helpOverlay .help-body').innerHTML.includes('What is this?'), 'help body swapped to English');
+A(d.getElementById('sched-sidebar-btn').textContent.includes('Schedule'), 'schedule sidebar button re-labeled');
+run(`setLanguage('ru')`);
+A(d.getElementById('topicsTableBody').textContent.includes('Не начато'), 'Russian strings rendered');
+run(`setLanguage('he')`);
+A(d.documentElement.getAttribute('dir') === 'rtl', 'back to rtl');
+A(d.querySelector('#helpOverlay .help-body').innerHTML.includes('מה זה?'), 'Hebrew help restored from capture');
+A(d.getElementById('sched-help-section') !== null, 'schedule help section survives round-trip');
+A(w.localStorage.getItem('mevak_lang') === 'he', 'language choice persisted');
+
+console.log('18. tooltip layer (fixed, top of view)');
+const tipTrigger = d.getElementById('saveProgressBtn');
+tipTrigger.dispatchEvent(new w.MouseEvent('mouseover', { bubbles: true }));
+const tipLayer = d.getElementById('tipLayer');
+A(tipLayer !== null, 'tooltip layer created on body');
+A(tipLayer.parentElement === d.body, 'tooltip layer is a direct child of <body> (escapes overflow clipping)');
+A(tipLayer.classList.contains('show'), 'hover shows the tooltip');
+A(tipLayer.textContent === tipTrigger.getAttribute('data-tooltip'), 'tooltip shows the trigger text');
+d.body.dispatchEvent(new w.MouseEvent('mouseover', { bubbles: true }));
+A(!tipLayer.classList.contains('show'), 'hovering elsewhere hides it');
+// injected schedule elements are covered too (delegation on document)
+run(`state._schedule.enabled = true; renderAll();`);
+const chip = d.querySelector('.sched-review-row');
+if (chip) {
+  chip.dispatchEvent(new w.MouseEvent('mouseover', { bubbles: true }));
+  A(tipLayer.classList.contains('show'), 'works for schedule-injected elements');
+}
+run(`state._schedule.enabled = false; renderAll();`);
 
 A(errors.length === 0, 'no window errors: ' + (errors.join('; ') || '—'));
 

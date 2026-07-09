@@ -110,6 +110,12 @@
 
 ---
 
+### שפת ממשק
+
+לחיצה על כפתור **🌐** בסרגל העליון מחליפה את שפת הממשק: **עברית / English / Русский**. הבחירה נשמרת בדפדפן. תוכן הקורס (שמות נושאים, סעיפים, קישורי חומר) נשאר בעברית — בהתאם לסילבוס ולברונר. באנגלית וברוסית הפריסה מתהפכת ל-LTR.
+
+---
+
 ## English
 
 Interactive study tracker for the Adult Nursing course — Ichilov Sheinbrunn, 2025–2026.
@@ -132,6 +138,7 @@ Interactive study tracker for the Adult Nursing course — Ichilov Sheinbrunn, 2
 - **Built-in help guide** — in-app instructions modal, no need to leave the page
 - **Auto-save** — saves progress to a local `progress.json` every 5 minutes; loaded files are validated before replacing existing progress
 - **Dark / light theme** — persisted via localStorage
+- **UI language switcher** — 🌐 topbar menu: עברית / English / Русский, persisted via localStorage; layout flips to LTR for en/ru (CSS logical properties). Course content (topic names, sub-items, study links, the AI exam prompt) stays in Hebrew, matching the syllabus
 - **Mobile-ready** — bottom nav, fully responsive layout; topic rows are keyboard-accessible (Tab + Enter/Space)
 - **Progress schedule (optional)** — start date, daily study pace, and **exam dates** per part: per-topic ahead/on-track/behind chips, a separate review-pass checkbox, and a dashboard with exam countdown, projected finish date from your actual 14-day pace, and whether that leaves enough review days before the exam
 
@@ -156,7 +163,7 @@ An optional layer on top of the existing tracker, off by default. Click the **"�
 ### Tech stack
 
 - Static HTML/CSS/JS — zero build step, no runtime dependencies to install
-- Code layout: `index.html` (markup) · `styles.css` · `data.js` (course topics + exam dates) · `links.js` (study-material links) · `app.js` (logic) · `schedule.js`/`schedule.css` (optional schedule feature, attached via explicit hooks)
+- Code layout: `index.html` (markup) · `styles.css` · `i18n.js` (UI language: he/en/ru dictionaries, `t()` helper, `data-i18n` DOM tags — loads first) · `data.js` (course topics + exam dates) · `links.js` (study-material links) · `app.js` (logic) · `schedule.js`/`schedule.css` (optional schedule feature, attached via explicit hooks)
 - [Chart.js 4.4.1](https://www.chartjs.org/) · [Material Icons](https://fonts.google.com/icons) · [Heebo](https://fonts.google.com/specimen/Heebo)
 - File System Access API — local `progress.json` save/load (validated on load)
 - IndexedDB — persists the file handle between sessions for auto-save

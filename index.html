@@ -26,6 +26,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="schedule.css">
+<!-- i18n loads first: defines t() for all scripts and sets lang/dir before first paint -->
+<script src="i18n.js"></script>
 </head>
 
 <body>
@@ -36,15 +38,15 @@
     <a class="sidebar-brand" href="#">
       <div class="sidebar-brand-icon">🏥</div>
       <div>
-        <span class="sidebar-brand-text">סיעוד המבוגר</span>
-        <span class="sidebar-brand-sub">רפי מיכאלי · הסבה ט׳ · תשפ"ו</span>
+        <span class="sidebar-brand-text" data-i18n="brand">סיעוד המבוגר</span>
+        <span class="sidebar-brand-sub" data-i18n-html="brandSub">רפי מיכאלי · הסבה ט׳ · תשפ"ו</span>
       </div>
     </a>
 
     <!-- Overall progress -->
     <div class="sidebar-overall">
       <div class="sidebar-overall-top">
-        <span class="sidebar-overall-label">התקדמות כוללת</span>
+        <span class="sidebar-overall-label" data-i18n="overallProgress">התקדמות כוללת</span>
         <span class="sidebar-overall-pct" id="sidebarPct">0%</span>
       </div>
       <div class="sidebar-bar-bg"><div class="sidebar-bar-fill" id="sidebarBar"></div></div>
@@ -52,27 +54,27 @@
 
     <!-- Part A/B chips -->
     <div class="sidebar-parts">
-      <div class="sidebar-part-chip pa" id="chipA" onclick="filterPart('א')" data-tooltip="לחץ לסינון נושאי חלק א׳ בלבד — לחץ שוב לביטול הסינון">
+      <div class="sidebar-part-chip pa" id="chipA" onclick="filterPart('א')" data-i18n-tooltip="chipTooltipA" data-tooltip="לחץ לסינון נושאי חלק א׳ בלבד — לחץ שוב לביטול הסינון">
         <span class="pct" id="sidebarPartA">0%</span>
-        <span class="lbl">חלק א׳</span>
+        <span class="lbl" data-i18n="partA">חלק א׳</span>
       </div>
-      <div class="sidebar-part-chip pb" id="chipB" onclick="filterPart('ב')" data-tooltip="לחץ לסינון נושאי חלק ב׳ בלבד — לחץ שוב לביטול הסינון">
+      <div class="sidebar-part-chip pb" id="chipB" onclick="filterPart('ב')" data-i18n-tooltip="chipTooltipB" data-tooltip="לחץ לסינון נושאי חלק ב׳ בלבד — לחץ שוב לביטול הסינון">
         <span class="pct" id="sidebarPartB">0%</span>
-        <span class="lbl">חלק ב׳</span>
+        <span class="lbl" data-i18n="partB">חלק ב׳</span>
       </div>
     </div>
 
     <!-- Navigation -->
     <ul class="sidebar-nav" id="sidebarNav">
-      <li class="sidebar-header">ניווט</li>
+      <li class="sidebar-header" data-i18n="nav">ניווט</li>
       <li class="sidebar-item">
         <button class="sidebar-link active" data-cat="all" onclick="filterCat(null)">
           <span class="material-icons link-icon">grid_view</span>
-          כל הנושאים
+          <span data-i18n="allTopics">כל הנושאים</span>
           <span class="link-badge" id="sb-badge-all">18</span>
         </button>
       </li>
-      <li class="sidebar-header">חלק א׳</li>
+      <li class="sidebar-header" data-i18n="partA">חלק א׳</li>
       <!-- Part A categories built by JS -->
       <li class="sidebar-item" id="sb-surgery_shock">
         <button class="sidebar-link" data-cat="surgery_shock" onclick="filterCat('surgery_shock')">
@@ -104,7 +106,7 @@
           <span class="link-badge" id="sb-badge-endocrine"></span>
         </button>
       </li>
-      <li class="sidebar-header">חלק ב׳</li>
+      <li class="sidebar-header" data-i18n="partB">חלק ב׳</li>
       <li class="sidebar-item" id="sb-urology">
         <button class="sidebar-link" data-cat="urology" onclick="filterCat('urology')">
           <span class="link-icon">🫘</span> מערכת השתן
@@ -152,31 +154,31 @@
     <!-- Footer controls -->
     <div class="sidebar-footer">
       <!-- Auto-save status chip -->
-      <div class="autosave-chip inactive" id="autoSaveChip" data-tooltip="שמירה אוטומטית שומרת כל 5 דקות לאחר שמירה ידנית ראשונה">
+      <div class="autosave-chip inactive" id="autoSaveChip" data-i18n-tooltip="autosave.chipTooltip" data-tooltip="שמירה אוטומטית שומרת כל 5 דקות לאחר שמירה ידנית ראשונה">
         <div class="autosave-dot"></div>
         <div class="autosave-text">
-          <strong id="autoSaveLabel">שמירה אוטומטית לא פעילה</strong>
-          <span id="autoSaveTime">לחץ "שמור" להפעלה</span>
+          <strong id="autoSaveLabel" data-i18n="autosave.inactive">שמירה אוטומטית לא פעילה</strong>
+          <span id="autoSaveTime" data-i18n="autosave.clickToStart">לחץ "שמור" להפעלה</span>
         </div>
       </div>
-      <button class="sb-btn" id="filterSbBtn" onclick="toggleFilter()" data-tooltip="הצג רק נושאים שטרם הושלמו">
-        <span class="material-icons">filter_list</span> לא-גמורים בלבד
+      <button class="sb-btn" id="filterSbBtn" onclick="toggleFilter()" data-i18n-tooltip="btn.incompleteTooltip" data-tooltip="הצג רק נושאים שטרם הושלמו">
+        <span class="material-icons">filter_list</span> <span data-i18n="btn.incomplete">לא-גמורים בלבד</span>
       </button>
-      <button class="sb-btn" id="reviewSbBtn" onclick="toggleReviewFilter()" data-tooltip="נושאים עם ציון מבחן נמוך מ-70, או שהושלמו לפני 21+ יום בלי ריענון">
-        <span class="material-icons">assignment_late</span> לחזור על
+      <button class="sb-btn" id="reviewSbBtn" onclick="toggleReviewFilter()" data-i18n-tooltip="btn.reviewTooltip" data-tooltip="נושאים עם ציון מבחן נמוך מ-70, או שהושלמו לפני 21+ יום בלי ריענון">
+        <span class="material-icons">assignment_late</span> <span data-i18n="btn.review">לחזור על</span>
       </button>
-      <button class="sb-btn" id="saveProgressBtn" onclick="saveProgress()" data-tooltip="שמור התקדמות לקובץ JSON. לאחר שמירה ראשונה — שמירה אוטומטית כל 5 דקות">
-        <span class="material-icons">save</span> שמור התקדמות
+      <button class="sb-btn" id="saveProgressBtn" onclick="saveProgress()" data-i18n-tooltip="btn.saveTooltip" data-tooltip="שמור התקדמות לקובץ JSON. לאחר שמירה ראשונה — שמירה אוטומטית כל 5 דקות">
+        <span class="material-icons">save</span> <span data-i18n="btn.save">שמור התקדמות</span>
       </button>
-      <button class="sb-btn" onclick="loadProgress()" data-tooltip="טען קובץ התקדמות שנשמר קודם — שימושי בעת מעבר למחשב אחר">
-        <span class="material-icons">folder_open</span> טען התקדמות
+      <button class="sb-btn" onclick="loadProgress()" data-i18n-tooltip="btn.loadTooltip" data-tooltip="טען קובץ התקדמות שנשמר קודם — שימושי בעת מעבר למחשב אחר">
+        <span class="material-icons">folder_open</span> <span data-i18n="btn.load">טען התקדמות</span>
       </button>
       <input type="file" id="loadInput" accept=".json" style="display:none" onchange="loadProgress(event)">
-      <button class="sb-btn danger" onclick="resetAll()" data-tooltip="⚠ מחק את כל ההתקדמות לצמיתות — לא ניתן לשחזר">
-        <span class="material-icons">delete</span> אפס הכל
+      <button class="sb-btn danger" onclick="resetAll()" data-i18n-tooltip="btn.resetTooltip" data-tooltip="⚠ מחק את כל ההתקדמות לצמיתות — לא ניתן לשחזר">
+        <span class="material-icons">delete</span> <span data-i18n="btn.reset">אפס הכל</span>
       </button>
-      <button class="sb-btn" onclick="openHelp()" data-tooltip="פתח מדריך שימוש">
-        <span class="material-icons">help_outline</span> הוראות שימוש
+      <button class="sb-btn" onclick="openHelp()" data-i18n-tooltip="btn.helpTooltip" data-tooltip="פתח מדריך שימוש">
+        <span class="material-icons">help_outline</span> <span data-i18n="btn.help">הוראות שימוש</span>
       </button>
     </div>
   </nav>
@@ -195,31 +197,41 @@
         </div>
         <span class="topbar-pct" id="pctLabel">0%</span>
       </div>
-      <span class="topbar-label" id="subLabel" data-tooltip="עמודי ברונר שהושלמו מתוך סך כל עמודי הקורס" data-tip-pos="below">0 / 0 עמ'</span>
+      <span class="topbar-label" id="subLabel" data-i18n-tooltip="topbar.pagesTooltip" data-tooltip="עמודי ברונר שהושלמו מתוך סך כל עמודי הקורס" data-tip-pos="below">0 / 0 עמ'</span>
       <div class="topbar-search" id="topbarSearch">
-        <button class="topbar-search-back" onclick="closeMobileSearch()" data-tooltip="חזרה">
-          <span class="material-icons">arrow_forward</span>
+        <button class="topbar-search-back" onclick="closeMobileSearch()" data-i18n-tooltip="search.back" data-tooltip="חזרה">
+          <span class="material-icons" data-i18n="icon.searchBack">arrow_forward</span>
         </button>
         <span class="material-icons search-icon">search</span>
-        <input type="text" id="searchInput" placeholder="חיפוש נושא או סעיף..."
+        <input type="text" id="searchInput" data-i18n-placeholder="search.placeholder" placeholder="חיפוש נושא או סעיף..."
           oninput="handleSearchInput(this.value)"
           onfocus="handleSearchFocus()"
           onblur="handleSearchBlur()"
           onkeydown="handleSearchKeydown(event)"
           autocomplete="off">
-        <button class="topbar-search-clear" id="searchClearBtn" onclick="clearSearch()" data-tooltip="נקה חיפוש">
+        <button class="topbar-search-clear" id="searchClearBtn" onclick="clearSearch()" data-i18n-tooltip="search.clear" data-tooltip="נקה חיפוש">
           <span class="material-icons" style="font-size:15px;">close</span>
         </button>
         <div class="search-dropdown" id="searchDropdown"></div>
       </div>
       <!-- Mobile-only: collapsed search icon, expands .topbar-search into a full-width
            overlay bar via openMobileSearch() — see mobile media query + JS below. -->
-      <button class="mobile-search-toggle-btn" id="mobileSearchToggleBtn" onclick="openMobileSearch()" data-tooltip="חיפוש">
+      <button class="mobile-search-toggle-btn" id="mobileSearchToggleBtn" onclick="openMobileSearch()" data-i18n-tooltip="search.tooltip" data-tooltip="חיפוש">
         <span class="material-icons">search</span>
       </button>
       <div class="topbar-spacer"></div>
-      <span class="topbar-meta" style="font-size:13px;color:var(--muted);">336 ש"א · תשפ"ו</span>
-      <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="החלף ערכת נושא">
+      <span class="topbar-meta" style="font-size:13px;color:var(--muted);" data-i18n="topbar.meta">336 ש"א · תשפ"ו</span>
+      <div class="lang-menu-wrap">
+        <button class="theme-toggle-btn" id="langBtn" onclick="toggleLangMenu(event)" data-i18n-title="lang.tooltip" title="שפת ממשק / Language / Язык">
+          <span class="material-icons">language</span>
+        </button>
+        <div class="lang-menu" id="langMenu">
+          <button type="button" data-lang="he" onclick="setLanguage('he')">עברית</button>
+          <button type="button" data-lang="en" onclick="setLanguage('en')">English</button>
+          <button type="button" data-lang="ru" onclick="setLanguage('ru')">Русский</button>
+        </div>
+      </div>
+      <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" data-i18n-title="theme.toggle" title="החלף ערכת נושא">
         <span class="material-icons" id="themeIcon">light_mode</span>
       </button>
     </nav>
@@ -230,14 +242,14 @@
       <!-- Page header -->
       <div class="page-header">
         <div class="page-header-left">
-          <h1>סיעוד המבוגר — <strong>מעקב התקדמות לימודים</strong></h1>
+          <h1 data-i18n-html="pageTitleHtml">סיעוד המבוגר — <strong>מעקב התקדמות לימודים</strong></h1>
         </div>
         <div class="page-header-btns">
-          <button class="btn btn-outline-secondary" onclick="expandAllRows()" data-tooltip="פתח את פאנל הסעיפים לכל הנושאים" data-tip-pos="below">
-            <span class="material-icons">unfold_more</span> פתח הכל
+          <button class="btn btn-outline-secondary" onclick="expandAllRows()" data-i18n-tooltip="btn.expandAllTooltip" data-tooltip="פתח את פאנל הסעיפים לכל הנושאים" data-tip-pos="below">
+            <span class="material-icons">unfold_more</span> <span data-i18n="btn.expandAll">פתח הכל</span>
           </button>
-          <button class="btn btn-outline-secondary" onclick="collapseAllRows()" data-tooltip="סגור את כל פאנלי הסעיפים" data-tip-pos="below">
-            <span class="material-icons">unfold_less</span> סגור הכל
+          <button class="btn btn-outline-secondary" onclick="collapseAllRows()" data-i18n-tooltip="btn.collapseAllTooltip" data-tooltip="סגור את כל פאנלי הסעיפים" data-tip-pos="below">
+            <span class="material-icons">unfold_less</span> <span data-i18n="btn.collapseAll">סגור הכל</span>
           </button>
         </div>
       </div>
@@ -246,57 +258,57 @@
       <div class="stats-row">
         <div class="stat-card">
           <div class="stat-card-top">
-            <span class="stat-card-title">נושאים</span>
+            <span class="stat-card-title" data-i18n="stat.topics">נושאים</span>
             <div class="stat-card-icon blue"><span class="material-icons">library_books</span></div>
           </div>
           <div class="stat-val" id="statTopics">0/18</div>
           <div class="stat-trend">
             <span class="material-icons up">check_circle</span>
-            <span class="trend-label">נושאים הושלמו</span>
+            <span class="trend-label" data-i18n="stat.topicsDone">נושאים הושלמו</span>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-card-top">
-            <span class="stat-card-title">סעיפים</span>
+            <span class="stat-card-title" data-i18n="stat.subs">סעיפים</span>
             <div class="stat-card-icon green"><span class="material-icons">done_all</span></div>
           </div>
           <div class="stat-val" id="statSubs">0</div>
           <div class="stat-trend">
             <span class="material-icons up">checklist</span>
-            <span class="trend-label">סעיפים שנסקרו</span>
+            <span class="trend-label" data-i18n="stat.subsReviewed">סעיפים שנסקרו</span>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-card-top">
-            <span class="stat-card-title">ש"א הושלמו</span>
+            <span class="stat-card-title" data-i18n="stat.hoursDone">ש"א הושלמו</span>
             <div class="stat-card-icon amber"><span class="material-icons">schedule</span></div>
           </div>
           <div class="stat-val" id="statHours">0</div>
           <div class="stat-trend">
             <span class="material-icons up">trending_up</span>
-            <span class="trend-label">שעות אקדמיות</span>
+            <span class="trend-label" data-i18n="stat.acadHours">שעות אקדמיות</span>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-card-top">
-            <span class="stat-card-title">ש"א נותרות</span>
+            <span class="stat-card-title" data-i18n="stat.hoursLeft">ש"א נותרות</span>
             <div class="stat-card-icon red"><span class="material-icons">hourglass_empty</span></div>
           </div>
           <div class="stat-val" id="statLeft">336</div>
           <div class="stat-trend">
             <span class="material-icons down">trending_down</span>
-            <span class="trend-label">עד סיום הסילבוס</span>
+            <span class="trend-label" data-i18n="stat.untilEnd">עד סיום הסילבוס</span>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-card-top">
-            <span class="stat-card-title">ממוצע מבחנים</span>
+            <span class="stat-card-title" data-i18n="stat.quizAvg">ממוצע מבחנים</span>
             <div class="stat-card-icon purple"><span class="material-icons">quiz</span></div>
           </div>
           <div class="stat-val" id="statQuizAvg">—</div>
           <div class="stat-trend">
             <span class="material-icons up">grading</span>
-            <span class="trend-label" id="statQuizAvgLabel">טרם נשמרו ציונים</span>
+            <span class="trend-label" id="statQuizAvgLabel" data-i18n="stat.noScores">טרם נשמרו ציונים</span>
           </div>
         </div>
       </div>
@@ -308,7 +320,7 @@
         <div class="chart-wrap" id="chartWrapA">
           <div class="chart-header">
             <div>
-              <div class="chart-title">התקדמות לימוד — חלק א׳</div>
+              <div class="chart-title" data-i18n="chart.titleA">התקדמות לימוד — חלק א׳</div>
             </div>
           </div>
           <div class="chart-body">
@@ -322,7 +334,7 @@
         <div class="chart-wrap" id="chartWrapB">
           <div class="chart-header">
             <div>
-              <div class="chart-title">התקדמות לימוד — חלק ב׳</div>
+              <div class="chart-title" data-i18n="chart.titleB">התקדמות לימוד — חלק ב׳</div>
             </div>
           </div>
           <div class="chart-body">
@@ -337,7 +349,7 @@
       <!-- ── Latest Projects table ── -->
       <div class="table-card">
         <div class="table-card-header">
-          <span class="table-card-title">נושאי לימוד</span>
+          <span class="table-card-title" data-i18n="table.title">נושאי לימוד</span>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
             <span id="tableCountLabel" style="font-size:12px;color:var(--muted);"></span>
           </div>
@@ -347,12 +359,12 @@
             <thead>
               <tr>
                 <th style="width:36px;"></th>
-                <th>נושא</th>
-                <th class="col-hide">קטגוריה</th>
-                <th data-tooltip="שעות אקדמיות ועמודי ברונר לנושא" data-tip-pos="below">ש"א / עמ'</th>
-                <th data-tooltip="מספר סעיפי הלימוד שסומנו כהושלמו" data-tip-pos="below">סעיפים</th>
-                <th data-tooltip="טרם החל | בתהליך | הושלם (כל הסעיפים + ברונר)" data-tip-pos="below">סטטוס</th>
-                <th class="col-hide">חלק</th>
+                <th data-i18n="th.topic">נושא</th>
+                <th class="col-hide" data-i18n="th.category">קטגוריה</th>
+                <th data-i18n="th.hours" data-i18n-tooltip="th.hoursTooltip" data-tooltip="שעות אקדמיות ועמודי ברונר לנושא" data-tip-pos="below">ש"א / עמ'</th>
+                <th data-i18n="th.subs" data-i18n-tooltip="th.subsTooltip" data-tooltip="מספר סעיפי הלימוד שסומנו כהושלמו" data-tip-pos="below">סעיפים</th>
+                <th data-i18n="th.status" data-i18n-tooltip="th.statusTooltip" data-tooltip="טרם החל | בתהליך | הושלם (כל הסעיפים + ברונר)" data-tip-pos="below">סטטוס</th>
+                <th class="col-hide" data-i18n="th.part">חלק</th>
                 <th style="width:40px;"></th>
               </tr>
             </thead>
@@ -364,7 +376,7 @@
     </main><!-- /content -->
 
     <footer class="footer">
-      סיעוד המבוגר · הסבה ט׳ לסיעוד · אייכילוב-שיינברון · תשפ"ו · רפי מיכאלי &nbsp;·&nbsp;
+      <span data-i18n-html="footer.text">סיעוד המבוגר · הסבה ט׳ לסיעוד · אייכילוב-שיינברון · תשפ"ו · רפי מיכאלי</span> &nbsp;·&nbsp;
       <span id="footerStats"></span>
     </footer>
   </div><!-- /main -->
@@ -373,25 +385,25 @@
 
 <!-- ═══════════ MOBILE BOTTOM NAV ═══════════ -->
 <nav class="mobile-bottom-nav" id="mobileBottomNav">
-  <button class="mob-nav-btn active" id="mobBtnAll" onclick="mobFilter('all')" title="הכל">
+  <button class="mob-nav-btn active" id="mobBtnAll" onclick="mobFilter('all')" data-i18n-title="mob.all" title="הכל">
     <span class="material-icons">grid_view</span>
-    <span>הכל</span>
+    <span data-i18n="mob.all">הכל</span>
   </button>
-  <button class="mob-nav-btn" id="mobBtnA" onclick="mobFilter('א')" title="חלק א׳">
+  <button class="mob-nav-btn" id="mobBtnA" onclick="mobFilter('א')" data-i18n-title="partA" title="חלק א׳">
     <span class="material-icons">bookmark_add</span>
-    <span>חלק א׳</span>
+    <span data-i18n="partA">חלק א׳</span>
   </button>
-  <button class="mob-nav-btn" id="mobBtnB" onclick="mobFilter('ב')" title="חלק ב׳">
+  <button class="mob-nav-btn" id="mobBtnB" onclick="mobFilter('ב')" data-i18n-title="partB" title="חלק ב׳">
     <span class="material-icons">bookmarks</span>
-    <span>חלק ב׳</span>
+    <span data-i18n="partB">חלק ב׳</span>
   </button>
-  <button class="mob-nav-btn" id="mobBtnIncomplete" onclick="mobFilterIncomplete()" title="לא הושלמו">
+  <button class="mob-nav-btn" id="mobBtnIncomplete" onclick="mobFilterIncomplete()" data-i18n-title="btn.incompleteTooltip" title="לא הושלמו">
     <span class="material-icons">hourglass_empty</span>
-    <span>נותר</span>
+    <span data-i18n="mob.remaining">נותר</span>
   </button>
-  <button class="mob-nav-btn" onclick="toggleTheme()" title="ערכת נושא">
+  <button class="mob-nav-btn" onclick="toggleTheme()" data-i18n-title="theme.toggle" title="ערכת נושא">
     <span class="material-icons" id="mobThemeIcon">light_mode</span>
-    <span>מראה</span>
+    <span data-i18n="mob.appearance">מראה</span>
   </button>
 </nav>
 
@@ -407,7 +419,7 @@
     <div class="help-sheet-bar">
       <div class="help-sheet-title">
         <span class="material-icons">help_outline</span>
-        הוראות שימוש — מעקב סיעוד המבוגר
+        <span data-i18n="help.title">הוראות שימוש — מעקב סיעוד המבוגר</span>
       </div>
       <button class="help-close-btn" onclick="closeHelp()">
         <span class="material-icons" style="font-size:20px">close</span>
@@ -522,6 +534,9 @@
      קבצים עצמאיים לגמרי — לא נוגעים בשום קוד קיים למעלה, מתחברים
      דרך state._schedule ועטיפת renderAll/toggleSub/toggleTopic. ── -->
 <script src="schedule.js"></script>
+<!-- i18n init runs last: captures the Hebrew help body (incl. the section
+     schedule.js injects) and applies the saved UI language to the static DOM. -->
+<script>I18N.init();</script>
 
 </body>
 </html>
