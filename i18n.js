@@ -397,7 +397,7 @@
     'anx.empty': 'Start checking items — the charts will appear here on their own.',
     'helpHtml': `
       <h2>What is this?</h2>
-      <p>A personal study dashboard for the Adult Nursing course. It tracks your progress across 18 study topics, organized into Part A and Part B. Course content (topic names, items, study links) is shown in Hebrew, matching the syllabus and the Brunner textbook.</p>
+      <p>A personal study dashboard for the Adult Nursing course. It tracks your progress across 19 study topics, organized into Part A and Part B. Course content (topic names, items, study links) is shown in Hebrew, matching the syllabus and the Brunner textbook.</p>
       <h2>How to open</h2>
       <ul>
         <li>From any device, including your phone: <code>rafimichaeli.github.io/nursing-study-tracker</code></li>

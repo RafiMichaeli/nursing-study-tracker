@@ -158,7 +158,7 @@ An optional layer on top of the existing tracker, off by default. Click the **"�
 | ב | Surgical (כירורגי) | 160 academic hours |
 | **Total** | | **336 hours · 24 credits** |
 
-18 topics across 12 categories: Surgery & Shock · Respiratory · Cardiology · Gastroenterology · Endocrinology · Urology · Immune & Rheumatology · Skin & Burns · Eyes & ENT · Neurology · Musculoskeletal · Oncology & Hematology
+19 topics across 13 categories: Surgery & Shock · Respiratory · Cardiology · Gastroenterology · Endocrinology · Nephrology · Urology · Immune & Rheumatology · Skin & Burns · Eyes & ENT · Neurology · Musculoskeletal · Oncology & Hematology
 
 ### Tech stack
 

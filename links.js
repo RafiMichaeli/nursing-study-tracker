@@ -101,6 +101,15 @@ const COURSE_LINKS = {
       { id:"11T1PYY1fnS5CSQBy-4Holx881gnFfERc", label:"📄 סוכרת", type:"file" },
     ],
   },
+  "nephrology": {
+    textbook: { id:"1xOXQ8bVjxyyPfhckylY9LIJC0Vbf9Kww", label:"📖 ברונר 47-48", type:"file" },
+    lectures: [
+      { id:"1m54mVih8ggqaAiy60kfW1Viwanz_dH-B", label:"📄 מבוא ואנטומיה", type:"file" },
+      { id:"1AvxoUzgh1RMzohbydBM4UY_kYqxKAH2K", label:"📄 פגיעה כליתית אקוטית (AKI)", type:"file" },
+      { id:"1Mq3ifGnGVZxLXNRVrUodI1n800gFQ34x", label:"📄 אי ספיקת כליות כרונית (CKD)", type:"file" },
+      { id:"1BX_PTwR3JNf9lnohp2N16G7VbBqtm0d_", label:"📄 דיאליזה פריטוניאלית", type:"file" },
+    ],
+  },
   "urology": {
     textbook: { id:"1ogBkPoAvUP-FC9ATQt_5-tS750rDZgB1", label:"📖 ברונר 47-49", type:"file" },
     summary:  { id:"11No_mmAxkB-_3KfFeAfQxLH8c3svsXfT79E3xfw1or0", label:"📝 סיכום ברונר 47-49", type:"doc" },

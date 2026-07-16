@@ -38,7 +38,7 @@ const A = (cond, msg) => { if (cond) { console.log('  ok:', msg); } else { conso
 const click = (el) => el.dispatchEvent(new w.MouseEvent('click', { bubbles: true, cancelable: true }));
 
 console.log('1. initial render');
-A(d.querySelectorAll('#topicsTableBody tr.topic-tr').length === 18, '18 topic rows rendered');
+A(d.querySelectorAll('#topicsTableBody tr.topic-tr').length === 19, '19 topic rows rendered');
 A(!d.querySelector('#topicsTableBody [onclick]'), 'no inline onclick in generated rows');
 
 console.log('2. delegation: rows, sub-items, panel persistence');
@@ -163,7 +163,7 @@ const shownRows = [...d.querySelectorAll('#topicsTableBody tr.topic-tr')].map(r 
 A(shownRows.includes('ent'), 'low-score topic shown in review filter');
 A(!shownRows.includes('vascular'), 'good-score topic (90) not in review filter');
 run(`toggleReviewFilter()`);
-A(d.querySelectorAll('#topicsTableBody tr.topic-tr').length === 18, 'filter off restores all topics');
+A(d.querySelectorAll('#topicsTableBody tr.topic-tr').length === 19, 'filter off restores all topics');
 
 console.log('13. review forecast (measured vs planned)');
 run(`(() => {
