@@ -38,7 +38,7 @@ const A = (cond, msg) => { if (cond) { console.log('  ok:', msg); } else { conso
 const click = (el) => el.dispatchEvent(new w.MouseEvent('click', { bubbles: true, cancelable: true }));
 
 console.log('1. initial render');
-A(d.querySelectorAll('#topicsTableBody tr.topic-tr').length === 18, '18 topic rows rendered');
+A(d.querySelectorAll('#topicsTableBody tr.topic-tr').length === 19, '19 topic rows rendered');
 A(!d.querySelector('#topicsTableBody [onclick]'), 'no inline onclick in generated rows');
 
 console.log('2. delegation: rows, sub-items, panel persistence');
@@ -163,7 +163,7 @@ const shownRows = [...d.querySelectorAll('#topicsTableBody tr.topic-tr')].map(r 
 A(shownRows.includes('ent'), 'low-score topic shown in review filter');
 A(!shownRows.includes('vascular'), 'good-score topic (90) not in review filter');
 run(`toggleReviewFilter()`);
-A(d.querySelectorAll('#topicsTableBody tr.topic-tr').length === 18, 'filter off restores all topics');
+A(d.querySelectorAll('#topicsTableBody tr.topic-tr').length === 19, 'filter off restores all topics');
 
 console.log('13. review forecast (measured vs planned)');
 run(`(() => {
@@ -264,6 +264,51 @@ if (chip) {
   A(tipLayer.classList.contains('show'), 'works for schedule-injected elements');
 }
 run(`state._schedule.enabled = false; renderAll();`);
+
+console.log('19. malformed quiz data is sanitized on load (no NaN averages)');
+// A corrupt/hand-edited progress file passes the shape check (subs is fine) but
+// carries bad quiz scores. These must be dropped so averages/badges never break.
+A(run(`applyLoadedProgress(JSON.stringify({ shock:{ subs:{}, quizzes:[
+  {score:80, date:'2026-07-01'}, {score:'x', date:'2026-07-02'},
+  {score:150, date:'2026-07-03'}, {score:-4, date:'2026-07-04'}, {score:60, date:'2026-07-05'}
+]}}))`) === true, 'file with bad quiz entries still loads');
+A(run(`getTopicState('shock').quizzes.map(q=>q.score).join(',')`) === '80,60', 'only valid 0–100 scores kept');
+A(d.getElementById('statQuizAvg').textContent === '70', 'average ignores malformed scores (70, not NaN)');
+A(!/nan/i.test(d.getElementById('statQuizAvg').textContent), 'average is a real number, never NaN');
+A(run(`quizBadgeClass(getLastQuizScore('shock').score)`) === 'quiz-mid', 'badge uses a numeric last score');
+run(`state = {}; renderAll();`);
+
+console.log('20. progress save/load round-trip preserves state');
+A(run(`(() => {
+  state = {}; renderAll();
+  toggleTopic('burns', null);                                   // mark done + stamp dates
+  getTopicState('shock').quizzes = [{ score: 88, date: '2026-07-01' }];
+  const dump = JSON.stringify(state);                           // what saveProgress writes
+  state = {}; renderAll();                                      // wipe as if fresh session
+  const ok = applyLoadedProgress(dump);                         // load it back
+  return ok
+    && getTopicState('burns').done === true
+    && getLastQuizScore('shock').score === 88
+    && state._schedule && Object.keys(state._schedule.subDates['burns']||{}).length > 0;
+})()`) === true, 'round-trip restores done flag, quiz score, and schedule stamps');
+run(`state = {}; renderAll();`);
+
+console.log('21. review filter — stale completed topic with no review pass');
+A(run(`(() => {
+  state = {}; renderAll();
+  toggleTopic('burns', null);                                   // done today (stamps subDates)
+  const old = new Date(); old.setDate(old.getDate() - 25);      // older than REVIEW_STALE_DAYS (21)
+  const s = \`\${old.getFullYear()}-\${String(old.getMonth()+1).padStart(2,'0')}-\${String(old.getDate()).padStart(2,'0')}\`;
+  const m = state._schedule.subDates['burns']; Object.keys(m).forEach(k => m[k] = s);
+  return needsReview(TOPICS.find(t => t.id === 'burns'));
+})()`) === true, 'done long ago + no review pass → needs review');
+A(run(`(() => {
+  Schedule.toggleScheduleReview('burns');                       // record a review pass
+  const r = needsReview(TOPICS.find(t => t.id === 'burns'));
+  Schedule.toggleScheduleReview('burns');                       // undo
+  return r;
+})()`) === false, 'a logged review pass clears the stale-review flag');
+run(`state = {}; renderAll();`);
 
 A(errors.length === 0, 'no window errors: ' + (errors.join('; ') || '—'));
 

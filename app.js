@@ -96,6 +96,15 @@ function normalizeState() {
     if (!ts.subs || typeof ts.subs !== 'object' || Array.isArray(ts.subs)) ts.subs = {};
     ts.brunner = !!ts.brunner;
     if (ts.quizzes !== undefined && !Array.isArray(ts.quizzes)) delete ts.quizzes;
+    // Drop malformed quiz entries (e.g. from a hand-edited/corrupt progress
+    // file): a non-numeric or out-of-range score would poison averages (NaN)
+    // and badge colors. Keep only finite scores in 0..100, coerced to ints.
+    if (Array.isArray(ts.quizzes)) {
+      ts.quizzes = ts.quizzes.filter(q => {
+        const n = q && Number(q.score);
+        return Number.isFinite(n) && n >= 0 && n <= 100;
+      }).map(q => ({ ...q, score: Math.round(Number(q.score)) }));
+    }
     ts.done = computeTopicDone(t, ts);
   });
 }
