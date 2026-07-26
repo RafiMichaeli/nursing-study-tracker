@@ -26,7 +26,7 @@ w.addEventListener('error', (e) => errors.push(e.message));
 // Load all scripts in ONE eval so top-level const/let share a scope, exactly
 // like sequential <script> tags do in a real browser. __run() lets the tests
 // evaluate expressions inside that same scope.
-const src = ['i18n.js', 'links.js', 'data.js', 'app.js', 'schedule.js']
+const src = ['i18n.js', 'links.js', 'data.js', 'app.js', 'schedule.js', 'procedures.js']
   .map((f) => fs.readFileSync(path.join(DIR, f), 'utf8')).join('\n;\n')
   + '\n;window.__run = (code) => eval(code);';
 try { w.eval(src); } catch (e) { console.error('LOAD FAIL: ' + e.message); process.exit(1); }
@@ -308,6 +308,33 @@ A(run(`(() => {
   Schedule.toggleScheduleReview('burns');                       // undo
   return r;
 })()`) === false, 'a logged review pass clears the stale-review flag');
+run(`state = {}; renderAll();`);
+
+console.log('22. procedures section — reading tracker');
+run(`state = {}; renderAll();`);
+w.openProcedures();
+A(d.querySelectorAll('#proceduresBody tr.proc-tr').length === 9, '9 procedure rows rendered');
+A(!d.querySelector('#proceduresBody [onclick]'), 'no inline onclick in generated procedure markup');
+A(d.getElementById('proceduresBadge').textContent === '0/9', 'sidebar badge starts at 0/9');
+click(d.querySelector('#proc-tr-03 [data-proc-toggle]'));
+A(run(`state._procedures['03'].read`) === true, 'clicking the box marks the procedure as read');
+A(/^\d{4}-\d{2}-\d{2}$/.test(run(`state._procedures['03'].date`)), 'read date stamped as YYYY-MM-DD');
+A(d.getElementById('proceduresBadge').textContent === '1/9', 'badge follows the read count');
+A(w.proceduresStats().readPages === 17, 'page counter sums only the procedures marked read');
+click(d.querySelector('#proc-tr-03 [data-proc-toggle]'));
+A(run(`state._procedures['03'].read`) === false && run(`state._procedures['03'].date`) === null,
+  'unchecking clears both the flag and the date');
+A(w.PROCEDURES.every(p => p.driveId && p.pages > 0 && p.name), 'every procedure has a Drive id, name and page count');
+A(new Set(w.PROCEDURES.map(p => p.driveId)).size === 9, 'no duplicated Drive ids');
+// _procedures must survive the save/load round-trip like _schedule does
+A(run(`(() => {
+  state = {}; renderAll();
+  toggleProcedure('05');
+  const dump = JSON.stringify(state);
+  state = {}; renderAll();
+  return applyLoadedProgress(dump) && !!(state._procedures && state._procedures['05'].read);
+})()`) === true, 'save/load round-trip preserves procedure reading state');
+w.closeProcedures();
 run(`state = {}; renderAll();`);
 
 A(errors.length === 0, 'no window errors: ' + (errors.join('; ') || '—'));

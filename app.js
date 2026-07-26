@@ -152,7 +152,7 @@ function needsReview(t) {
 function isValidProgressData(data) {
   if (!data || typeof data !== 'object' || Array.isArray(data)) return false;
   return Object.entries(data).every(([k, v]) => {
-    if (k === '_schedule') return !!v && typeof v === 'object' && !Array.isArray(v);
+    if (k === '_schedule' || k === '_procedures') return !!v && typeof v === 'object' && !Array.isArray(v);
     if (!v || typeof v !== 'object' || Array.isArray(v)) return false;
     if ('subs' in v && (!v.subs || typeof v.subs !== 'object' || Array.isArray(v.subs))) return false;
     return true;

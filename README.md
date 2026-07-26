@@ -104,6 +104,20 @@
 
 ---
 
+### נהלי עבודה
+
+מקטע נפרד למעקב אחר קריאת **נהלי העבודה הקריטיים** של בית החולים — הרשימה שיש לחתום עליה.
+
+- כפתור **"נהלי עבודה"** בתחתית הסרגל השמאלי (מעל "הוראות שימוש") פותח את המקטע. על הכפתור באדג' עם מספר הנהלים שנקראו מתוך 9, שנצבע בירוק כשכולם סומנו.
+- הטבלה מציגה לכל נוהל: מספר הנוהל, שם רשמי, תחום, תאריך העדכון האחרון ומספר עמודים (סה"כ 400 עמודים).
+- לחיצה על התיבה מסמנת "נקרא" ומטביעה את **תאריך הקריאה** אוטומטית; לחיצה נוספת מבטלת ומנקה את התאריך.
+- לחיצה על שם הנוהל פותחת את קובץ ה-PDF ב-Google Drive (אותה תיקייה שממנה מגיעים שאר חומרי הקורס — עובד גם מהאתר המפורסם וגם מהנייד).
+- בתחתית המקטע כרטיס **טופס החתימה על נהלים קריטיים**; הוא נצבע ומשנה הודעה כשכל 9 הנהלים סומנו כנקראו.
+- הנתונים חיים בתוך `state._procedures` — כלומר נשמרים אוטומטית עם שאר ההתקדמות (`progress.json` + localStorage) ולא דורשים גיבוי נפרד.
+- העותקים המקומיים של קבצי ה-PDF יושבים בתיקייה `נהלים לקריאה/` והיא ב-`.gitignore` — הריפו מקשר ל-Drive בלבד.
+
+---
+
 ### שינוי מראה
 
 לחץ על **☀️ / 🌙** בפינה הימנית העליונה לעבור בין מצב כהה ובהיר.
@@ -141,6 +155,7 @@ Interactive study tracker for the Adult Nursing course — Ichilov Sheinbrunn, 2
 - **UI language switcher** — 🌐 topbar menu: עברית / English / Русский, persisted via localStorage; layout flips to LTR for en/ru (CSS logical properties). Course content (topic names, sub-items, study links, the AI exam prompt) stays in Hebrew, matching the syllabus
 - **Mobile-ready** — bottom nav, fully responsive layout; topic rows are keyboard-accessible (Tab + Enter/Space)
 - **Progress schedule (optional)** — start date, daily study pace, and **exam dates** per part: per-topic ahead/on-track/behind chips, a separate review-pass checkbox, and a dashboard with exam countdown, projected finish date from your actual 14-day pace, and whether that leaves enough review days before the exam
+- **Work procedures** — reading tracker for the 9 critical hospital procedures (400 pages) that have to be signed off: per-procedure checkbox with an auto-stamped read date, Drive links to each PDF, a sidebar badge, and a signature-form card that unlocks once everything is marked read
 
 ### How to Use
 
@@ -149,6 +164,10 @@ Open the [live site](https://rafimichaeli.github.io/nursing-study-tracker/), or 
 ### Progress schedule
 
 An optional layer on top of the existing tracker, off by default. Click the **"מעקב לו"ז"** button in the sidebar footer (between the topic list and the save/load buttons) to set a start date (per part, א/ב), the exam date for each part, and a daily study-hour pace — separately for the first pass and the review pass. Once enabled: every topic gets a status chip (🟢 ahead / 🔵 on-track / 🔴 behind) comparing what was planned for today against what you've actually checked off; each topic's expanded panel gets a separate "review pass done" checkbox with its own status; and a summary card above the table shows, per part, the exam countdown, aggregate progress vs. today's expectation, a projected finish date based on your actual pace over the last 14 days, and a verdict on whether that pace leaves enough review days before the exam. Exam dates default from the course data (`data.js`) and can be edited or cleared in the settings panel. Turning the feature off only hides the display — every date already recorded stays saved (inside the same `progress.json`) and reappears if you turn it back on.
+
+### Work procedures
+
+A separate section tracking the hospital's **critical work procedures** — the list you have to sign off on. The **"נהלי עבודה"** button in the sidebar footer opens it, with a badge showing how many of the 9 have been read. Each row lists the procedure number, official name, domain, last-update date and page count (400 pages in total); ticking the box marks it read and stamps today's date, and clicking the name opens the PDF on Google Drive. A signature-form card at the bottom changes state once all 9 are marked read. The data lives in `state._procedures`, so it is saved and restored with the rest of the progress. Local copies of the PDFs sit in `נהלים לקריאה/`, which is gitignored — the repo links to Drive only.
 
 ### Course structure
 
@@ -163,7 +182,7 @@ An optional layer on top of the existing tracker, off by default. Click the **"�
 ### Tech stack
 
 - Static HTML/CSS/JS — zero build step, no runtime dependencies to install
-- Code layout: `index.html` (markup) · `styles.css` · `i18n.js` (UI language: he/en/ru dictionaries, `t()` helper, `data-i18n` DOM tags — loads first) · `data.js` (course topics + exam dates) · `links.js` (study-material links) · `app.js` (logic) · `schedule.js`/`schedule.css` (optional schedule feature, attached via explicit hooks)
+- Code layout: `index.html` (markup) · `styles.css` · `i18n.js` (UI language: he/en/ru dictionaries, `t()` helper, `data-i18n` DOM tags — loads first) · `data.js` (course topics + exam dates) · `links.js` (study-material links) · `app.js` (logic) · `schedule.js`/`schedule.css` (optional schedule feature, attached via explicit hooks) · `procedures.js`/`procedures.css` (work-procedures reading tracker, stored in `state._procedures`)
 - [Chart.js 4.4.1](https://www.chartjs.org/) · [Material Icons](https://fonts.google.com/icons) · [Heebo](https://fonts.google.com/specimen/Heebo)
 - File System Access API — local `progress.json` save/load (validated on load)
 - IndexedDB — persists the file handle between sessions for auto-save
