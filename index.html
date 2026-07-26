@@ -26,6 +26,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="schedule.css">
+<link rel="stylesheet" href="procedures.css">
 <!-- i18n loads first: defines t() for all scripts and sets lang/dir before first paint -->
 <script src="i18n.js"></script>
 </head>
@@ -182,6 +183,10 @@
       <input type="file" id="loadInput" accept=".json" style="display:none" onchange="loadProgress(event)">
       <button class="sb-btn danger" onclick="resetAll()" data-i18n-tooltip="btn.resetTooltip" data-tooltip="⚠ מחק את כל ההתקדמות לצמיתות — לא ניתן לשחזר">
         <span class="material-icons">delete</span> <span data-i18n="btn.reset">אפס הכל</span>
+      </button>
+      <button class="sb-btn" onclick="openProcedures()" data-i18n-tooltip="btn.proceduresTooltip" data-tooltip="נהלי עבודה קריטיים — מעקב קריאה וטופס חתימה">
+        <span class="material-icons">rule</span> <span data-i18n="btn.procedures">נהלי עבודה</span>
+        <span class="proc-badge" id="proceduresBadge">0/9</span>
       </button>
       <button class="sb-btn" onclick="openHelp()" data-i18n-tooltip="btn.helpTooltip" data-tooltip="פתח מדריך שימוש">
         <span class="material-icons">help_outline</span> <span data-i18n="btn.help">הוראות שימוש</span>
@@ -532,7 +537,35 @@
       <h2>שינוי מראה</h2>
       <p>לחץ <strong>☀️ / 🌙</strong> בפינה הימנית העליונה, או בסרגל התחתון במובייל, לעבור בין מצב כהה ובהיר.</p>
 
+      <h2>נהלי עבודה</h2>
+      <p>מקטע נפרד למעקב אחר קריאת נהלי העבודה הקריטיים של בית החולים — הרשימה שיש לחתום עליה.</p>
+      <ul>
+        <li>כפתור <strong>"נהלי עבודה"</strong> בתחתית הסרגל השמאלי פותח את המקטע. הבאדג' על הכפתור מראה כמה נהלים נקראו מתוך 9.</li>
+        <li>הטבלה מציגה לכל נוהל: מספר, שם רשמי, תחום, תאריך עדכון אחרון ומספר עמודים (סה"כ 400 עמודים).</li>
+        <li>סימון התיבה מסמן <strong>"נקרא"</strong> ומטביע את תאריך הקריאה אוטומטית. סימון חוזר מבטל ומנקה את התאריך.</li>
+        <li>לחיצה על שם הנוהל פותחת את קובץ ה-PDF ב-Google Drive.</li>
+        <li>בתחתית — כרטיס <strong>טופס החתימה</strong>, שמשנה מצב כשכל 9 הנהלים סומנו כנקראו.</li>
+        <li>הנתונים נשמרים יחד עם שאר ההתקדמות — אין צורך בגיבוי נפרד.</li>
+      </ul>
+
     </div>
+  </div>
+</div>
+
+<!-- ══ PROCEDURES OVERLAY ════════════════════════════════ -->
+<!-- גוף המקטע נבנה ב-procedures.js לתוך #proceduresBody. -->
+<div class="proc-overlay" id="proceduresOverlay">
+  <div class="proc-sheet">
+    <div class="proc-sheet-bar">
+      <div class="proc-sheet-title">
+        <span class="material-icons">rule</span>
+        <span data-i18n="proc.title">נהלי עבודה קריטיים — קריאה וחתימה</span>
+      </div>
+      <button class="help-close-btn" onclick="closeProcedures()" data-i18n-aria="close" aria-label="סגור">
+        <span class="material-icons" style="font-size:20px">close</span>
+      </button>
+    </div>
+    <div class="proc-sheet-body" id="proceduresBody"></div>
   </div>
 </div>
 
@@ -540,6 +573,9 @@
      קבצים עצמאיים לגמרי — לא נוגעים בשום קוד קיים למעלה, מתחברים
      דרך state._schedule ועטיפת renderAll/toggleSub/toggleTopic. ── -->
 <script src="schedule.js"></script>
+<!-- ── פיצ'ר נפרד: נהלי עבודה (procedures.js / procedures.css) ──
+     מתחבר דרך state._procedures ו-onAfterRender(), בלי לגעת בקוד קיים. ── -->
+<script src="procedures.js"></script>
 <!-- i18n init runs last: captures the Hebrew help body (incl. the section
      schedule.js injects) and applies the saved UI language to the static DOM. -->
 <script>I18N.init();</script>

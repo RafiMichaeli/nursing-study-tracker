@@ -1,0 +1,186 @@
+/* procedures.css — מקטע "נהלי עבודה" (מעקב קריאה + טופס חתימה).
+   נטען אחרי styles.css ו-schedule.css; משתמש באותם CSS variables
+   כך שמצב כהה/בהיר ו-RTL/LTR עובדים בלי קוד נוסף. */
+
+/* ── Overlay ─────────────────────────────────────────────── */
+.proc-overlay {
+  display: none; position: fixed; inset: 0; z-index: 3000;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+  align-items: center; justify-content: center;
+}
+.proc-overlay.open { display: flex; }
+.proc-sheet {
+  width: min(860px, 96vw);
+  height: min(88vh, 900px);
+  background: var(--card-bg);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.09);
+  box-shadow: 0 28px 90px rgba(0,0,0,0.65);
+  display: flex; flex-direction: column; overflow: hidden;
+  animation: sheetIn .22s ease;
+}
+.proc-sheet-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0;
+  background: rgba(0,0,0,0.18);
+}
+.proc-sheet-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 15px; font-weight: 700; color: var(--text-dark);
+}
+.proc-sheet-title .material-icons { color: var(--primary); font-size: 20px; }
+.proc-sheet-body {
+  flex: 1; overflow-y: auto; padding: 20px 24px 28px;
+  color: var(--text);
+}
+
+/* ── Summary / progress ──────────────────────────────────── */
+.proc-summary {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+}
+.proc-summary-top {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.proc-summary-label { font-size: 13px; font-weight: 600; color: var(--muted); }
+.proc-summary-pct { font-size: 15px; font-weight: 700; color: var(--text-dark); }
+.proc-bar-bg {
+  height: 8px; border-radius: 999px; overflow: hidden;
+  background: rgba(255,255,255,0.10);
+}
+.proc-bar-fill {
+  height: 100%; border-radius: 999px;
+  background: linear-gradient(90deg, var(--primary), #4dd4ac);
+  transition: width .3s ease;
+}
+.proc-summary-sub { margin-top: 7px; font-size: 12px; color: var(--muted); }
+
+/* ── Table ───────────────────────────────────────────────── */
+.proc-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.proc-table thead th {
+  text-align: start; padding: 8px 10px;
+  font-size: 11px; font-weight: 700; letter-spacing: .4px;
+  text-transform: uppercase; color: var(--muted);
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+  white-space: nowrap;
+}
+.proc-table td {
+  padding: 11px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.055);
+  vertical-align: middle;
+}
+.proc-tr { transition: background .15s; }
+.proc-tr:hover { background: rgba(255,255,255,0.035); }
+.proc-tr.is-read .proc-name { color: var(--muted); }
+.proc-tr.is-read .proc-num,
+.proc-tr.is-read .proc-meta { opacity: .65; }
+
+.proc-check-cell { width: 34px; }
+.proc-check {
+  display: inline-block; width: 18px; height: 18px;
+  border: 2px solid rgba(255,255,255,0.28); border-radius: 5px;
+  cursor: pointer; position: relative; transition: all .15s;
+  vertical-align: middle;
+}
+.proc-check:hover { border-color: var(--primary); }
+.proc-check:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.proc-check.checked { background: var(--primary); border-color: var(--primary); }
+.proc-check.checked::after {
+  content: ''; position: absolute; inset-inline-start: 5px; top: 1px;
+  width: 4px; height: 9px;
+  border: solid #fff; border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.proc-num {
+  font-size: 12px; color: var(--muted); white-space: nowrap;
+  font-variant-numeric: tabular-nums; direction: ltr; text-align: start;
+}
+.proc-name-cell { line-height: 1.4; }
+.proc-name {
+  display: block; font-size: 13.5px; font-weight: 600;
+  color: var(--text-dark); text-decoration: none;
+}
+.proc-name:hover { color: var(--primary); text-decoration: underline; }
+.proc-domain { display: block; font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+.proc-meta { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.proc-pages, .proc-date { font-variant-numeric: tabular-nums; }
+
+/* ── Signature form card ─────────────────────────────────── */
+.proc-sign {
+  display: flex; align-items: center; gap: 12px;
+  margin-top: 20px; padding: 14px 16px;
+  border: 1px dashed rgba(255,255,255,0.18); border-radius: 12px;
+  background: rgba(255,255,255,0.03);
+}
+.proc-sign.ready {
+  border-style: solid;
+  border-color: rgba(77,212,172,0.45);
+  background: rgba(77,212,172,0.09);
+}
+.proc-sign-icon .material-icons { font-size: 26px; color: var(--muted); }
+.proc-sign.ready .proc-sign-icon .material-icons { color: #4dd4ac; }
+.proc-sign-text { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.proc-sign-text strong { font-size: 13.5px; color: var(--text-dark); }
+.proc-sign-text span { font-size: 12px; color: var(--muted); }
+.proc-sign-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 12px; border-radius: 8px;
+  background: var(--primary); color: #fff;
+  font-size: 12.5px; font-weight: 600; text-decoration: none;
+  white-space: nowrap; transition: filter .15s;
+}
+.proc-sign-btn:hover { filter: brightness(1.1); }
+.proc-sign-btn .material-icons { font-size: 15px; }
+
+/* ── Drive folder link ───────────────────────────────────── */
+.proc-folder-note { margin-top: 14px; text-align: center; }
+.proc-folder-note a {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; color: var(--muted); text-decoration: none;
+}
+.proc-folder-note a:hover { color: var(--primary); }
+.proc-folder-note .material-icons { font-size: 15px; }
+
+/* ── Sidebar badge ───────────────────────────────────────── */
+.sidebar-footer .sb-btn .proc-badge {
+  margin-inline-start: auto;
+  font-size: 11px; font-weight: 700;
+  padding: 1px 7px; border-radius: 999px;
+  background: rgba(255,255,255,0.12); color: inherit;
+  font-variant-numeric: tabular-nums; direction: ltr;
+}
+.sidebar-footer .sb-btn .proc-badge.complete { background: rgba(77,212,172,0.28); color: #4dd4ac; }
+
+/* ── Light theme ─────────────────────────────────────────── */
+[data-theme="light"] .proc-sheet { border-color: rgba(0,0,0,0.10); }
+[data-theme="light"] .proc-sheet-bar { border-bottom-color: rgba(0,0,0,0.08); background: rgba(0,0,0,0.03); }
+[data-theme="light"] .proc-summary { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.08); }
+[data-theme="light"] .proc-bar-bg { background: rgba(0,0,0,0.10); }
+[data-theme="light"] .proc-table thead th { border-bottom-color: rgba(0,0,0,0.12); }
+[data-theme="light"] .proc-table td { border-bottom-color: rgba(0,0,0,0.07); }
+[data-theme="light"] .proc-tr:hover { background: rgba(0,0,0,0.03); }
+[data-theme="light"] .proc-check { border-color: rgba(0,0,0,0.28); }
+[data-theme="light"] .proc-sign { border-color: rgba(0,0,0,0.18); background: rgba(0,0,0,0.02); }
+[data-theme="light"] .sidebar-footer .sb-btn .proc-badge { background: rgba(0,0,0,0.10); }
+
+/* ── Mobile ──────────────────────────────────────────────── */
+@media (max-width: 700px) {
+  .proc-sheet { width: 100vw; height: 100vh; border-radius: 0; border: none; }
+  .proc-sheet-body { padding: 16px 12px 24px; }
+  .proc-table { font-size: 12.5px; }
+  .proc-table td, .proc-table thead th { padding: 9px 5px; }
+  /* על מסך צר: מסתירים תחום/עדכון ומשאירים סימון, שם, עמ׳ ותאריך */
+  .proc-table thead th:nth-child(2),
+  .proc-table tbody td:nth-child(2),
+  .proc-table thead th:nth-child(4),
+  .proc-table tbody td:nth-child(4) { display: none; }
+  .proc-sign { flex-direction: column; align-items: stretch; text-align: center; }
+  .proc-sign-btn { justify-content: center; }
+}
