@@ -118,6 +118,41 @@ done-rules, search) → jsdom integration suite (exists) → 1 Playwright E2E �
 
 ---
 
+## 4. Study analytics
+
+**Status: design draft — NOT implemented.** A first implementation of items 1–3
+was built and rolled back (design not approved yet); a prototype survives in the
+untracked `analytics.js` for reference. Next step: iterate on the visual design
+(mockups first) before re-implementing.
+
+Six views over data the app already collects (`state[..].subs/quizzes`,
+`state._schedule.subDates/review/examDates`). Proposed shape: a self-contained
+`analytics.js` module like schedule.js, attached via `onAfterRender`, rendered
+as a collapsible "📊 אנליטיקת לימוד" card under the schedule dashboard
+(collapsed state persisted in localStorage). Works whether or not the schedule
+feature is enabled — sub-completion dates are stamped by the hooks regardless.
+
+1. **Required daily pace** (implemented) — per part: `remaining subs ÷ days to exam`
+   next to the actual 14-day pace (same exclusive-cutoff window as schedule.js),
+   with an ok/behind chip. The one number that answers "am I studying enough today?"
+2. **Burndown chart** (implemented) — per part, Chart.js line: actual remaining
+   sub-items over time (reconstructed from subDates) vs. a straight deadline line
+   from the start reference to 0 at the exam date. Chart instances sig-cached like
+   the pies.
+3. **Study heatmap** (implemented) — GitHub-style calendar (last ≤16 weeks,
+   plain CSS grid, no library): squares shaded by subs completed per day, tooltip
+   with date + count.
+4. **Weak-category view** (next iteration) — avg last-quiz-score + completion %
+   per sidebar category; sorted worst-first. Becomes meaningful once quiz scores
+   accumulate.
+5. **Staleness list** (next iteration) — per topic, days since last touch
+   (sub/review/quiz); generalizes the "לחזור על" 21-day cutoff; first step toward
+   spaced repetition.
+6. **Streak counter** (next iteration) — consecutive study days from subDates;
+   one line in the analytics header.
+
+---
+
 ## Suggested implementation order
 
 1. Feature 2 (exam scores) — biggest daily-use value before Aug 2, self-contained in app.js.
