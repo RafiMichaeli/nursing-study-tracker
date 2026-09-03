@@ -146,12 +146,16 @@ const COURSE_LINKS = {
       { id:"10hV1MDebRIwPQ4blzACwQ8nYvdog7De4", label:"📄 בדיקות אבחון בעור", type:"file" },
       { id:"1PnOoBfMyj9n9Bko49MXatNaVGEDujb3G", label:"📄 מחלות דלקתיות ואלרגיה", type:"file" },
       { id:"1eotESJ8TFCKM_C8GCa9jqvmWXj37Z3Vb", label:"📄 מחלות זיהומיות", type:"file" },
+      { id:"199qu60o96lAN-iTlYhA9Xroc2IlzOYW2", label:"📄 גידולי עור ממאירים", type:"file" },
       { url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=56275", label:"🎬 הקלטה 25.6", type:"url" },
     ],
   },
   "burns": {
     textbook: { id:"1gPEDxAbPxMWQEnLBPoGkM0g-9OCPcRPL", label:"📖 ברונר 57", type:"file" },
     summary:  { id:"1K-AcxYReTVn1G5sFtsSIUkzS_x4NYPYsCJQiB9Ha7HU", label:"📝 סיכום ברונר 57", type:"doc" },
+    lectures: [
+      { id:"1qd2eMNkUtGOT_JXPZB3Ti4TdXWoMMv1q", label:"📄 כוויות ברונר 15", type:"file" },
+    ],
   },
   "eyes": {
     textbook: { id:"1dZXTsYCCzUieoGjQlXeUP766MOOpr401", label:"📖 ברונר 58", type:"file" },
@@ -195,6 +199,7 @@ const COURSE_LINKS = {
       { id:"1A3M6YlSXa3bajRz-ec7RBQCczrYgsjgx", label:"📄 אפילפסיה ופרכוסים", type:"file" },
       { id:"1iMA1LdiBrA-Itkd33FsJCUd00ln1f7B6", label:"📄 זיהומים במעמ", type:"file" },
       { id:"1iYD1CtqNuVnjsGqmgQEvc62vO_ZiH12j", label:"📄 מחלות זיהומיות CJD", type:"file" },
+      { id:"1ZuQAmRa-Zm4WaugX7fBKfhTUNE2RLHJr", label:"📄 אלצהיימר", type:"file" },
       { url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=56037", label:"🎬 הקלטה 16.6", type:"url" },
       { url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=56116", label:"🎬 הקלטה 18.6", type:"url" },
       { url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=56183", label:"🎬 הקלטה 21.6", type:"url" },
