@@ -225,7 +225,7 @@ const COURSE_LINKS = {
       { id:"1xL-gTqSwGAVkaEknWqzG5bOgsGwwwegx", label:"📄 מבוא לאונקולוגיה", type:"file" },
       { id:"16HWI4NwoJYhw01hE7MhOIhPnE6ZRPYTf", label:"📄 הטיפול האונקולוגי", type:"file" },
       { id:"1NNgLpOk9tKVMDxukhjb41CuqiHUotSmU", label:"📄 מצבי חירום באונקולוגיה", type:"file" },
-      { id:"1PJdpxMa4tleSUFDjCvcD0X-ZRdXOeIF1", label:"📄 טיפול תומך", type:"file" },
+      { id:"1sQCB7kqkk6dYSSMBY-ioxz9LFDEyl5QN", label:"📄 טיפול תומך", type:"file" },
     ],
   },
   "hematology": {
