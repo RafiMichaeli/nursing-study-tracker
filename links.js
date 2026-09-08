@@ -177,9 +177,11 @@ const COURSE_LINKS = {
     lectures: [
       { id:"1aPF8rxnCefLl2gpLL8P2YYZkumzxSnN9", label:"📄 הקדמה לאאג", type:"file" },
       { id:"1e027xFEb0reDiNHhvbrT1b29F0TIicm4", label:"📄 האוזן", type:"file" },
+      { id:"1cuEfv9QDWknK7jLHjeADxsPdr7eOpMdD", label:"📄 האוזן + סיכום", type:"file" },
       { id:"1LVtsUdazOidQQTIPBnz-VXRMKSLbYACO", label:"📄 האף", type:"file" },
+      { id:"1_KPp4leS3LbiymwGz1TEoiduK5_wGy5r", label:"📄 האף + סיכום", type:"file" },
       { id:"1pHPmldMJMiOpRXSjuz0h86JmUbxQRXcd", label:"📄 הצוואר", type:"file" },
-      { id:"1t0BdKDF99f12trZM38Xp5XXzpX6bsUPd", label:"📄 הצוואר + סיכום (PPTX)", type:"file" },
+      { id:"19Afus3cRJWg7Z2cCU5wtnrbt7vvhYmpS", label:"📄 הצוואר + סיכום", type:"file" },
       { id:"15sVykRmgQzvQH1Z9ziMrbsZ7wI2v9wf4", label:"📄 בדיקות שמיעה", type:"file" },
       { url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=54730", label:"🎬 הקלטה 19.5", type:"url" },
     ],
