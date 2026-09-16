@@ -198,6 +198,7 @@ const COURSE_LINKS = {
       { id:"1yzezCD1uL1kgKKW_U46BAxWbcp-eYuCe", label:"📄 מיאסטניה וגיאן ברה", type:"file" },
       { id:"13bhuqFKUBHAmXQJQ7QKbgK0Tv9suPwHj", label:"📄 כאבי ראש", type:"file" },
       { id:"1KjP4RdYjazwSAdeQVQVKRUdgYerFMi8S", label:"📄 טרשת נפוצה", type:"file" },
+      { id:"1y1vIiYSSCHeCpwmvnpBeWzmPn6ge1nUU", label:"📄 מחלות נוירודגנרטיביות", type:"file" },
       { id:"1A3M6YlSXa3bajRz-ec7RBQCczrYgsjgx", label:"📄 אפילפסיה ופרכוסים", type:"file" },
       { id:"1iMA1LdiBrA-Itkd33FsJCUd00ln1f7B6", label:"📄 זיהומים במעמ", type:"file" },
       { id:"1iYD1CtqNuVnjsGqmgQEvc62vO_ZiH12j", label:"📄 מחלות זיהומיות CJD", type:"file" },
