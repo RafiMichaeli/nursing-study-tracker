@@ -156,20 +156,10 @@
           <span class="link-badge" id="sb-badge-onco_hematology"></span>
         </button>
       </li>
-      <li class="sidebar-header">מבחני תרגול — חלק ב׳</li>
+      <li class="sidebar-header">מבחני תרגול</li>
       <li class="sidebar-item">
-        <a class="sidebar-link" href="study-tools/part-b-exam-1.html" target="_blank" rel="noopener">
-          <span class="link-icon">📝</span> מבחן 1 · תרחישים קליניים
-        </a>
-      </li>
-      <li class="sidebar-item">
-        <a class="sidebar-link" href="study-tools/part-b-exam-2.html" target="_blank" rel="noopener">
-          <span class="link-icon">📝</span> מבחן 2 · ידע ישיר
-        </a>
-      </li>
-      <li class="sidebar-item">
-        <a class="sidebar-link" href="study-tools/part-b-exam-3.html" target="_blank" rel="noopener">
-          <span class="link-icon">📝</span> מבחן 3 · ידע ישיר
+        <a class="sidebar-link" href="study-tools/exams.html">
+          <span class="link-icon">📝</span> כל מבחני התרגול
         </a>
       </li>
     </ul>
@@ -200,7 +190,8 @@
       <button class="sb-btn danger" onclick="resetAll()" data-i18n-tooltip="btn.resetTooltip" data-tooltip="⚠ מחק את כל ההתקדמות לצמיתות — לא ניתן לשחזר">
         <span class="material-icons">delete</span> <span data-i18n="btn.reset">אפס הכל</span>
       </button>
-      <button class="sb-btn" onclick="openProcedures()" data-i18n-tooltip="btn.proceduresTooltip" data-tooltip="נהלי עבודה קריטיים — מעקב קריאה וטופס חתימה">
+      <!-- נהלי עבודה: מוסתר זמנית (הקוד והנתונים נשמרים). להחזרה — הסר את style="display:none" -->
+      <button class="sb-btn" style="display:none" onclick="openProcedures()" data-i18n-tooltip="btn.proceduresTooltip" data-tooltip="נהלי עבודה קריטיים — מעקב קריאה וטופס חתימה">
         <span class="material-icons">rule</span> <span data-i18n="btn.procedures">נהלי עבודה</span>
         <span class="proc-badge" id="proceduresBadge">0/9</span>
       </button>
@@ -553,6 +544,8 @@
       <h2>שינוי מראה</h2>
       <p>לחץ <strong>☀️ / 🌙</strong> בפינה הימנית העליונה, או בסרגל התחתון במובייל, לעבור בין מצב כהה ובהיר.</p>
 
+      <!-- נהלי עבודה: מוסתר זמנית -->
+      <div style="display:none">
       <h2>נהלי עבודה</h2>
       <p>מקטע נפרד למעקב אחר קריאת נהלי העבודה הקריטיים של בית החולים — הרשימה שיש לחתום עליה.</p>
       <ul>
@@ -563,6 +556,7 @@
         <li>בתחתית — כרטיס <strong>טופס החתימה</strong>, שמשנה מצב כשכל 9 הנהלים סומנו כנקראו.</li>
         <li>הנתונים נשמרים יחד עם שאר ההתקדמות — אין צורך בגיבוי נפרד.</li>
       </ul>
+      </div>
 
     </div>
   </div>
