@@ -2,7 +2,7 @@
 // COURSE_LINKS — כל קישורי הפרויקט במקום אחד. ערוך כאן בלבד.
 //   type:"doc"  = Google Doc  → צריך id
 //   type:"file" = קובץ Drive (PDF) → צריך id
-//   type:"url"  = קישור חיצוני (הקלטה וכו') → צריך url מלא
+//   type:"url"  = קישור חיצוני (הקלטה וכו') → צריך url מלא, או נתיב יחסי לקובץ בריפו (study-tools/…)
 // להחלפת קישור: עדכן את ה-id / url. index.html נטען מכאן אוטומטית.
 // ═══════════════════════════════════════════════════════════════
 const COURSE_LINKS = {
@@ -149,6 +149,9 @@ const COURSE_LINKS = {
       { id:"199qu60o96lAN-iTlYhA9Xroc2IlzOYW2", label:"📄 גידולי עור ממאירים", type:"file" },
       { url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=56275", label:"🎬 הקלטה 25.6", type:"url" },
     ],
+    links: [
+      { url:"study-tools/markers-skin.html", label:"🔎 סמנים מזהים במחלות עור", type:"url" },
+    ],
   },
   "burns": {
     textbook: { id:"1gPEDxAbPxMWQEnLBPoGkM0g-9OCPcRPL", label:"📖 ברונר 57", type:"file" },
@@ -238,6 +241,9 @@ const COURSE_LINKS = {
       { id:"1a3LwBzYAmoKbzmWZkfIVyJrwRZcdokXa", label:"📄 Hematology - Br15", type:"file" },
       { url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=55245", label:"🎬 הקלטה 26.5", type:"url" },
       { url:"https://tasmc.centricapp.co.il/mod/url/view.php?id=55535", label:"🎬 הקלטה 2.6", type:"url" },
+    ],
+    links: [
+      { url:"study-tools/markers-hematology.html", label:"🔎 סמנים מזהים בהמטולוגיה", type:"url" },
     ],
   },
   "breast": {

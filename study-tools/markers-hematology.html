@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>סמנים מזהים בהמטולוגיה</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=Assistant:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F4F5F8; --surface:#FFFFFF; --ink:#1A1F2B; --muted:#5B6272; --line:#DDE0E7;
+  --accent:#8E1630; --hl:#F8E6EA; --hl-ink:#6E0F24; --chip:#ECEEF3; --tip:#EAF1F6; --tip-ink:#1E4660;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#11141B; --surface:#191D26; --ink:#E6E8EE; --muted:#9AA1AE; --line:#2B303C;
+    --accent:#F07C92; --hl:#3A1821; --hl-ink:#FFC2CD; --chip:#232834; --tip:#162634; --tip-ink:#A9D1EC;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11141B; --surface:#191D26; --ink:#E6E8EE; --muted:#9AA1AE; --line:#2B303C;
+  --accent:#F07C92; --hl:#3A1821; --hl-ink:#FFC2CD; --chip:#232834; --tip:#162634; --tip-ink:#A9D1EC;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Assistant",system-ui,sans-serif}
+.wrap{direction:rtl;max-width:1100px;margin:0 auto;padding-inline:20px;padding-block:28px 60px}
+h1,h2{font-family:"Frank Ruhl Libre",Georgia,serif;text-wrap:balance;margin:0}
+h1{font-size:clamp(28px,5vw,40px);line-height:1.15}
+.sub{color:var(--muted);margin:8px 0 0;max-width:68ch}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:14px;margin-top:18px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.bar input[type=search]{flex:1 1 220px;min-width:0;font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:600 13px "Assistant",sans-serif;border:1px solid var(--line);background:var(--chip);color:var(--ink);padding:5px 11px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.practice{display:flex;gap:6px;align-items:center;font-weight:600;font-size:14px;cursor:pointer}
+button:focus-visible,input:focus-visible,.card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+section{margin-top:34px}
+section h2{font-size:24px;display:flex;align-items:baseline;gap:10px}
+section h2 small{font:400 14px "Assistant",sans-serif;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin-top:14px}
+@media (max-width:420px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.name{font:700 17px/1.3 "Assistant",sans-serif;direction:ltr;text-align:right;unicode-bidi:plaintext}
+.name .he{display:block;font-weight:400;font-size:14px;color:var(--muted)}
+.key{background:var(--hl);color:var(--hl-ink);border-radius:6px;padding:9px 11px;font-weight:700;line-height:1.45}
+.key b{display:block;font:500 11px "IBM Plex Mono",monospace;letter-spacing:.06em;opacity:.8;margin-bottom:2px}
+ul{margin:0;padding-inline-start:18px;display:flex;flex-direction:column;gap:3px}
+li{unicode-bidi:plaintext;text-align:right}
+.lab{font:13px/1.5 "IBM Plex Mono",monospace;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px;unicode-bidi:plaintext;text-align:right}
+.tips{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-top:14px}
+.tip{background:var(--tip);color:var(--tip-ink);border-radius:10px;padding:14px 16px}
+.tip h3{margin:0 0 6px;font-size:16px}
+.tip p{margin:0;unicode-bidi:plaintext}
+.hide .name{filter:blur(7px);cursor:pointer;user-select:none}
+.hide .card.shown .name{filter:none}
+.empty{color:var(--muted);margin-top:30px}
+.foot{margin-top:40px;color:var(--muted);font-size:13px}
+@media (prefers-reduced-motion:no-preference){.name{transition:filter .2s}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <h1>סמנים מזהים בהמטולוגיה</h1>
+  <p class="sub">לכל מחלה ותסמונת במצגת Hematology – Brunner 15: הסימן הייחודי שמכוון לאבחנה (מודגש), סימנים תומכים וממצאי מעבדה. במצב תרגול שמות המחלות מוסתרים — קראו את הסימן ונחשו, ולחצו על הכרטיס כדי לחשוף.</p>
+
+  <div class="bar">
+    <input type="search" id="q" placeholder="חיפוש: סימן, מחלה או בדיקה (למשל Bronze, Coombs, JAK2)">
+    <label class="practice"><input type="checkbox" id="practice"> מצב תרגול</label>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div id="out"></div>
+  <p class="empty" id="empty" hidden>לא נמצאו תוצאות לחיפוש הזה.</p>
+
+  <section id="tips-sec">
+    <h2>הבחנות שכדאי לזכור</h2>
+    <div class="tips">
+      <div class="tip"><h3>סמני המוליזה (כללי)</h3><p>↑ Bilirubin (Indirect) · ↑ LDH · ↓ Haptoglobin · ↑ Reticulocytes</p></div>
+      <div class="tip"><h3>סיווג לפי MCV</h3><p>Microcytic: חסר ברזל, Thalassemia, דימום כרוני · Normocytic: דימום חריף, המוליזה, Aplastic, G6PD, לוקמיה, CKD · Macrocytic: B12/Folate, מחלת כבד, אלכוהוליזם, MDS</p></div>
+      <div class="tip"><h3>B12 מול Folate</h3><p>שתיהן Megaloblastic. רק ב-B12 יש פגיעה נוירולוגית (הרס מיאלין). מתן Folate בחסר B12 מחמיר את הסימנים הנוירולוגיים.</p></div>
+      <div class="tip"><h3>Polycythemia Vera מול משנית</h3><p>PV: מוטציית JAK2, עלייה בכל השורות (RBC, WBC, PLT), גרד, Splenomegaly. משנית: תגובה להיפוקסיה/EPO (COPD, Sleep apnea, עישון, גובה), תיתכן Acrocyanosis.</p></div>
+      <div class="tip"><h3>Iron deficiency מול Anemia of Inflammation</h3><p>בשתיהן Fe נמוך. חסר ברזל: Ferritin ↓, TIBC ↑. אנמיה של דלקת: Ferritin תקין/↑, Transferrin ↓ (Hepcidin ↑).</p></div>
+      <div class="tip"><h3>Hemophilia A מול von Willebrand</h3><p>המופיליה: X-linked (גברים), דימום למפרקים ולשרירים. vWD: דומיננטית (גם נשים), דימום עור וריריות — אף, וסת מוגבר.</p></div>
+      <div class="tip"><h3>TRALI מול TACO</h3><p>שתיהן בצקת ריאות אחרי עירוי. TRALI: לחץ דם נמוך, חום, תוך 6 שעות, לרוב FFP. TACO: יתר לחץ דם, גודש ורידי צוואר, עירוי מהיר בחולה CHF.</p></div>
+      <div class="tip"><h3>מתי לחשוד בתרומבופיליה מולדת</h3><p>טרומבוזה חוזרת · במיקום לא אופייני (Mesenteric/Renal/Hepatic/Cerebral) · לפני גיל 40 · היסטוריה משפחתית.</p></div>
+      <div class="tip"><h3>דרגות Thrombocytopenia</h3><p>PLT &lt; 50,000: דימום רק אחרי טראומה/ניתוח · ~20,000: פטכיות, דימום מאף/פה · &lt; 5,000: סכנת דימום קטלני.</p></div>
+      <div class="tip"><h3>גודל נגעי דימום בעור</h3><p>Petechiae &lt; 2 מ״מ · Purpura 2–10 מ״מ · Ecchymosis &gt; 1 ס״מ</p></div>
+    </div>
+  </section>
+
+  <p class="foot">מבוסס על המצגת Hematology – Br15 (עורך: זהר פטלג'ן). חומר עזר ללמידה בלבד.</p>
+</div>
+
+<script>
+const CATS=[
+ ["hypo","אנמיות היפופרוליפרטיביות"],
+ ["hemo","אנמיות המוליטיות"],
+ ["poly","פוליציטמיה ועודף ברזל"],
+ ["plt","הפרעות טסיות"],
+ ["coag","הפרעות קרישה (לא טסיות)"],
+ ["thr","הפרעות טרומבוטיות"],
+ ["neo","ממאירויות המטולוגיות"],
+ ["tx","סיבוכי השתלה ועירוי דם"]
+];
+const D=[
+// hypoproliferative
+{c:"hypo",n:"Iron Deficiency Anemia",h:"אנמיה מחוסר ברזל",k:"Pica — רעב לקרח, גיר, חמר, פחם, נייר, עמילן, אורז נא",s:["ציפורניים שטוחות וסדוקות, לשון חלקה/דלקתית, פצעים בפה","Restless Leg Syndrome","אי-סבילות לקור ולמאמץ, דפיקות לב, אורתוסטטיזם","האנמיה השכיחה ביותר (~12%) — נשים, קשישים"],l:"Microcytic Hypochromic · ↓Serum Fe · ↓Ferritin · ↑TIBC · דם סמוי בצואה"},
+{c:"hypo",n:"Anemia in Renal Disease (CKD)",h:"אנמיה במחלת כליה",k:"ירידה בייצור Erythropoietin — מופיעה לרוב כש-GFR < 30",s:["Normocytic, Normochromic","החמרת CHF, ירידה קוגניטיבית","שילוב עם סוכרת מחמיר את האנמיה"],l:"↓EPO · GFR < 30"},
+{c:"hypo",n:"Anemia of Inflammation",h:"אנמיה של מחלה כרונית / דלקת",k:"Fe נמוך אבל Ferritin תקין או גבוה (עלייה ב-Hepcidin)",s:["רקע של מחלה דלקתית ממושכת: RA, IBD, זיהומים, גידולים, CKD, CHF","לרוב לא חמורה (Hb > 9)","מיימת, הגדלת טחול/כבד"],l:"↓Fe · ↓Transferrin · Ferritin N/↑ · ↓Retic · ↓EPO"},
+{c:"hypo",n:"Vit. B12 Deficiency / Pernicious Anemia",h:"אנמיה מגלובלסטית — חסר B12",k:"Megaloblastic + פגיעה נוירולוגית (הרס מיאלין): נוירופתיה, שינויי אישיות, פסיכוזה, חוסר יציבות",s:["Glossitis, פצעים בפה, צהבת, ירידה בתיאבון ובמשקל","Pernicious: חוסר Intrinsic Factor אוטואימוני, ↑ סיכון לסרטן קיבה","נזק נוירולוגי עלול להפוך בלתי הפיך","סיכון: Metformin, PPI, Gastrectomy, טבעונות"],l:"Macrocytosis · Pancytopenia · ↑Methylmalonic acid · ↑Homocysteine · Anti-IF Ab"},
+{c:"hypo",n:"Folate Deficiency",h:"אנמיה מגלובלסטית — חסר חומצה פולית",k:"תמונה כמו B12 אך ללא פגיעה נוירולוגית",s:["מתפתחת מהר יותר (מחסנים לחודשים ספורים)","סיכון: אלכוהוליזם, מחלת כבד, הריון/הנקה, Celiac","תרופות: Methotrexate, Phenytoin"],l:"Macrocytosis · ↓Folic acid · ↑Homocysteine"},
+{c:"hypo",n:"Aplastic Anemia",h:"אנמיה אפלסטית",k:"Pancytopenia + מח עצם Hypocellular שהוחלף בתאי שומן",s:["~80% נרכשת, לרוב אידיופטית; קרינה, תרופות, Parvovirus, HIV, EBV","דימום חניכיים/עור/רשתית, זיהומים, כיבים בפה","מולדת (Fanconi): פגמי לב, כליה ושלד, עיכוב התפתחותי","Severe Aplastic Anemia — מצב חירום"],l:"CBC: ↓RBC ↓WBC ↓PLT · ביופסיית מח עצם: Hypocellularity"},
+// hemolytic
+{c:"hemo",n:"β-Thalassemia Major (Cooley Anemia)",h:"תלסמיה מז'ור",k:"Target cells + שינויים בעצמות הפנים, אנמיה קשה מגיל צעיר שדורשת עירויים",s:["עיכוב גדילה, Hepato/Splenomegaly, אבני מרה","שקיעת ברזל באיברים (עודף ברזל מעירויים)","Minor (הטרוזיגוטית): אנמיה מיקרוציטית קלה או ללא תסמינים","שכיחה באזורים עם מלריה אנדמית"],l:"Microcytosis · Hypochromia · Target cells · ↓Haptoglobin"},
+{c:"hemo",n:"α-Thalassemia",h:"אלפא תלסמיה",k:"פגם ב-Alpha globin; בצורה החמורה (Alpha⁰ Major) — מוות עוברי",s:["טווח רחב: מאסימפטומטית ועד מחלה קשה","שכיחה בדרום-מזרח אסיה, ארצות ערב, אפריקה"],l:"Microcytic · סמני המוליזה"},
+{c:"hemo",n:"Sickle Cell Anemia",h:"אנמיה חרמשית",k:"RBC בצורת חרמש במשטח + HbS באלקטרופורזיס; כאב הוא הסימן השכיח",s:["Vaso-Occlusive Crisis: CVA, Avascular Necrosis, Priapism, Leg ulcers","Acute Chest Syndrome — סיבת המוות השכיחה במבוגרים","צילום: \"Hair-on-end\" בגולגולת, \"Fish vertebra\"","טריגרים: היפוקסיה, התייבשות, קור/חום, גובה, זיהום","Splenic sequestration, נטייה לזיהומים; RBC חי ~15 יום"],l:"Sickle RBC · HbS · ↑Retic · ↓Haptoglobin · ↓Hb"},
+{c:"hemo",n:"G6PD Deficiency",h:"חסר G6PD (פאביזם)",k:"משבר המוליטי 24–72 שעות אחרי חשיפה לפול (Fava), Sulfa, תרופות נגד מלריה",s:["משטח: Heinz bodies, \"Bite cells\"","Hematuria, צהבת (כולל צהבת ילודים)","טריגרים נוספים: מי טוניק, סויה, אוכמניות, יין אדום, מנטול, Naphthalene","לרוב גברים; החסר האנזימטי השכיח בעולם"],l:"רמת אנזים G6PD (אבחנה סופית) · ↑Retic · ↓Haptoglobin · ↑Bili/LDH"},
+{c:"hemo",n:"Immune Hemolytic Anemia",h:"אנמיה המוליטית אימונית",k:"Direct Coombs חיובי — נוגדנים על פני ה-RBC",s:["Warm (IgG, 37°C, 80%) / Cold (IgM, 32°C) — להימנע מקור","קשורה ל-CLL, לימפומה, מחלות אוטואימוניות, תרופות, טעות בעירוי","Lymphadenopathy, Hepato/Splenomegaly, צהבת"],l:"Direct Coombs + · ↓Hb · ↑Retic · ↑Bili · ↓Haptoglobin"},
+// poly / iron
+{c:"poly",n:"Polycythemia Vera",h:"פוליציטמיה ורה",k:"עור פנים וריריות אדום/סגול + מוטציית JAK2",s:["גרד, כאב ראש, סחרחורת, זמזום באוזניים, הפרעות ראייה","צליעה לסירוגין","נטייה גם לטרומבוזה (DVT, CVA, MI) וגם לדימום","Gout, Hyperkalemia, HTN, Hepato/Splenomegaly"],l:"HCT > 60% (אבחנה: >49%) · Hb > 18 · ↑RBC ↑WBC ↑PLT · Panmyelosis"},
+{c:"poly",n:"Secondary Polycythemia",h:"פוליציטמיה משנית",k:"HCT גבוה כתגובה להיפוקסיה ממושכת/הפרשת EPO (COPD, Sleep apnea, עישון, גובה)",s:["אודם בעור ובריריות, Acrocyanosis","גידולים מפרישי EPO: RCC, HCC, Adrenal adenoma","Testosterone, דופינג","יחסית: התייבשות"],l:"HCT > 50–55% · ↑EPO"},
+{c:"poly",n:"Hereditary Hemochromatosis",h:"המוכרומטוזיס תורשתית",k:"Bronze skin (עור ברונזה) + סוכרת, שחמת והגדלת כבד",s:["מוקדם: עייפות, אימפוטנציה, כאבי פרקים","Hypogonadism, Cardiomyopathy, הפרעות קצב, Hypothyroidism","75% אסימפטומטיים; גברים פי 3; צפון אירופה","סיכון ל-Hepatocellular Ca (מעקב Alpha-fetoprotein)"],l:"מוטציית HFE · ↑Ferritin · ↑Transferrin saturation · ↓TIBC · ביופסיית כבד"},
+// platelets
+{c:"plt",n:"Thrombocytopenia",h:"תרומבוציטופניה (כללי)",k:"פטכיות, פורפורה ואכימוזות; דימום מאף, חניכיים, וסת מוגבר",s:["דימום ממושך מפציעה ומנקזים, דימום למפרקים/שרירים","Splenomegaly","Pseudothrombocytopenia — אגרגציה במבחנת EDTA (~1%)"],l:"PLT < 150,000 · ראו דרגות חומרה למטה"},
+{c:"plt",n:"ITP — Immune Thrombocytopenic Purpura",h:"ITP",k:"Isolated Thrombocytopenia — ירידה בטסיות בלבד, מורפולוגיה תקינה + ↑Megakaryocytes במח העצם",s:["נוגדני IgG נגד טסיות, הרס בטחול","לרוב לאחר מחלה ויראלית (בילדים) או במחלה אוטואימונית","שכיח בילדים ובנשים צעירות","בילדים לרוב חולף ללא טיפול"],l:"↓PLT בלבד · RBC תקינים · ↑Megakaryocytes"},
+{c:"plt",n:"TTP — Thrombotic Thrombocytopenic Purpura",h:"TTP",k:"טרומבוציטופניה + המוליזה + פגיעה נוירולוגית + ARF + חום; חסר ADAMTS13",s:["קרישיות בכלי דם קטנים → איסכמיה, CVA, MI","מצב חירום המטולוגי — Plasma exchange תוך 4–8 שעות","טריגר: וירוס, מחלה אוטואימונית, הריון, תרופות"],l:"↓PLT · שברי RBC · ↑vWF · ↓ADAMTS13"},
+{c:"plt",n:"HIT — Heparin-Induced Thrombocytopenia",h:"HIT",k:"ירידה של ≥50% בטסיות 4–10 ימים אחרי התחלת Heparin — עם טרומבוזה",s:["Type II אימוני (PF4 + Ig), מסכן חיים, לא תלוי מינון","Type I: יום 2–4, ירידה מתונה, חולף","עור: Skin necrosis, Erythematous plaques","טיפול: הפסקת כל ה-Heparin, מעבר ל-DOAC; להימנע מ-Warfarin"],l:"PLT ~50–80K · נוגדני PF4"},
+// coag
+{c:"coag",n:"Hemophilia A",h:"המופיליה A",k:"Hemarthrosis — דימום למפרקים ולשרירים (75%) אצל גבר",s:["X-linked recessive: נשים נשאיות, גברים חולים","נזק כרוני למפרקים, Bone cysts","B (Christmas) — חסר Factor IX; C — חסר Factor XI","להימנע מ-ASA ו-NSAID"],l:"PTT מאורך · PT תקין · PLT תקין · Factor VIII < 5%"},
+{c:"coag",n:"von Willebrand Disease",h:"מחלת פון וילברנד",k:"דימום בעור וריריות (אף, וסת מוגבר, המטומות) שמחמיר אחרי ASA או גלולות",s:["תורשה דומיננטית — גם נשים חולות; 1–2% באוכלוסייה","Type I חסר כמותי (75%), II איכותי, III חסר מוחלט","סכנה בטראומה ובניתוח","טיפול: Vasopressin (DDAVP), vWF/FVIII concentrate"],l:"↓vWF · השפעה על Factor VIII"},
+{c:"coag",n:"Vitamin K Deficiency",h:"חסר ויטמין K",k:"PT מאורך (PTT ±) עם דימום — בילודים או אצל מטופלי Coumadin",s:["ילודים: מעי סטרילי, מעט VK בחלב אם","מבוגרים: אנטיביוטיקה, CF, מחלות כבד/מרה, תת-ספיגה","דימום ספונטני בעור ובריריות"],l:"PT ↑ · PTT ± · ↓Vit K"},
+{c:"coag",n:"DIC — Disseminated Intravascular Coagulation",h:"DIC",k:"קרישה ודימום בו-זמנית; D-Dimer גבוה ו-Fibrinogen נמוך",s:["תמיד משנית: Sepsis, טראומה, סיבוכי לידה (AFE, HELLP, היפרדות שלייה), גידולים","אי-ספיקת כליה/כבד/נשימה, הלם","אין בדיקה אחת ספציפית — חשוב לחזור על הבדיקות"],l:"↑D-Dimer · ↓Fibrinogen · PT/PTT ↑ · ↓PLT · Schistocytes"},
+// thrombotic
+{c:"thr",n:"Essential Thrombocytosis",h:"תרומבוציטוזיס ראשונית",k:"PLT > 450,000 + כאבים ונמק באצבעות (חסימה מיקרו-וסקולרית), כאב ראש, TIA",s:["מיאלופרוליפרטיבית: מוטציית JAK2/CALR","גם טרומבוזות וגם דימומים (↓vWF)","Hepato/Splenomegaly; גיל ממוצע 65; עד 5% הופכות ללוקמיה"],l:"PLT > 450K · Megakaryocytic hyperplasia · JAK2/CALR"},
+{c:"thr",n:"Antithrombin Deficiency",h:"חסר אנטיתרומבין",k:"Heparin ו-Clexane אינם יעילים — עמידות להפרין",s:["טרומבוזה ורידית: DVT, PE, Mesenteric, Retinal, Renal, IVC","לרוב מולד; נרכש ב-DIC, Sepsis, Nephrotic syndrome, מחלת כבד","טיפול: Antithrombin concentrate"],l:"↓Antithrombin"},
+{c:"thr",n:"Protein C Deficiency",h:"חסר חלבון C",k:"Warfarin-induced skin necrosis (נמק עור בתחילת טיפול בקומדין)",s:["VTE ללא סיבה ברורה, סיפור משפחתי","Intracranial emboli, מוות עוברי","נרכש: קומדין, DIC, Sepsis, מחלת כבד, חסר Vit K"],l:"↓Protein C · תפקודי קרישה"},
+{c:"thr",n:"Protein S Deficiency",h:"חסר חלבון S",k:"VTE, כולל טרומבוזה בוורידים לא אופייניים: Axillary, Mesenteric, Cerebral",s:["חלבון נוגד קרישה מהכבד","נרכש: חסר Vit K, פגיעה כבדית; קבוצות סיכון — הריון, HIV, כימותרפיה"],l:"↓Protein S"},
+{c:"thr",n:"Factor V Leiden",h:"פקטור 5 ליידן",k:"עמידות ל-Activated Protein C (APC resistance)",s:["הפגם הגנטי שכיח במיוחד באוכלוסייה אירופאית","הומוזיגוטים — סיכון לקרישיות פי 50","טיפול מניעתי"],l:"בדיקה גנטית · APC resistance"},
+{c:"thr",n:"Antiphospholipid Syndrome (APLA / Lupus Anticoagulant)",h:"תסמונת אנטי-פוספוליפיד",k:"טרומבוזה ורידית וגם עורקית + הפלות חוזרות",s:["אוטואימונית, קשורה ל-SLE, RA, Sjogren","Eclampsia, Retinal/Renal/Adrenal thrombosis, AVN","גם זיהומים (HIV, HCV, Syphilis) ותרופות"],l:"נוגדנים אנטי-פוספוליפידיים · Lupus anticoagulant"},
+// neoplasms
+{c:"neo",n:"AML — Acute Myeloid Leukemia",h:"לוקמיה מיאלואידית חריפה",k:"מעל 20% Myeloblasts במח העצם + ירידה בכל השורות; הסננה לחניכיים",s:["מעל גיל 55 (שיא ~70), גברים","הסננה לטחול, כבד, עור, עצמות (כאבים), CNS","Leukostasis: קוצר נשימה, דיכוי הכרה","רקע: MDS, קרינה, בנזן, Down/Fanconi"],l:"Blasts > 20% · Pancytopenia · בדיקה כרומוזומלית"},
+{c:"neo",n:"CML — Chronic Myeloid Leukemia",h:"לוקמיה מיאלואידית כרונית",k:"כרומוזום פילדלפיה — t(9;22), גן BCR/ABL",s:["ריבוי גרנולוציטים; שלב כרוני לרוב ללא תסמינים","שלב מואץ: Splenomegaly, כאבי עצמות, הזעה, חום","Blast crisis: WBC > 100,000, מדמה AML","טיפול: Gleevec (Tyrosine kinase inhibitor)"],l:"WBC ~50,000 · Ph chromosome · BCR/ABL"},
+{c:"neo",n:"ALL — Acute Lymphocytic Leukemia",h:"לוקמיה לימפובלסטית חריפה",k:"הלוקמיה השכיחה בילדים (~75%) — לרוב בנים סביב גיל 4",s:["ריבוי Lymphoblasts (T/B)","הסננה לעצמות, טחול, בלוטות, אשכים, CNS (עצבים קרניאליים, כאב ראש, הקאות)","נויטרופניה עם זיהומים וחום, דימומים, DIC"],l:"↓Hb ↓PLT ↓Neu · ↑Uric acid/LDH · מח עצם — בדיקת בחירה"},
+{c:"neo",n:"CLL — Chronic Lymphocytic Leukemia",h:"לוקמיה לימפוציטית כרונית",k:"Lymphocytosis שמתגלה במקרה אצל מבוגר (~70) — B-cells בוגרים",s:["בלוטות, טחול וכבד מוגדלים, זיהומים חוזרים","B-symptoms: ירידה במשקל, הזעות לילה, חום","סיבוכים אוטואימוניים: אנמיה המוליטית, ITP","Richter transformation — מעבר לסוג אגרסיבי"],l:"↑WBC · ↑Lymphocytes · ↑β2-Microglobulin"},
+{c:"neo",n:"MDS — Myelodysplastic Syndrome",h:"תסמונת מיאלודיספלסטית",k:"אנמיה מקרוציטית עם ציטופניות אצל מבוגר (~70), תאים פגומים במח העצם",s:["דיכוי שורה אחת או יותר (RBC הכי שכיח)","~20% מתקדמים ל-AML","זיהומים, דימומים, אנמיה; רקע של כימו/קרינה/עישון"],l:"Macrocytic anemia · ↓PLT · ↓Neu · שינויים כרומוזומליים במח העצם"},
+{c:"neo",n:"Hodgkin Lymphoma",h:"לימפומת הודג'קין",k:"תאי Reed-Sternberg (לימפוציטים גדולים דו-גרעיניים); בלוטות ללא כאב בצוואר עם התפשטות רציפה",s:["שני שיאי גיל: 15–30 ומעל 60","B-symptoms, גרד","SVC syndrome מבלוטות מדיאסטינום","קשר ל-EBV/HIV; שיעור ריפוי ~90%"],l:"ביופסיית בלוטה (חובה) · ALP/LDH · WBC ↑/↓"},
+{c:"neo",n:"Non-Hodgkin Lymphoma (NHL)",h:"לימפומה שאינה הודג'קין",k:"אין תאי Reed-Sternberg; פיזור לא סדיר עם מעורבות מחוץ לבלוטות (GI, עור, עצם, CNS, אשכים)",s:["בלוטות מוגדלות, נוקשות, ללא כאב","הסרטן ההמטולוגי השכיח; גיל ממוצע 65, יותר גברים","סיבוכים: SVC syndrome, לחץ על חוט השדרה, נוזל פריקרדיאלי","קשר ל-HIV, EBV, חומרי הדברה, השתלות"],l:"↑Lymphocytes · ↑LDH · ↑Ca · ביופסיה"},
+{c:"neo",n:"Multiple Myeloma (MM)",h:"מיאלומה נפוצה",k:"CRAB — Hypercalcemia, Renal failure, Anemia, Bone lesions (\"Swiss cheese\")",s:["M-Protein ו-Bence Jones protein בשתן","כאבי עצמות ושברים פתולוגיים, לחץ על חוט השדרה","Carpal tunnel syndrome, Amyloidosis (הגדלת לשון, לב)","שלבים: MGUS → Smoldering MM → MM; גיל ~70"],l:"M-Protein · Bence Jones · ↑β2-Microglobulin · ↑Ca · ↑Creatinine"},
+// transplant / transfusion
+{c:"tx",n:"GVHD — Graft Versus Host Disease",h:"מחלת השתל נגד המאכסן",k:"פריחה ושלפוחיות, שלשולים מרובים ופגיעה בכבד אחרי השתלה אלוגנית",s:["Acute: עד 100 יום — עור, ריריות, מעי, כבד","Chronic: 3–12 חודשים — עור, עיניים, כבד, רקמת חיבור","הסיבוך השכיח ביותר (30–50% בתורם זר)"],l:"ביופסיה · תפקודי כבד"},
+{c:"tx",n:"Hepatic Sinusoidal Obstruction Syndrome (HSOS / VOD)",h:"חסימת סינוסואידים בכבד",k:"צהבת + מיימת + עלייה במשקל ימים עד שבועות אחרי השתלה",s:["חסימת מחזור הדם הכבדי, Portal HTN","בצקות, ירידה בטסיות, כשל כבד/כליה/ריאה","הסיבוך הקטלני ביותר"],l:"↑Bilirubin · ↓PLT"},
+{c:"tx",n:"Engraftment Syndrome",h:"תסמונת קליטת השתל",k:"חום, פריחה, שלשול וצבירת נוזלים בשלב קליטת השתל (יום 10–30)",s:["תגובה אימונית","טיפול: סטרואידים ומדכאי חיסון"],l:"—"},
+{c:"tx",n:"Acute Hemolytic Transfusion Reaction (ABO)",h:"תגובה המוליטית חריפה — אי-התאמה בסוג דם",k:"חום, צמרמורת וכאב גב/חזה כבר ב-10 המ״ל הראשונים; שתן דמי ומיעוט שתן",s:["התגובה הקטלנית השכיחה — לרוב טעות אנוש","קוצר נשימה, בלבול, הקאות","DIC והלם"],l:"סמני המוליזה · Coombs · Hemoglobinuria"},
+{c:"tx",n:"FNHTR — Febrile Non-Hemolytic Reaction",h:"תגובת חום לא המוליטית",k:"חום וצמרמורת תוך שעתיים, אחרי עירויים חוזרים — לא מסוכן",s:["נוגדנים נגד WBC וציטוקינים","דופק ↑, לחץ דם ↓, עד 24 שעות"],l:"—"},
+{c:"tx",n:"Allergic Transfusion Reaction",h:"תגובה אלרגית לעירוי",k:"גרד ופריחה במהלך העירוי",s:["שכיח אצל אנשים עם רגישויות אחרות","Bronchospasm; לעיתים נדירות אנפילקסיס"],l:"—"},
+{c:"tx",n:"TRALI — Transfusion Related Acute Lung Injury",h:"פגיעת ריאות חריפה מעירוי",k:"בצקת ריאות עם לחץ דם נמוך וחום תוך 6 שעות, לרוב אחרי FFP",s:["נוגדני HLA/נויטרופילים בפלזמת התורם","כיחלון, טכיקרדיה; מסכן חיים","מומלץ FFP מתורמים גברים"],l:"—"},
+{c:"tx",n:"TACO — Transfusion-Associated Circulatory Overload",h:"עומס נוזלים מעירוי",k:"יתר לחץ דם, גודש ורידי צוואר ובצקת ריאות אחרי עירוי מהיר",s:["מבוגרים וחולי CHF","טיפול: האטת קצב, משתנים"],l:"—"},
+{c:"tx",n:"Bacterial Transfusion Reaction",h:"זיהום חיידקי מעירוי",k:"חום גבוה, צמרמורת וספסיס עד Septic shock",s:["לרוב חיידקים גרם-שליליים","תרבית מהמנה ומהמטופל"],l:"תרביות דם"},
+{c:"tx",n:"DHR — Delayed Hemolytic Reaction",h:"תגובה המוליטית מאוחרת",k:"ירידה מתונה ב-Hb עם עלייה בבילירובין וב-LDH עד 10 ימים אחרי עירוי",s:["תגובה לאנטיגנים משניים על RBC"],l:"↓Hb · ↑Bili · ↑LDH"},
+{c:"tx",n:"TA-GVHD — Transfusion-Associated GVHD",h:"GVHD מעירוי",k:"1–2 שבועות אחרי עירוי אצל מדוכא חיסון: טרומבוציטופניה, הפטיטיס, זיהומים חוזרים",s:["נדיר אך מסוכן","בחילות/הקאות, ירידה במשקל"],l:"↓PLT · תפקודי כבד"},
+{c:"tx",n:"APTR — Acute Pain Transfusion Reaction",h:"תגובת כאב חריפה לעירוי",k:"כאבים בחזה, בגב ובפרקים עם אודם בפנים ובצוואר, במהלך העירוי או מיד אחריו",s:["HTN, חרדה","לא מסכן חיים; מגיב למשככי כאבים"],l:"—"}
+];
+
+const out=document.getElementById('out'),q=document.getElementById('q'),chips=document.getElementById('chips'),empty=document.getElementById('empty');
+let cat="all";
+const esc=s=>s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+function chip(id,label){const b=document.createElement('button');b.className='chip';b.textContent=label;b.setAttribute('aria-pressed',id===cat);b.onclick=()=>{cat=id;[...chips.children].forEach(x=>x.setAttribute('aria-pressed',x===b));render();};chips.appendChild(b);}
+chip("all","הכל");CATS.forEach(([id,l])=>chip(id,l));
+function render(){
+  const term=q.value.trim().toLowerCase();let total=0;let html="";
+  CATS.forEach(([id,label])=>{
+    if(cat!=="all"&&cat!==id)return;
+    const items=D.filter(d=>d.c===id&&(!term||[d.n,d.h,d.k,d.l,...d.s].join(' ').toLowerCase().includes(term)));
+    if(!items.length)return;total+=items.length;
+    html+=`<section><h2>${label}<small>${items.length}</small></h2><div class="grid">`+items.map(d=>`
+      <article class="card" tabindex="0">
+        <div class="name">${esc(d.n)}<span class="he">${esc(d.h)}</span></div>
+        <div class="key"><b>סימן מזהה</b>${esc(d.k)}</div>
+        <ul>${d.s.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+        ${d.l&&d.l!=="—"?`<div class="lab">${esc(d.l)}</div>`:''}
+      </article>`).join('')+`</div></section>`;
+  });
+  out.innerHTML=html;empty.hidden=total>0;
+}
+out.addEventListener('click',e=>{const c=e.target.closest('.card');if(c)c.classList.toggle('shown');});
+out.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList.contains('card'))e.target.classList.toggle('shown');});
+q.addEventListener('input',render);
+document.getElementById('practice').addEventListener('change',e=>{out.classList.toggle('hide',e.target.checked);out.querySelectorAll('.shown').forEach(c=>c.classList.remove('shown'));});
+render();
+</script>
+</body>
+</html>

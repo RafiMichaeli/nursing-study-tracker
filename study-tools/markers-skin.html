@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<!-- saved from url=(0054)file:///Users/rafimichaeli/Downloads/skin-markers.html -->
+<html lang="he" dir="rtl"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>סמנים מזהים במחלות עור</title>
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&amp;display=swap">
+<style>
+:root{
+  --bg:#F7F4F0; --surface:#FFFFFF; --ink:#221C18; --muted:#6A5F57; --line:#E4DDD5;
+  --accent:#9A4A1E; --hl:#F8E9DE; --hl-ink:#6B3212; --chip:#F0EBE5; --tip:#EAF1F0; --tip-ink:#1F4A45;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15120F; --surface:#1E1A16; --ink:#EDE7E1; --muted:#A89D93; --line:#342E28;
+    --accent:#F0A06F; --hl:#3B2517; --hl-ink:#FFD2B5; --chip:#29241F; --tip:#15282A; --tip-ink:#A8D8D1;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15120F; --surface:#1E1A16; --ink:#EDE7E1; --muted:#A89D93; --line:#342E28;
+  --accent:#F0A06F; --hl:#3B2517; --hl-ink:#FFD2B5; --chip:#29241F; --tip:#15282A; --tip-ink:#A8D8D1;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 "Assistant",system-ui,sans-serif}
+.wrap{direction:rtl;max-width:1100px;margin:0 auto;padding-inline:20px;padding-block:28px 60px}
+@media (max-width:420px){.wrap{padding-inline:16px}}
+h1,h2{font-family:"Frank Ruhl Libre",Georgia,serif;text-wrap:balance;margin:0}
+h1{font-size:clamp(28px,5vw,40px);line-height:1.15}
+.sub{color:var(--muted);margin:8px 0 0;max-width:68ch}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:14px;margin-top:18px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.bar input[type=search]{flex:1 1 220px;min-width:0;font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:600 13px "Assistant",sans-serif;border:1px solid var(--line);background:var(--chip);color:var(--ink);padding:5px 11px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.practice{display:flex;gap:6px;align-items:center;font-weight:600;font-size:14px;cursor:pointer}
+button:focus-visible,input:focus-visible,.card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+section{margin-top:34px}
+section h2{font-size:24px;display:flex;align-items:baseline;gap:10px}
+section h2 small{font:400 14px "Assistant",sans-serif;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin-top:14px}
+@media (max-width:420px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.name{font:700 17px/1.3 "Assistant",sans-serif;direction:ltr;text-align:right;unicode-bidi:plaintext}
+.name .he{display:block;font-weight:400;font-size:14px;color:var(--muted)}
+.key{background:var(--hl);color:var(--hl-ink);border-radius:6px;padding:9px 11px;font-weight:700;line-height:1.45}
+.key b{display:block;font:500 11px "IBM Plex Mono",monospace;letter-spacing:.06em;opacity:.8;margin-bottom:2px}
+ul{margin:0;padding-inline-start:18px;display:flex;flex-direction:column;gap:3px}
+li{unicode-bidi:plaintext;text-align:right}
+.lab{font:13px/1.5 "IBM Plex Mono",monospace;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px;unicode-bidi:plaintext;text-align:right}
+.tips{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-top:14px}
+@media (max-width:420px){.tips{grid-template-columns:1fr}}
+.tip{background:var(--tip);color:var(--tip-ink);border-radius:10px;padding:14px 16px}
+.tip h3{margin:0 0 6px;font-size:16px}
+.tip p{margin:0;unicode-bidi:plaintext}
+.hide .name{filter:blur(7px);cursor:pointer;user-select:none}
+.hide .card.shown .name{filter:none}
+.empty{color:var(--muted);margin-top:30px}
+.foot{margin-top:40px;color:var(--muted);font-size:13px}
+@media (prefers-reduced-motion:no-preference){.name{transition:filter .2s}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <h1>סמנים מזהים במחלות עור</h1>
+  <p class="sub">לכל מחלה ומצב במצגות העור (זיהומים, מחלות דלקתיות ואלרגיות, בדיקות אבחון) ובמצגת הכוויות – Brunner 15: הסימן הייחודי שמכוון לאבחנה (מודגש), סימנים תומכים ובדיקה/טיפול מפתח. במצב תרגול שמות המחלות מוסתרים — קראו את הסימן ונחשו, ולחצו על הכרטיס כדי לחשוף.</p>
+
+  <div class="bar">
+    <input type="search" id="q" placeholder="חיפוש: סימן, מחלה או בדיקה (למשל Auspitz, Nikolsky, Patch)">
+    <label class="practice"><input type="checkbox" id="practice"> מצב תרגול</label>
+    <div class="chips" id="chips"><button class="chip" aria-pressed="true">הכל</button><button class="chip" aria-pressed="false">זיהומים חיידקיים</button><button class="chip" aria-pressed="false">זיהומים ויראליים</button><button class="chip" aria-pressed="false">זיהומים פטרייתיים</button><button class="chip" aria-pressed="false">זיהומים פרזיטיים</button><button class="chip" aria-pressed="false">גרד ואורטיקריה</button><button class="chip" aria-pressed="false">דרמטיטיס</button><button class="chip" aria-pressed="false">פסוריאזיס</button><button class="chip" aria-pressed="false">מחלות שלפוחיות</button><button class="chip" aria-pressed="false">כוויות — דרגות וסוגים</button><button class="chip" aria-pressed="false">כוויות — סיבוכים</button></div>
+  </div>
+
+  <div id="out"><section><h2>זיהומים חיידקיים<small>6</small></h2><div class="grid">
+      <article class="card" tabindex="0">
+        <div class="name">Folliculitis<span class="he">דלקת זקיק השיער</span></div>
+        <div class="key"><b>סימן מזהה</b>פפולות/פוסטולות קטנות ממוקדות סביב זקיקי השיער — הזיהום השטחי ביותר</div>
+        <ul><li>לרוב Staphylococcus aureus</li><li>גרד, צריבה או רגישות מקומית</li><li>קרקפת, פנים, צוואר, בית שחי, גפיים</li><li>טיפול: היגיינה, ניקוי עדין, אנטיביוטיקה מקומית/סיסטמית לפי הצורך</li></ul>
+        <div class="lab">כאב קל · טיפול מקומי</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Hot Tub Folliculitis<span class="he">פוליקוליטיס ג'קוזי</span></div>
+        <div class="key"><b>סימן מזהה</b>פפולות/פוסטולות אדומות מגרדות 1–4 ימים אחרי ג'קוזי או בריכה</div>
+        <ul><li>Pseudomonas aeruginosa (לא Staph!)</li><li>מים שאינם מחוטאים היטב</li><li>חולף לרוב עצמונית תוך 7–14 ימים</li><li>לשאול על חשיפה לבריכה; לפנות אם חום, כאב או החמרה</li></ul>
+        <div class="lab">Pseudomonas</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Furuncle<span class="he">שחין / אבסס קטן</span></div>
+        <div class="key"><b>סימן מזהה</b>נגע אדום, כואב ומוגלתי — זיהום עמוק של הזקיק והרקמה שסביבו</div>
+        <ul><li>עמוק יותר מ-Folliculitis</li><li>פנים, צוואר, בתי שחי, ישבן</li><li>טיפול: קומפרסים חמים, ניקוז לפי הצורך, אנטיביוטיקה</li></ul>
+        <div class="lab">Staph aureus · כאב בינוני</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Carbuncle<span class="he">אבצס מרובה</span></div>
+        <div class="key"><b>סימן מזהה</b>איחוד של כמה Furuncles סמוכים — נפיחות עם הפרשה מוגלתית בעורף או בגב</div>
+        <ul><li>גדול ועמוק יותר מ-Furuncle</li><li>כאב חזק</li><li>טיפול: ניקוז כירורגי לפי הצורך + אנטיביוטיקה</li></ul>
+        <div class="lab">כאב חזק · ניקוז + אנטיביוטיקה</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Cutaneous Abscess<span class="he">מורסה עורית</span></div>
+        <div class="key"><b>סימן מזהה</b>חלל מלא מוגלה בתוך העור או מתחתיו — ניקוז הוא הטיפול העיקרי</div>
+        <ul><li>נגע אדום, נפוח וכואב, חום מקומי</li><li>יכול להופיע בכל מקום בגוף</li><li>אנטיביוטיקה רק במקרים מסוימים</li></ul>
+        <div class="lab">Staph aureus · כאב חזק מאוד · ניקוז כירורגי</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Cellulitis<span class="he">צלוליטיס</span></div>
+        <div class="key"><b>סימן מזהה</b>אודם, חום, נפיחות וכאב עם גבולות לא חדים — זיהום של הדרמיס והרקמה התת-עורית</div>
+        <ul><li>חודר דרך פצע, סדק או פגיעה בעור</li><li>Group A Strep ו-Staph aureus</li><li>אינו מדבק מאדם לאדם</li><li>סיכון: סוכרת, בצקת כרונית/לימפאדמה, מחלות עור, דיכוי חיסוני</li><li>לעיתים חום וצמרמורות; סיבוכים: מורסה, Sepsis</li><li>טיפול: אנטיביוטיקה, מנוחה והרמת הגפה</li></ul>
+        <div class="lab">אבחנה קלינית · תרבית רק בחוזר/מורסה</div>
+      </article></div></section><section><h2>זיהומים ויראליים<small>7</small></h2><div class="grid">
+      <article class="card" tabindex="0">
+        <div class="name">Primary Orolabial HSV<span class="he">הרפס ראשוני בפה (HSV-1)</span></div>
+        <div class="key"><b>סימן מזהה</b>ילד בן 1–5 עם חום, שלפוחיות וכיבים בפה ובחניכיים וקושי לאכול ולשתות</div>
+        <ul><li>זיהום ראשוני — אחריו הנגיף רדום בגנגליונים תחושתיים</li><li>טיפול תומך, לעיתים Acyclovir</li></ul>
+        <div class="lab">PCR</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Recurrent Herpes Simplex (Cold sores)<span class="he">הרפס חוזר — פצעי קור</span></div>
+        <div class="key"><b>סימן מזהה</b>עקצוץ, צריבה וגרד (Prodrome) ואז שלפוחיות בשפה</div>
+        <ul><li>טריגרים: סטרס, מחלת חום, שמש, דיכוי חיסוני</li><li>התפרצויות קלות וקצרות יותר מהראשוני</li><li>Asymptomatic shedding אפשרי</li><li>Acyclovir/Valacyclovir — מוקדם ככל האפשר</li></ul>
+        <div class="lab">PCR — בדיקת הבחירה</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Genital HSV<span class="he">הרפס גניטלי (HSV-2)</span></div>
+        <div class="key"><b>סימן מזהה</b>שלפוחיות וכיבים כואבים באיברי המין לאחר מגע מיני</div>
+        <ul><li>כאב וצריבה, חום, הגדלת בלוטות</li><li>יכול להיות אסימפטומטי</li><li>סיכון: בני זוג מרובים, ללא קונדום</li><li>קונדום מפחית אך לא מונע לחלוטין</li></ul>
+        <div class="lab">Acyclovir / Valacyclovir</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Herpes Simplex Encephalitis<span class="he">דלקת מוח הרפטית</span></div>
+        <div class="key"><b>סימן מזהה</b>חום, כאב ראש, שינוי במצב ההכרה ופרכוסים — מצב חירום</div>
+        <ul><li>Acyclovir IV דחוף</li></ul>
+        <div class="lab">Acyclovir IV</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Neonatal HSV<span class="he">הרפס ביילוד</span></div>
+        <div class="key"><b>סימן מזהה</b>הדבקה במהלך הלידה — סיכון גבוה כשהאם נדבקה לראשונה סמוך ללידה</div>
+        <ul><li>מחלה קשה ביילוד</li><li>אבחון וטיפול מוקדמים חיוניים</li></ul>
+        <div class="lab">Acyclovir IV</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Varicella (Chickenpox)<span class="he">אבעבועות רוח</span></div>
+        <div class="key"><b>סימן מזהה</b>נגעים בשלבים שונים בו-זמנית — Macules, Papules, Vesicles, Crusts</div>
+        <ul><li>פריחה בגלים (Crops) במשך 2–4 ימים; מתחילה בפנים ובגו ומתפשטת לגפיים</li><li>דגירה 10–21 יום</li><li>מדבק מ-1–2 ימים לפני הפריחה ועד שכל הנגעים גלדו</li><li>חום, חולשה וגרד</li><li>סיבוכים נדירים: זיהום חיידקי משני, דלקת ריאות, דלקת מוח</li><li>חיסון MMRV: גיל 12 חודשים + כיתה א'</li></ul>
+        <div class="lab">זיהום ראשוני ב-VZV · טיפות ומגע</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Herpes Zoster (Shingles)<span class="he">שלבקת חוגרת</span></div>
+        <div class="key"><b>סימן מזהה</b>שלפוחיות כואבות חד-צדדיות לאורך דרמטום אחד שאינן חוצות את קו האמצע</div>
+        <ul><li>ריאקטיבציה של VZV — מבוגרים או ירידה בחסינות</li><li>כאב, צריבה או עקצוץ ימים לפני הפריחה</li><li>שלפוחיות חדשות 3–5 ימים, החלמה 2–4 שבועות</li><li>סיבוכים: PHN (כאב עצבי ממושך), מעורבות עינית, זוסטר מפושט במדוכאי חיסון</li><li>Shingrix: 2 מנות, גיל 50+ או 18+ מדוכאי חיסון</li></ul>
+        <div class="lab">Acyclovir / Valacyclovir / Famciclovir — בתוך 72 שעות</div>
+      </article></div></section><section><h2>זיהומים פטרייתיים<small>6</small></h2><div class="grid">
+      <article class="card" tabindex="0">
+        <div class="name">Tinea Corporis<span class="he">פטרת עור הגוף</span></div>
+        <div class="key"><b>סימן מזהה</b>נגע טבעתי אדום עם קילוף בשוליים (Tinea circinata)</div>
+        <ul><li>גוף וגפיים, מלווה בגרד</li><li>מגע עם אדם, בעל חיים או חפצים מזוהמים</li><li>טיפול אנטי-פטרייתי מקומי; נרחב — פומי</li></ul>
+        <div class="lab">Dermatophyte</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Tinea Pedis (Athlete's Foot)<span class="he">פטרת כף הרגל</span></div>
+        <div class="key"><b>סימן מזהה</b>קילוף וסדקים בין אצבעות הרגליים, לעיתים ריח לא נעים</div>
+        <ul><li>נעליים סגורות, מקלחות ציבוריות, הזעת יתר</li><li>קרם אנטי-פטרייתי</li><li>החלפת גרביים יומית, ייבוש בין האצבעות, כפכפים במקלחת</li></ul>
+        <div class="lab">Dermatophyte</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Tinea Unguium (Onychomycosis)<span class="he">פטרת ציפורניים</span></div>
+        <div class="key"><b>סימן מזהה</b>ציפורן מעובה, צהובה-חומה, שבירה ומתפוררת</div>
+        <ul><li>לק אנטי-פטרייתי</li><li>לעיתים טיפול פומי ממושך</li></ul>
+        <div class="lab">Dermatophyte</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Intertrigo<span class="he">פטרת קפלי העור</span></div>
+        <div class="key"><b>סימן מזהה</b>אודם, גרד וצריבה בקפלי עור חמים ולחים — מתחת לשדיים, מפשעות, בטן</div>
+        <ul><li>לעיתים מלווה בזיהום קנדידה</li><li>סיכון: השמנה, חום ולחות</li></ul>
+        
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Oropharyngeal Candidiasis (Thrush)<span class="he">פטרת בחלל הפה</span></div>
+        <div class="key"><b>סימן מזהה</b>רובד לבן על הלשון או רירית הפה</div>
+        <ul><li>אחרי אנטיביוטיקה, סטרואידים או בדיכוי חיסוני</li><li>צריבה ואי-נוחות</li><li>Candida albicans (~80% מהמקרים)</li></ul>
+        <div class="lab">Nystatin / Fluconazole</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Candida Vulvovaginitis<span class="he">פטרת וגינלית</span></div>
+        <div class="key"><b>סימן מזהה</b>הפרשה לבנה סמיכה עם גרד וצריבה</div>
+        <ul><li>סיכון: אנטיביוטיקה, היריון, סוכרת</li><li>טיפול מקומי או פומי</li></ul>
+        <div class="lab">Candida albicans</div>
+      </article></div></section><section><h2>זיהומים פרזיטיים<small>5</small></h2><div class="grid">
+      <article class="card" tabindex="0">
+        <div class="name">Scabies<span class="he">גרדת</span></div>
+        <div class="key"><b>סימן מזהה</b>גרד עז בלילה + תעלות דקות (Burrows) בין האצבעות ובשורשי כפות הידיים</div>
+        <ul><li>קרדית Sarcoptes scabiei — מגע עור-לעור ממושך</li><li>פריחה פפולרית: בתי שחי, מותניים, גניטליה</li><li>מוסדות סיעודיים, צפיפות</li><li>הגרד יכול להימשך שבועות אחרי טיפול — לא בהכרח כישלון</li></ul>
+        <div class="lab">אבחנה קלינית · גרידת עור למיקרוסקופ · Permethrin 5% (חזרה אחרי 7 ימים + כל בני הבית)</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Pediculosis Capitis<span class="he">כינמת הראש</span></div>
+        <div class="key"><b>סימן מזהה</b>ביצים (Nits) צמודות לשערה + גרד בקרקפת ובעורף</div>
+        <ul><li>מגע ראש-לראש; כינים זוחלות, לא קופצות</li><li>שורדת עד 24 שעות מחוץ לגוף</li><li>ביצים בוקעות תוך 8–10 ימים, מחזור ~28 יום</li><li>סירוק במסרק צפוף, בדיקת בני המשפחה</li></ul>
+        <div class="lab">Permethrin / Dimethicone · חזרה אחרי 7–10 ימים</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Pediculosis Corporis (Vagabond's disease)<span class="he">כינמת הגוף</span></div>
+        <div class="key"><b>סימן מזהה</b>הכינה חיה ומטילה ביצים בתפרי הבגדים — היחידה שמעבירה מחלות</div>
+        <ul><li>Epidemic Typhus, Relapsing fever, Trench fever</li><li>צפיפות, היגיינה ירודה, מחנות פליטים, קור</li><li>גרד עז באזורי מגע עם הבגדים</li><li>כרוני: עיבוי ופיגמנטציה של העור</li><li>שורדת עד 7 ימים מחוץ לגוף</li></ul>
+        <div class="lab">רחצה + כביסה חמה של בגדים ומצעים</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Pediculosis Pubis<span class="he">כינמת הערווה</span></div>
+        <div class="key"><b>סימן מזהה</b>גרד עז בערווה לאחר מגע מיני; אצל ילד — Red Flag לפגיעה מינית</div>
+        <ul><li>Pthirus pubis; גם בבית שחי, זקן וריסים</li><li>לא קשור להיגיינה</li><li>שורדת 24–48 שעות מחוץ לגוף</li><li>טיפול בבני הזוג, הימנעות ממגע מיני עד סיום הטיפול</li></ul>
+        <div class="lab">Permethrin · חזרה אחרי 7–10 ימים</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Bed Bugs<span class="he">פשפש המיטה</span></div>
+        <div class="key"><b>סימן מזהה</b>עקיצות מגרדות בשורה או בקבוצות אחרי שינה — פעיל בלילה</div>
+        <ul><li>Cimex lectularius — 4–6 מ״מ, חום-אדמדם, נמשך לחום ול-CO₂</li><li>לא ידוע כמעביר מחלות</li><li>הפרעות שינה וחרדה</li><li>חזר בגלל עמידות להדברה ותיירות</li></ul>
+        <div class="lab">כביסה ב-60°C · ייבוש ≥30 דקות · IPM · אנטיהיסטמינים</div>
+      </article></div></section><section><h2>גרד ואורטיקריה<small>6</small></h2><div class="grid">
+      <article class="card" tabindex="0">
+        <div class="name">Pruritus<span class="he">גרד (כללי)</span></div>
+        <div class="key"><b>סימן מזהה</b>מעגל Itch–Scratch: גירוד → פגיעה בעור → דלקת → יותר גרד</div>
+        <ul><li>Xerosis (עור יבש) — הסיבה הנפוצה</li><li>~50% סיבה מערכתית (כבד, כליה, תריס, סרטן דם)</li><li>כרוני ≥ 6 שבועות; שכיח מעל גיל 70</li><li>מחמיר בלילה; Lichenification בגרד כרוני</li><li>לא כל גרד היסטמיני — אנטיהיסטמינים לא תמיד יעילים</li></ul>
+        <div class="lab">קו ראשון: אנטיהיסטמין דור 2 · דור 1 — זהירות בקשישים (נפילות)</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Pruritus sine materia<span class="he">גרד ללא מחלת עור</span></div>
+        <div class="key"><b>סימן מזהה</b>גרד ללא נגעים עוריים נראים</div>
+        <ul><li>מקור מערכתי: כולסטזיס, אי-ספיקת כליות (Uremic), PV, תריס</li><li>הריון, HIV, הפטיטיס</li><li>פסיכוגני: סטרס, חרדה, OCD, דיכאון</li><li>תרופות: אופיאטים, Hydroxychloroquine, אסטרוגנים</li></ul>
+        <div class="lab">תפקודי כבד, כליה, תריס, B12</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Acute Urticaria (Hives)<span class="he">חרלת חריפה</span></div>
+        <div class="key"><b>סימן מזהה</b>Wheals אדומים מורמים ומגרדים שנעלמים תוך 1–24 שעות ללא צלקת</div>
+        <ul><li>שחרור היסטמין מתאי Mast (IgE או לא-אימוני)</li><li>תרופות (פניצילין, סולפה, NSAIDs, אספירין), מזון, עקיצות, זיהומים</li><li>גבולות חדים, צורות משתנות, עלולים להתמזג</li><li>עד 6 שבועות</li></ul>
+        <div class="lab">אנטיהיסטמין דור 2 + סטרואיד קצר · SPT אם חשד לאלרגיה</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Chronic Urticaria<span class="he">חרלת כרונית</span></div>
+        <div class="key"><b>סימן מזהה</b>Wheals חוזרים מדי יום או לסירוגין מעל 6 שבועות, לרוב ללא גורם מזוהה</div>
+        <ul><li>~80% אידיופתית; לעיתים אוטואימונית (נוגדנים נגד IgE/הקולטן)</li><li>פיזיקלי: לחץ, חום, קור, שמש, Dermatographism</li><li>מחמירים: סטרס, אלכוהול, הורמונים, חום גוף</li><li>פגיעה באיכות החיים</li></ul>
+        <div class="lab">אנטיהיסטמין דור 2 · Omalizumab בעמידים · CBC, CRP, TSH</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Angioedema<span class="he">אנגיואדמה</span></div>
+        <div class="key"><b>סימן מזהה</b>נפיחות עמוקה בשפתיים, עפעפיים ולשון — פחות גרד, יותר לחץ/כאב</div>
+        <ul><li>דרמיס עמוק/תת-עור או ריריות</li><li>מתפתחת לאט יותר, חולפת תוך עד 72 שעות</li><li>יכולה להופיע יחד עם אורטיקריה</li><li>לשון/גרון/צרידות = איום על נתיב אוויר — חירום</li></ul>
+        
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Cold Urticaria<span class="he">אורטיקריה מקור</span></div>
+        <div class="key"><b>סימן מזהה</b>Wheals וגרד דקות אחרי חשיפה לקור (מים, אוויר, מזון, חפצים)</div>
+        <ul><li>לעיתים אנגיואדמה</li><li>במקרים קשים — תגובה מערכתית ואנפילקסיס</li><li>להימנע מכניסה פתאומית למים קרים</li></ul>
+        <div class="lab">הימנעות מקור + אנטיהיסטמינים</div>
+      </article></div></section><section><h2>דרמטיטיס<small>7</small></h2><div class="grid">
+      <article class="card" tabindex="0">
+        <div class="name">Irritant Contact Dermatitis (ICD)<span class="he">דלקת עור ממגע — מגרה</span></div>
+        <div class="key"><b>סימן מזהה</b>צריבה, יובש וסדקים בכפות הידיים — מוגבל בדיוק לאזור המגע</div>
+        <ul><li>~80% מ-Contact dermatitis; לא אלרגי</li><li>סבונים, חומרי ניקוי, אלכוהול, ממסים, מים/גומי ממושך</li><li>מופיע אצל רוב מי שנחשף</li></ul>
+        <div class="lab">Patch test שלילי</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Allergic Contact Dermatitis (ACD)<span class="he">דלקת עור ממגע — אלרגית</span></div>
+        <div class="key"><b>סימן מזהה</b>גרד ושלפוחיות 24–72 שעות אחרי מגע עם ניקל, לטקס, בושם או קוסמטיקה</div>
+        <ul><li>Type IV — מתווכת תאי T, דורשת חשיפה חוזרת</li><li>גבולות חדים לפי אזור המגע, אך יכול לחרוג ממנו</li><li>רק אצל רגישים; שכיחות עולה עם הגיל</li><li>גם צבעי שיער ואנטיביוטיקה מקומית</li></ul>
+        <div class="lab">Patch test חיובי</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Atopic Dermatitis — Infant<span class="he">אטופיק דרמטיטיס בתינוקות</span></div>
+        <div class="key"><b>סימן מזהה</b>אודם והפרשה בלחיים ("Baby cheeks") החל מגיל 2–6 חודשים</div>
+        <ul><li>פנים, קרקפת, משטחי פשיטה</li><li>תחילת ה-Atopic March: אלרגיה למזון → אסתמה → נזלת אלרגית</li></ul>
+        
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Atopic Dermatitis — Child / Adult<span class="he">אטופיק דרמטיטיס בילדים ומבוגרים</span></div>
+        <div class="key"><b>סימן מזהה</b>גרד כרוני עם Lichenification בקפלי המרפקים והברכיים (Flexural)</div>
+        <ul><li>מוטציה ב-Filaggrin + תגובת Th2</li><li>Atopic tetrad: AD, אסתמה, נזלת אלרגית, אלרגיה למזון</li><li>גרד קשה בלילה → הפרעות שינה</li><li>מבוגרים: נגעים יבשים ומעובים בידיים, פנים, צוואר</li><li>עד 20% מהילדים, 2–5% מהמבוגרים</li></ul>
+        <div class="lab">Emollients · סטרואיד מקומי · Tacrolimus · Dupilumab · JAK inhibitors</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Seborrheic Dermatitis<span class="he">דרמטיטיס סבוראית</span></div>
+        <div class="key"><b>סימן מזהה</b>אודם וקשקשת באזורים עשירים בבלוטות חלב — קרקפת, גבות, קפלי האף, מאחורי האוזניים</div>
+        <ul><li>תגובה דלקתית לשמר Malassezia</li><li>לא מדבקת; מחמירה בסטרס, קור ויובש</li><li>שכיחה בחולי פרקינסון ובמדוכאי חיסון</li><li>אבחנה מבדלת: פסוריאזיס, AD, פטרת</li></ul>
+        <div class="lab">אבחנה קלינית · שמפו Ketoconazole / Selenium sulfide</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Cradle Cap<span class="he">דרמטיטיס סבוראית בתינוקות</span></div>
+        <div class="key"><b>סימן מזהה</b>קשקשת עבה ושומנית בקרקפת של תינוק בחודשים הראשונים</div>
+        <ul><li>לעיתים גם פנים ואזור החיתול</li><li>חולף לרוב מעצמו בשנה הראשונה</li></ul>
+        
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Dermatitis Herpetiformis<span class="he">דרמטיטיס הרפטיפורמיס</span></div>
+        <div class="key"><b>סימן מזהה</b>שלפוחיות קטנות מגרדות מאוד בפיזור סימטרי — הביטוי העורי של צליאק</div>
+        <ul><li>מרפקים, ברכיים, ישבן, גב תחתון, קרקפת</li><li>לא קשור לנגיף ההרפס</li><li>גיל 20–40</li><li>בגלל הגרד — בעיקר שריטות וגלדים ופחות שלפוחיות שלמות</li></ul>
+        <div class="lab">DIF: שקיעת IgA (בדיקת הבחירה) · Anti-tTG · EMA · Dapsone (לבדוק G6PD לפני) · דיאטה ללא גלוטן</div>
+      </article></div></section><section><h2>פסוריאזיס<small>6</small></h2><div class="grid">
+      <article class="card" tabindex="0">
+        <div class="name">Plaque Psoriasis (Vulgaris)<span class="he">פסוריאזיס רובדית</span></div>
+        <div class="key"><b>סימן מזהה</b>רבדים אדומים עם קשקשת כסופה + Auspitz sign (דימום נקודתי בהסרת הקשקשת)</div>
+        <ul><li>80–90% מהחולים</li><li>מרפקים, ברכיים, קרקפת, גב תחתון</li><li>Koebner — נגעים חדשים באזור פציעה</li><li>טריגרים: סטרס, זיהום סטרפטוקוקי, השמנה, עישון, אלכוהול, תרופות</li><li>גיל 15–35, נטייה משפחתית</li></ul>
+        <div class="lab">אבחנה קלינית · קלה: מקומי · בינונית: פוטותרפיה · קשה: סיסטמי/ביולוגי</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Guttate Psoriasis<span class="he">פסוריאזיס טיפתית</span></div>
+        <div class="key"><b>סימן מזהה</b>נגעים קטנים דמויי טיפות בגו ובגפיים אחרי זיהום סטרפטוקוקי</div>
+        
+        
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Inverse Psoriasis<span class="he">פסוריאזיס הפוכה</span></div>
+        <div class="key"><b>סימן מזהה</b>נגעים אדומים וחלקים ללא קשקשת משמעותית בקפלי העור</div>
+        <ul><li>בתי שחי, מפשעות, מתחת לשדיים</li></ul>
+        
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Pustular Psoriasis<span class="he">פסוריאזיס פוסטולרית</span></div>
+        <div class="key"><b>סימן מזהה</b>פוסטולות על רקע עור אדום בכפות הידיים והרגליים</div>
+        <ul><li>יכולה להיות גם באזורים נרחבים</li></ul>
+        
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Erythrodermic Psoriasis<span class="he">פסוריאזיס אריתרודרמית</span></div>
+        <div class="key"><b>סימן מזהה</b>מעורבות של רוב שטח הגוף — צורה נדירה וחמורה</div>
+        
+        
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Psoriatic Arthritis<span class="he">דלקת מפרקים פסוריאטית</span></div>
+        <div class="key"><b>סימן מזהה</b>כאב, נפיחות ונוקשות במפרקי האצבעות לצד מחלת העור</div>
+        <ul><li>10–30% מחולי הפסוריאזיס</li><li>אבחון מוקדם מונע נזק קבוע</li><li>מעקב משולב: עור + ראומטולוג</li></ul>
+        
+      </article></div></section><section><h2>מחלות שלפוחיות<small>2</small></h2><div class="grid">
+      <article class="card" tabindex="0">
+        <div class="name">Stevens-Johnson Syndrome (SJS)<span class="he">תסמונת סטיבנס-ג'ונסון</span></div>
+        <div class="key"><b>סימן מזהה</b>פריחה כואבת ושלפוחיות + מעורבות ריריות (פה, עיניים, איברי מין) אחרי תרופה חדשה; ניתוק עור &lt; 10%</div>
+        <ul><li>Sulfonamides, NSAIDs, Allopurinol, נוגדי פרכוס</li><li>מצב חירום</li><li>סיבוכים: פגיעה בעיניים עד ירידה בראייה, זיהום, התייבשות, צלקות</li></ul>
+        <div class="lab">הפסקה מיידית של התרופה · אשפוז · נוזלים · לעיתים ביופסיה</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Toxic Epidermal Necrolysis (TEN)<span class="he">נקרוליזיס אפידרמלי רעלני</span></div>
+        <div class="key"><b>סימן מזהה</b>ניתוק שכבות העור מעל 30% משטח הגוף עם מעורבות ריריות</div>
+        <ul><li>SJS/TEN overlap: 10–30%</li><li>ככל שהשטח גדול יותר — הסיכון גבוה יותר</li><li>טיפול כמו בכוויה: נוזלים, פצעים, כאב, מניעת זיהום</li><li>הדרכה: הימנעות מהתרופה ודיווח על הרגישות</li></ul>
+        <div class="lab">הפסקת התרופה · מעקב עיניים וריריות</div>
+      </article></div></section><section><h2>כוויות — דרגות וסוגים<small>8</small></h2><div class="grid">
+      <article class="card" tabindex="0">
+        <div class="name">First-Degree Burn (Superficial)<span class="he">כוויה דרגה I — שטחית</span></div>
+        <div class="key"><b>סימן מזהה</b>אדום ויבש, מחוויר בלחיצה, בצקת מינימלית; Nikolsky sign שלילי</div>
+        <ul><li>שמש, אש לא חזקה</li><li>Epidermis (ייתכן חלק מה-Dermis)</li><li>עקצוץ, כאב, רגישות יתר, קילוף, גרד</li><li>ריפוי כשבוע — ללא צלקות</li><li>לא נספרת בחישוב נוזלים</li></ul>
+        <div class="lab">משככי כאבים · קומפרסים קרים · משחות</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Second-Degree Burn (Partial-Thickness)<span class="he">כוויה דרגה II — עובי חלקי</span></div>
+        <div class="key"><b>סימן מזהה</b>לח עם שלפוחיות ובצקת, אדום/לבן מנומר; כאב ורגישות לאוויר קר</div>
+        <ul><li>נוזלים רותחים, אש, מגע בגוף חם</li><li>Epidermis + חלק מה-Dermis</li><li>ריפוי 2–3 שבועות, ייתכן שינוי פיגמנטציה וצלקת</li></ul>
+        <div class="lab">שטיפה · חבישה אנטימיקרוביאלית · לעיתים השתלת עור</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Third-Degree Burn (Full-Thickness)<span class="he">כוויה דרגה III — עובי מלא</span></div>
+        <div class="key"><b>סימן מזהה</b>יבש, לבן/אדום כהה או שחור עם גלד (Eschar) — ללא כאב (העדר תחושה)</div>
+        <ul><li>אש, חשיפה ממושכת לנוזל חם, כימי, חשמל</li><li>כל שכבות העור, לעיתים רקמת חיבור ושריר</li><li>הלם, Hemolysis, Myoglobinuria</li><li>ריפוי: צלקות, קונטרקטורות, איבוד תפקוד</li></ul>
+        <div class="lab">הטרייה · השתלת עור</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Fourth-Degree Burn (Deep Burn Necrosis)<span class="he">כוויה דרגה IV</span></div>
+        <div class="key"><b>סימן מזהה</b>רקמה חרוכה עד שריר ועצם</div>
+        <ul><li>חשיפה תרמית ממושכת, כימי, חשמל</li><li>הלם, Hemolysis, Myoglobinuria</li></ul>
+        <div class="lab">הטרייה · השתלה · אמפוטציה</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Electrical Burn<span class="he">כוויית חשמל</span></div>
+        <div class="key"><b>סימן מזהה</b>פצע כניסה ופצע יציאה; נזק עמוק מעבר למה שנראה בעור</div>
+        <ul><li>חומרה לפי מתח ומשך חשיפה</li><li>ניתוק הזרם, CPR, אק״ג</li><li>Myoglobinuria → סכנה לכליה</li><li>נוירופתיות מאוחרות</li></ul>
+        <div class="lab">ABA: 4 מ״ל × ק״ג × %TBSA · שתן 75–100 מ״ל/שעה</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Chemical Burn<span class="he">כוויה כימית</span></div>
+        <div class="key"><b>סימן מזהה</b>חומרה לפי ריכוז, משך וצורת החשיפה לחומצה או לבסיס</div>
+        <ul><li>אבקה — לנער קודם</li><li>הסרת בגדים ושטיפה במים</li><li>להתייעץ עם מרכז ההרעלות</li></ul>
+        <div class="lab">ABA: 2 מ״ל × ק״ג × %TBSA</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Inhalation Injury / Smoke Inhalation<span class="he">פגיעת שאיפה</span></div>
+        <div class="key"><b>סימן מזהה</b>שיער פנים חרוך + כיח מכוסה פיח + צרידות אחרי שריפה בחלל סגור</div>
+        <ul><li>כוויות בפנים/צוואר, שיעול, סטרידור, טכיפנאה</li><li>אודם ושלפוחיות ברירית הפה</li><li>עליונה (מעל ה-Glottis): בצקת → חסימה → אינטובציה מוקדמת</li><li>תחתונה: CO, ציאניד, תמט, ברונכוספזם</li><li>סיבוכים: דלקת ריאות, בצקת, ARDS</li></ul>
+        <div class="lab">ABG · COHb · ברונכוסקופיה · ישיבה 45° · ציוד אינטובציה ליד המיטה</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Carbon Monoxide Poisoning<span class="he">הרעלת פחמן חד-חמצני</span></div>
+        <div class="key"><b>סימן מזהה</b>צבע "Cherry red" — היפוקסיה רקמתית (Carboxyhemoglobin)</div>
+        <ul><li>חלק מפגיעת שאיפה</li><li>100% חמצן מקצר זמן מחצית חיים של COHb מ-4 שעות ל-45 דקות</li></ul>
+        <div class="lab">COHb · ABG · 100% O₂</div>
+      </article></div></section><section><h2>כוויות — סיבוכים<small>10</small></h2><div class="grid">
+      <article class="card" tabindex="0">
+        <div class="name">Burn Shock<span class="he">הלם כוויה (שלב דליפה)</span></div>
+        <div class="key"><b>סימן מזהה</b>דליפת נוזלים, נתרן וחלבון מהכלים לחלל הבין-תאי ב-24–36 השעות הראשונות → היפוולמיה</div>
+        <ul><li>↓CO, ↓BP, ↑דופק, ↓CVP</li><li>בצקות 4–18 שעות אחרי הפגיעה</li><li>Hemoconcentration, Thrombocytopenia, זמן קרישה מאורך</li><li>Hyperkalemia (הרס תאים) ו-Hyponatremia</li></ul>
+        <div class="lab">TBSA &gt; 20% → נוזלי IV (Lactated Ringer) · שתן 0.5–1 מ״ל/ק״ג/שעה</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Fluid Remobilization<span class="he">שלב חזרת הנוזלים</span></div>
+        <div class="key"><b>סימן מזהה</b>Diuresis — נוזלים חוזרים לכלי הדם (עד שבועיים) ומסמנים את תחילת השלב החריף</div>
+        <ul><li>↓בצקות, ↑BP, ↑CO</li><li>Hypokalemia ו-Hyponatremia</li></ul>
+        <div class="lab">מעקב אלקטרוליטים</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Circumferential Burn — Compartment / Chest Restriction<span class="he">כוויה היקפית</span></div>
+        <div class="key"><b>סימן מזהה</b>כוויה עמוקה היקפית בגפה או בחזה שחוסמת זרימה או נשימה</div>
+        <ul><li>בצקת לוחצת על כלים ועצבים דיסטליים — איסכמיה</li><li>בחזה/צוואר: הגבלת התרחבות</li><li>אומדן דפקים ידני או Doppler</li></ul>
+        <div class="lab">Escharotomy / Fasciotomy</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Myoglobinuria / Acute Renal Failure<span class="he">פגיעה כלייתית</span></div>
+        <div class="key"><b>סימן מזהה</b>Oliguria/Anuria עם עלייה ב-BUN וקריאטינין על רקע Hemoglobin ו-Myoglobin בשתן</div>
+        <ul><li>ירידה בנפח הדם</li><li>שכיח בכוויות עמוקות וחשמל</li><li>מעקב צבע, ריח וצלילות השתן</li></ul>
+        <div class="lab">יעד שתן 0.5–1 מ״ל/ק״ג/שעה (30–50 מ״ל/שעה)</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Curling's Ulcer<span class="he">כיב קורלינג</span></div>
+        <div class="key"><b>סימן מזהה</b>כיב פפטי של לחץ (Stress) אצל נפגע כוויות — לנטר סימני דימום</div>
+        <ul><li>חלק מהשינויים במערכת העיכול</li></ul>
+        <div class="lab">PPI</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Paralytic Ileus<span class="he">שיתוק מעיים</span></div>
+        <div class="key"><b>סימן מזהה</b>הקאות וסכנת אספירציה בכוויה נרחבת</div>
+        <ul><li>צום בשלב ההחייאה</li><li>זונדה לניקוז ב-TBSA &gt; 20%</li></ul>
+        <div class="lab">זונדה · נוזלי IV</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Abdominal Compartment Syndrome<span class="he">תסמונת מדור בטני</span></div>
+        <div class="key"><b>סימן מזהה</b>לחץ בשלפוחית השתן מעל 30 בנפגע עם שטח כוויה גדול</div>
+        <ul><li>חדירות מעי מוגברת → Sepsis</li></ul>
+        <div class="lab">Laparotomy</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Hypermetabolism<span class="he">מצב היפרמטבולי</span></div>
+        <div class="key"><b>סימן מזהה</b>עלייה בחום, דופק, צריכת חמצן וקטבוליזם של חלבון ושרירים</div>
+        <ul><li>↑Catecholamines, ADH, Aldosterone, Cortisol</li><li>תנגודת לאינסולין</li><li>ויסות: הטרייה והשתלה מוקדמות, תזונה, סביבה חמה, איזון סוכר</li><li>Oxandrolone, Propranolol</li></ul>
+        <div class="lab">תזונה עשירה בחלבון ופחמימות</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Graft Failure<span class="he">כשל בקליטת השתל</span></div>
+        <div class="key"><b>סימן מזהה</b>דם, אוויר, שומן או רקמה נמקית בין השתל לאזור המקבל</div>
+        <ul><li>גם זיהום, דימום, תזוזת השתל</li><li>מניעה: קיבוע וחבישות הדוקות, החלפה 3–5 ימים אחרי ניתוח</li><li>חזרה לשימוש בגפה אחרי 5–7 ימים</li><li>Autograft — עדיף (ללא דחייה)</li></ul>
+        <div class="lab">אזור תורם: רה-אפיתליזציה תוך 7–14 ימים</div>
+      </article>
+      <article class="card" tabindex="0">
+        <div class="name">Hypertrophic / Keloid Scar<span class="he">צלקות פתולוגיות</span></div>
+        <div class="key"><b>סימן מזהה</b>צלקת מוגבהת בשלב השיקום, לצד קונטרקטורות</div>
+        <ul><li>מניעה: לחות, עיסוי, בגדי לחץ (Pressure garments)</li><li>סדים ופיזיותרפיה למניעת קונטרקטורות</li></ul>
+        
+      </article></div></section></div>
+  <p class="empty" id="empty" hidden="">לא נמצאו תוצאות לחיפוש הזה.</p>
+
+  <section id="tips-sec">
+    <h2>הבחנות שכדאי לזכור</h2>
+    <div class="tips">
+      <div class="tip"><h3>מדרג העומק בזיהומי זקיק</h3><p>Folliculitis (שטחי, קל) → Furuncle (עמוק, פנים/צוואר) → Carbuncle (מספר Furuncles מאוחדים, עורף/גב, כאב חזק) → Abscess (חלל מוגלה, כל מקום, ניקוז כירורגי). כולם בעיקר Staph aureus.</p></div>
+      <div class="tip"><h3>זיהום ראשוני מול משני</h3><p>ראשוני — בעור תקין (Impetigo, Folliculitis, Furuncle, Cellulitis). משני — בעור פגוע (פצעים כרוניים, כוויות, דרמטיטיס, אקזמה).</p></div>
+      <div class="tip"><h3>Varicella מול Herpes Zoster</h3><p>Varicella: זיהום ראשוני, פריחה מפושטת בגלים — נגעים בשלבים שונים בו-זמנית. Zoster: ריאקטיבציה, חד-צדדי לאורך דרמטום אחד, לא חוצה קו אמצע, כאב מקדים. טיפול אנטי-ויראלי יעיל בתוך 72 שעות.</p></div>
+      <div class="tip"><h3>HSV-1 מול HSV-2</h3><p>HSV-1: פה ושפתיים. HSV-2: איברי מין, מגע מיני. שניהם נשארים לטנטיים בגנגליונים תחושתיים. אבחון: PCR — בדיקת הבחירה.</p></div>
+      <div class="tip"><h3>סוגי כינים</h3><p>ראש: מגע ראש-לראש, Nits צמודות לשערה. גוף: חיה בתפרי הבגדים, היחידה שמעבירה מחלות (Typhus, Relapsing/Trench fever). ערווה: מגע מיני; בילד = Red Flag לפגיעה מינית.</p></div>
+      <div class="tip"><h3>ICD מול ACD</h3><p>ICD: כ-80%, לא אלרגי, צריבה וכאב, מוגבל לאזור המגע, רוב החשופים, Patch שלילי. ACD: Type IV (תאי T), 24–72 שעות, גרד ושלפוחיות, רק רגישים, יכול לחרוג מאזור המגע, Patch חיובי.</p></div>
+      <div class="tip"><h3>Patch Test מול Skin Prick Test</h3><p>Patch: Type IV מאוחרת, מדבקות על הגב 48 שעות, קריאה אחרי 48–96 שעות → Contact dermatitis. Prick: Type I (IgE) מיידית, קריאה אחרי 15–20 דקות, Wheal + Erythema → מזון, אבקנים, לטקס.</p></div>
+      <div class="tip"><h3>Diascopy (Blanching test)</h3><p>נעלם בלחיצה = כלי דם (Erythema). לא נעלם בלחיצה = דימום (Petechiae / Purpura).</p></div>
+      <div class="tip"><h3>בדיקות עזר לפי מטרה</h3><p>Wood lamp: פיגמנטציה וזיהומים (פלואורסנציה). Dermoscopy: נגעים פיגמנטריים, חשד למלנומה. ביופסיה: אבחנה היסטופתולוגית (Shave / Punch / Curettage / Incisional). תרבית = גידול המחולל · PCR = חומר גנטי (HSV/VZV) · דם = הערכה סיסטמית.</p></div>
+      <div class="tip"><h3>Urticaria מול Angioedema</h3><p>Urticaria: דרמיס עליון, Wheals מגרדים, גבולות חדים, נעלמים תוך עד 24 שעות ללא צלקת. Angioedema: דרמיס עמוק/תת-עור, שפתיים/עפעפיים/לשון, פחות גרד ויותר לחץ, עד 72 שעות — מעורבות לשון/גרון = חירום.</p></div>
+      <div class="tip"><h3>Urticaria חריפה מול כרונית</h3><p>חריפה: עד 6 שבועות, אלרגנים/תרופות/זיהומים, אנטיהיסטמין דור 2 + סטרואיד קצר. כרונית: מעל 6 שבועות, ~80% אידיופתית, אנטיהיסטמין דור 2, Omalizumab בעמידים.</p></div>
+      <div class="tip"><h3>גרד מערכתי (ללא נגעים)</h3><p>כבד — כולסטזיס, מחמיר בלילה · כליה — Uremic pruritus בדיאליזה · דם — PV, גרד אחרי מגע במים · בלוטת התריס · הריון — Cholestasis of pregnancy · HIV/הפטיטיס · תרופות — אופיאטים, Hydroxychloroquine, אסטרוגנים. הסיבה הנפוצה לגרד: Xerosis.</p></div>
+      <div class="tip"><h3>SJS מול TEN</h3><p>ניתוק עור: SJS &lt; 10% · Overlap 10–30% · TEN &gt; 30%. תרופות: Sulfonamides, NSAIDs, Allopurinol, נוגדי פרכוס. טיפול: הפסקה מיידית של התרופה.</p></div>
+      <div class="tip"><h3>Vesicle מול Bulla</h3><p>Vesicle — שלפוחית &lt; 1 ס״מ · Bulla — שלפוחית &gt; 1 ס״מ.</p></div>
+      <div class="tip"><h3>נוסחת ABA לנוזלים (TBSA &gt; 20%)</h3><p>תרמי/כימי: 2 מ״ל × ק״ג × %TBSA · חשמל: 4 מ״ל × ק״ג × %TBSA. חצי ב-8 השעות הראשונות, חצי ב-16 הבאות. Lactated Ringer. יעד שתן: 0.5–1 מ״ל/ק״ג/שעה (חשמל: 75–100 מ״ל/שעה). נספרות כוויות מדרגה 2 ומעלה.</p></div>
+      <div class="tip"><h3>שלבי הטיפול בכוויות</h3><p>1. החייאה — עד סיום החייאת הנוזלים (קירור עד 20 דקות, ללא קרח; ABCDE). 2. חריף — מתחילת ה-Diuresis (~48–72 שעות) עד סגירת הפצעים. 3. שיקום — קונטרקטורות, צלקות, תמיכה נפשית.</p></div>
+    </div>
+  </section>
+
+  <p class="foot">מבוסס על המצגות: זיהומי עור (חיידקיים, ויראליים, פטרייתיים, פרזיטיים), מחלות דלקתיות ואלרגיות, בדיקות אבחון בבעיות עור (גילה ברנדין, 2026) וטיפול בנפגעי כוויות – Brunner 15 (אירנה לסקוב, 2026). חומר עזר ללמידה בלבד.</p>
+</div>
+
+<script>
+const CATS=[
+ ["bact","זיהומים חיידקיים"],
+ ["vir","זיהומים ויראליים"],
+ ["fung","זיהומים פטרייתיים"],
+ ["para","זיהומים פרזיטיים"],
+ ["itch","גרד ואורטיקריה"],
+ ["derm","דרמטיטיס"],
+ ["psor","פסוריאזיס"],
+ ["bull","מחלות שלפוחיות"],
+ ["burn","כוויות — דרגות וסוגים"],
+ ["bcx","כוויות — סיבוכים"]
+];
+const D=[
+// bacterial
+{c:"bact",n:"Folliculitis",h:"דלקת זקיק השיער",k:"פפולות/פוסטולות קטנות ממוקדות סביב זקיקי השיער — הזיהום השטחי ביותר",s:["לרוב Staphylococcus aureus","גרד, צריבה או רגישות מקומית","קרקפת, פנים, צוואר, בית שחי, גפיים","טיפול: היגיינה, ניקוי עדין, אנטיביוטיקה מקומית/סיסטמית לפי הצורך"],l:"כאב קל · טיפול מקומי"},
+{c:"bact",n:"Hot Tub Folliculitis",h:"פוליקוליטיס ג'קוזי",k:"פפולות/פוסטולות אדומות מגרדות 1–4 ימים אחרי ג'קוזי או בריכה",s:["Pseudomonas aeruginosa (לא Staph!)","מים שאינם מחוטאים היטב","חולף לרוב עצמונית תוך 7–14 ימים","לשאול על חשיפה לבריכה; לפנות אם חום, כאב או החמרה"],l:"Pseudomonas"},
+{c:"bact",n:"Furuncle",h:"שחין / אבסס קטן",k:"נגע אדום, כואב ומוגלתי — זיהום עמוק של הזקיק והרקמה שסביבו",s:["עמוק יותר מ-Folliculitis","פנים, צוואר, בתי שחי, ישבן","טיפול: קומפרסים חמים, ניקוז לפי הצורך, אנטיביוטיקה"],l:"Staph aureus · כאב בינוני"},
+{c:"bact",n:"Carbuncle",h:"אבצס מרובה",k:"איחוד של כמה Furuncles סמוכים — נפיחות עם הפרשה מוגלתית בעורף או בגב",s:["גדול ועמוק יותר מ-Furuncle","כאב חזק","טיפול: ניקוז כירורגי לפי הצורך + אנטיביוטיקה"],l:"כאב חזק · ניקוז + אנטיביוטיקה"},
+{c:"bact",n:"Cutaneous Abscess",h:"מורסה עורית",k:"חלל מלא מוגלה בתוך העור או מתחתיו — ניקוז הוא הטיפול העיקרי",s:["נגע אדום, נפוח וכואב, חום מקומי","יכול להופיע בכל מקום בגוף","אנטיביוטיקה רק במקרים מסוימים"],l:"Staph aureus · כאב חזק מאוד · ניקוז כירורגי"},
+{c:"bact",n:"Cellulitis",h:"צלוליטיס",k:"אודם, חום, נפיחות וכאב עם גבולות לא חדים — זיהום של הדרמיס והרקמה התת-עורית",s:["חודר דרך פצע, סדק או פגיעה בעור","Group A Strep ו-Staph aureus","אינו מדבק מאדם לאדם","סיכון: סוכרת, בצקת כרונית/לימפאדמה, מחלות עור, דיכוי חיסוני","לעיתים חום וצמרמורות; סיבוכים: מורסה, Sepsis","טיפול: אנטיביוטיקה, מנוחה והרמת הגפה"],l:"אבחנה קלינית · תרבית רק בחוזר/מורסה"},
+// viral
+{c:"vir",n:"Primary Orolabial HSV",h:"הרפס ראשוני בפה (HSV-1)",k:"ילד בן 1–5 עם חום, שלפוחיות וכיבים בפה ובחניכיים וקושי לאכול ולשתות",s:["זיהום ראשוני — אחריו הנגיף רדום בגנגליונים תחושתיים","טיפול תומך, לעיתים Acyclovir"],l:"PCR"},
+{c:"vir",n:"Recurrent Herpes Simplex (Cold sores)",h:"הרפס חוזר — פצעי קור",k:"עקצוץ, צריבה וגרד (Prodrome) ואז שלפוחיות בשפה",s:["טריגרים: סטרס, מחלת חום, שמש, דיכוי חיסוני","התפרצויות קלות וקצרות יותר מהראשוני","Asymptomatic shedding אפשרי","Acyclovir/Valacyclovir — מוקדם ככל האפשר"],l:"PCR — בדיקת הבחירה"},
+{c:"vir",n:"Genital HSV",h:"הרפס גניטלי (HSV-2)",k:"שלפוחיות וכיבים כואבים באיברי המין לאחר מגע מיני",s:["כאב וצריבה, חום, הגדלת בלוטות","יכול להיות אסימפטומטי","סיכון: בני זוג מרובים, ללא קונדום","קונדום מפחית אך לא מונע לחלוטין"],l:"Acyclovir / Valacyclovir"},
+{c:"vir",n:"Herpes Simplex Encephalitis",h:"דלקת מוח הרפטית",k:"חום, כאב ראש, שינוי במצב ההכרה ופרכוסים — מצב חירום",s:["Acyclovir IV דחוף"],l:"Acyclovir IV"},
+{c:"vir",n:"Neonatal HSV",h:"הרפס ביילוד",k:"הדבקה במהלך הלידה — סיכון גבוה כשהאם נדבקה לראשונה סמוך ללידה",s:["מחלה קשה ביילוד","אבחון וטיפול מוקדמים חיוניים"],l:"Acyclovir IV"},
+{c:"vir",n:"Varicella (Chickenpox)",h:"אבעבועות רוח",k:"נגעים בשלבים שונים בו-זמנית — Macules, Papules, Vesicles, Crusts",s:["פריחה בגלים (Crops) במשך 2–4 ימים; מתחילה בפנים ובגו ומתפשטת לגפיים","דגירה 10–21 יום","מדבק מ-1–2 ימים לפני הפריחה ועד שכל הנגעים גלדו","חום, חולשה וגרד","סיבוכים נדירים: זיהום חיידקי משני, דלקת ריאות, דלקת מוח","חיסון MMRV: גיל 12 חודשים + כיתה א'"],l:"זיהום ראשוני ב-VZV · טיפות ומגע"},
+{c:"vir",n:"Herpes Zoster (Shingles)",h:"שלבקת חוגרת",k:"שלפוחיות כואבות חד-צדדיות לאורך דרמטום אחד שאינן חוצות את קו האמצע",s:["ריאקטיבציה של VZV — מבוגרים או ירידה בחסינות","כאב, צריבה או עקצוץ ימים לפני הפריחה","שלפוחיות חדשות 3–5 ימים, החלמה 2–4 שבועות","סיבוכים: PHN (כאב עצבי ממושך), מעורבות עינית, זוסטר מפושט במדוכאי חיסון","Shingrix: 2 מנות, גיל 50+ או 18+ מדוכאי חיסון"],l:"Acyclovir / Valacyclovir / Famciclovir — בתוך 72 שעות"},
+// fungal
+{c:"fung",n:"Tinea Corporis",h:"פטרת עור הגוף",k:"נגע טבעתי אדום עם קילוף בשוליים (Tinea circinata)",s:["גוף וגפיים, מלווה בגרד","מגע עם אדם, בעל חיים או חפצים מזוהמים","טיפול אנטי-פטרייתי מקומי; נרחב — פומי"],l:"Dermatophyte"},
+{c:"fung",n:"Tinea Pedis (Athlete's Foot)",h:"פטרת כף הרגל",k:"קילוף וסדקים בין אצבעות הרגליים, לעיתים ריח לא נעים",s:["נעליים סגורות, מקלחות ציבוריות, הזעת יתר","קרם אנטי-פטרייתי","החלפת גרביים יומית, ייבוש בין האצבעות, כפכפים במקלחת"],l:"Dermatophyte"},
+{c:"fung",n:"Tinea Unguium (Onychomycosis)",h:"פטרת ציפורניים",k:"ציפורן מעובה, צהובה-חומה, שבירה ומתפוררת",s:["לק אנטי-פטרייתי","לעיתים טיפול פומי ממושך"],l:"Dermatophyte"},
+{c:"fung",n:"Intertrigo",h:"פטרת קפלי העור",k:"אודם, גרד וצריבה בקפלי עור חמים ולחים — מתחת לשדיים, מפשעות, בטן",s:["לעיתים מלווה בזיהום קנדידה","סיכון: השמנה, חום ולחות"],l:"—"},
+{c:"fung",n:"Oropharyngeal Candidiasis (Thrush)",h:"פטרת בחלל הפה",k:"רובד לבן על הלשון או רירית הפה",s:["אחרי אנטיביוטיקה, סטרואידים או בדיכוי חיסוני","צריבה ואי-נוחות","Candida albicans (~80% מהמקרים)"],l:"Nystatin / Fluconazole"},
+{c:"fung",n:"Candida Vulvovaginitis",h:"פטרת וגינלית",k:"הפרשה לבנה סמיכה עם גרד וצריבה",s:["סיכון: אנטיביוטיקה, היריון, סוכרת","טיפול מקומי או פומי"],l:"Candida albicans"},
+// parasitic
+{c:"para",n:"Scabies",h:"גרדת",k:"גרד עז בלילה + תעלות דקות (Burrows) בין האצבעות ובשורשי כפות הידיים",s:["קרדית Sarcoptes scabiei — מגע עור-לעור ממושך","פריחה פפולרית: בתי שחי, מותניים, גניטליה","מוסדות סיעודיים, צפיפות","הגרד יכול להימשך שבועות אחרי טיפול — לא בהכרח כישלון"],l:"אבחנה קלינית · גרידת עור למיקרוסקופ · Permethrin 5% (חזרה אחרי 7 ימים + כל בני הבית)"},
+{c:"para",n:"Pediculosis Capitis",h:"כינמת הראש",k:"ביצים (Nits) צמודות לשערה + גרד בקרקפת ובעורף",s:["מגע ראש-לראש; כינים זוחלות, לא קופצות","שורדת עד 24 שעות מחוץ לגוף","ביצים בוקעות תוך 8–10 ימים, מחזור ~28 יום","סירוק במסרק צפוף, בדיקת בני המשפחה"],l:"Permethrin / Dimethicone · חזרה אחרי 7–10 ימים"},
+{c:"para",n:"Pediculosis Corporis (Vagabond's disease)",h:"כינמת הגוף",k:"הכינה חיה ומטילה ביצים בתפרי הבגדים — היחידה שמעבירה מחלות",s:["Epidemic Typhus, Relapsing fever, Trench fever","צפיפות, היגיינה ירודה, מחנות פליטים, קור","גרד עז באזורי מגע עם הבגדים","כרוני: עיבוי ופיגמנטציה של העור","שורדת עד 7 ימים מחוץ לגוף"],l:"רחצה + כביסה חמה של בגדים ומצעים"},
+{c:"para",n:"Pediculosis Pubis",h:"כינמת הערווה",k:"גרד עז בערווה לאחר מגע מיני; אצל ילד — Red Flag לפגיעה מינית",s:["Pthirus pubis; גם בבית שחי, זקן וריסים","לא קשור להיגיינה","שורדת 24–48 שעות מחוץ לגוף","טיפול בבני הזוג, הימנעות ממגע מיני עד סיום הטיפול"],l:"Permethrin · חזרה אחרי 7–10 ימים"},
+{c:"para",n:"Bed Bugs",h:"פשפש המיטה",k:"עקיצות מגרדות בשורה או בקבוצות אחרי שינה — פעיל בלילה",s:["Cimex lectularius — 4–6 מ״מ, חום-אדמדם, נמשך לחום ול-CO₂","לא ידוע כמעביר מחלות","הפרעות שינה וחרדה","חזר בגלל עמידות להדברה ותיירות"],l:"כביסה ב-60°C · ייבוש ≥30 דקות · IPM · אנטיהיסטמינים"},
+// itch / urticaria
+{c:"itch",n:"Pruritus",h:"גרד (כללי)",k:"מעגל Itch–Scratch: גירוד → פגיעה בעור → דלקת → יותר גרד",s:["Xerosis (עור יבש) — הסיבה הנפוצה","~50% סיבה מערכתית (כבד, כליה, תריס, סרטן דם)","כרוני ≥ 6 שבועות; שכיח מעל גיל 70","מחמיר בלילה; Lichenification בגרד כרוני","לא כל גרד היסטמיני — אנטיהיסטמינים לא תמיד יעילים"],l:"קו ראשון: אנטיהיסטמין דור 2 · דור 1 — זהירות בקשישים (נפילות)"},
+{c:"itch",n:"Pruritus sine materia",h:"גרד ללא מחלת עור",k:"גרד ללא נגעים עוריים נראים",s:["מקור מערכתי: כולסטזיס, אי-ספיקת כליות (Uremic), PV, תריס","הריון, HIV, הפטיטיס","פסיכוגני: סטרס, חרדה, OCD, דיכאון","תרופות: אופיאטים, Hydroxychloroquine, אסטרוגנים"],l:"תפקודי כבד, כליה, תריס, B12"},
+{c:"itch",n:"Acute Urticaria (Hives)",h:"חרלת חריפה",k:"Wheals אדומים מורמים ומגרדים שנעלמים תוך 1–24 שעות ללא צלקת",s:["שחרור היסטמין מתאי Mast (IgE או לא-אימוני)","תרופות (פניצילין, סולפה, NSAIDs, אספירין), מזון, עקיצות, זיהומים","גבולות חדים, צורות משתנות, עלולים להתמזג","עד 6 שבועות"],l:"אנטיהיסטמין דור 2 + סטרואיד קצר · SPT אם חשד לאלרגיה"},
+{c:"itch",n:"Chronic Urticaria",h:"חרלת כרונית",k:"Wheals חוזרים מדי יום או לסירוגין מעל 6 שבועות, לרוב ללא גורם מזוהה",s:["~80% אידיופתית; לעיתים אוטואימונית (נוגדנים נגד IgE/הקולטן)","פיזיקלי: לחץ, חום, קור, שמש, Dermatographism","מחמירים: סטרס, אלכוהול, הורמונים, חום גוף","פגיעה באיכות החיים"],l:"אנטיהיסטמין דור 2 · Omalizumab בעמידים · CBC, CRP, TSH"},
+{c:"itch",n:"Angioedema",h:"אנגיואדמה",k:"נפיחות עמוקה בשפתיים, עפעפיים ולשון — פחות גרד, יותר לחץ/כאב",s:["דרמיס עמוק/תת-עור או ריריות","מתפתחת לאט יותר, חולפת תוך עד 72 שעות","יכולה להופיע יחד עם אורטיקריה","לשון/גרון/צרידות = איום על נתיב אוויר — חירום"],l:"—"},
+{c:"itch",n:"Cold Urticaria",h:"אורטיקריה מקור",k:"Wheals וגרד דקות אחרי חשיפה לקור (מים, אוויר, מזון, חפצים)",s:["לעיתים אנגיואדמה","במקרים קשים — תגובה מערכתית ואנפילקסיס","להימנע מכניסה פתאומית למים קרים"],l:"הימנעות מקור + אנטיהיסטמינים"},
+// dermatitis
+{c:"derm",n:"Irritant Contact Dermatitis (ICD)",h:"דלקת עור ממגע — מגרה",k:"צריבה, יובש וסדקים בכפות הידיים — מוגבל בדיוק לאזור המגע",s:["~80% מ-Contact dermatitis; לא אלרגי","סבונים, חומרי ניקוי, אלכוהול, ממסים, מים/גומי ממושך","מופיע אצל רוב מי שנחשף"],l:"Patch test שלילי"},
+{c:"derm",n:"Allergic Contact Dermatitis (ACD)",h:"דלקת עור ממגע — אלרגית",k:"גרד ושלפוחיות 24–72 שעות אחרי מגע עם ניקל, לטקס, בושם או קוסמטיקה",s:["Type IV — מתווכת תאי T, דורשת חשיפה חוזרת","גבולות חדים לפי אזור המגע, אך יכול לחרוג ממנו","רק אצל רגישים; שכיחות עולה עם הגיל","גם צבעי שיער ואנטיביוטיקה מקומית"],l:"Patch test חיובי"},
+{c:"derm",n:"Atopic Dermatitis — Infant",h:"אטופיק דרמטיטיס בתינוקות",k:"אודם והפרשה בלחיים (\"Baby cheeks\") החל מגיל 2–6 חודשים",s:["פנים, קרקפת, משטחי פשיטה","תחילת ה-Atopic March: אלרגיה למזון → אסתמה → נזלת אלרגית"],l:"—"},
+{c:"derm",n:"Atopic Dermatitis — Child / Adult",h:"אטופיק דרמטיטיס בילדים ומבוגרים",k:"גרד כרוני עם Lichenification בקפלי המרפקים והברכיים (Flexural)",s:["מוטציה ב-Filaggrin + תגובת Th2","Atopic tetrad: AD, אסתמה, נזלת אלרגית, אלרגיה למזון","גרד קשה בלילה → הפרעות שינה","מבוגרים: נגעים יבשים ומעובים בידיים, פנים, צוואר","עד 20% מהילדים, 2–5% מהמבוגרים"],l:"Emollients · סטרואיד מקומי · Tacrolimus · Dupilumab · JAK inhibitors"},
+{c:"derm",n:"Seborrheic Dermatitis",h:"דרמטיטיס סבוראית",k:"אודם וקשקשת באזורים עשירים בבלוטות חלב — קרקפת, גבות, קפלי האף, מאחורי האוזניים",s:["תגובה דלקתית לשמר Malassezia","לא מדבקת; מחמירה בסטרס, קור ויובש","שכיחה בחולי פרקינסון ובמדוכאי חיסון","אבחנה מבדלת: פסוריאזיס, AD, פטרת"],l:"אבחנה קלינית · שמפו Ketoconazole / Selenium sulfide"},
+{c:"derm",n:"Cradle Cap",h:"דרמטיטיס סבוראית בתינוקות",k:"קשקשת עבה ושומנית בקרקפת של תינוק בחודשים הראשונים",s:["לעיתים גם פנים ואזור החיתול","חולף לרוב מעצמו בשנה הראשונה"],l:"—"},
+{c:"derm",n:"Dermatitis Herpetiformis",h:"דרמטיטיס הרפטיפורמיס",k:"שלפוחיות קטנות מגרדות מאוד בפיזור סימטרי — הביטוי העורי של צליאק",s:["מרפקים, ברכיים, ישבן, גב תחתון, קרקפת","לא קשור לנגיף ההרפס","גיל 20–40","בגלל הגרד — בעיקר שריטות וגלדים ופחות שלפוחיות שלמות"],l:"DIF: שקיעת IgA (בדיקת הבחירה) · Anti-tTG · EMA · Dapsone (לבדוק G6PD לפני) · דיאטה ללא גלוטן"},
+// psoriasis
+{c:"psor",n:"Plaque Psoriasis (Vulgaris)",h:"פסוריאזיס רובדית",k:"רבדים אדומים עם קשקשת כסופה + Auspitz sign (דימום נקודתי בהסרת הקשקשת)",s:["80–90% מהחולים","מרפקים, ברכיים, קרקפת, גב תחתון","Koebner — נגעים חדשים באזור פציעה","טריגרים: סטרס, זיהום סטרפטוקוקי, השמנה, עישון, אלכוהול, תרופות","גיל 15–35, נטייה משפחתית"],l:"אבחנה קלינית · קלה: מקומי · בינונית: פוטותרפיה · קשה: סיסטמי/ביולוגי"},
+{c:"psor",n:"Guttate Psoriasis",h:"פסוריאזיס טיפתית",k:"נגעים קטנים דמויי טיפות בגו ובגפיים אחרי זיהום סטרפטוקוקי",s:[],l:"—"},
+{c:"psor",n:"Inverse Psoriasis",h:"פסוריאזיס הפוכה",k:"נגעים אדומים וחלקים ללא קשקשת משמעותית בקפלי העור",s:["בתי שחי, מפשעות, מתחת לשדיים"],l:"—"},
+{c:"psor",n:"Pustular Psoriasis",h:"פסוריאזיס פוסטולרית",k:"פוסטולות על רקע עור אדום בכפות הידיים והרגליים",s:["יכולה להיות גם באזורים נרחבים"],l:"—"},
+{c:"psor",n:"Erythrodermic Psoriasis",h:"פסוריאזיס אריתרודרמית",k:"מעורבות של רוב שטח הגוף — צורה נדירה וחמורה",s:[],l:"—"},
+{c:"psor",n:"Psoriatic Arthritis",h:"דלקת מפרקים פסוריאטית",k:"כאב, נפיחות ונוקשות במפרקי האצבעות לצד מחלת העור",s:["10–30% מחולי הפסוריאזיס","אבחון מוקדם מונע נזק קבוע","מעקב משולב: עור + ראומטולוג"],l:"—"},
+// bullous
+{c:"bull",n:"Stevens-Johnson Syndrome (SJS)",h:"תסמונת סטיבנס-ג'ונסון",k:"פריחה כואבת ושלפוחיות + מעורבות ריריות (פה, עיניים, איברי מין) אחרי תרופה חדשה; ניתוק עור < 10%",s:["Sulfonamides, NSAIDs, Allopurinol, נוגדי פרכוס","מצב חירום","סיבוכים: פגיעה בעיניים עד ירידה בראייה, זיהום, התייבשות, צלקות"],l:"הפסקה מיידית של התרופה · אשפוז · נוזלים · לעיתים ביופסיה"},
+{c:"bull",n:"Toxic Epidermal Necrolysis (TEN)",h:"נקרוליזיס אפידרמלי רעלני",k:"ניתוק שכבות העור מעל 30% משטח הגוף עם מעורבות ריריות",s:["SJS/TEN overlap: 10–30%","ככל שהשטח גדול יותר — הסיכון גבוה יותר","טיפול כמו בכוויה: נוזלים, פצעים, כאב, מניעת זיהום","הדרכה: הימנעות מהתרופה ודיווח על הרגישות"],l:"הפסקת התרופה · מעקב עיניים וריריות"},
+// burns - depth & types
+{c:"burn",n:"First-Degree Burn (Superficial)",h:"כוויה דרגה I — שטחית",k:"אדום ויבש, מחוויר בלחיצה, בצקת מינימלית; Nikolsky sign שלילי",s:["שמש, אש לא חזקה","Epidermis (ייתכן חלק מה-Dermis)","עקצוץ, כאב, רגישות יתר, קילוף, גרד","ריפוי כשבוע — ללא צלקות","לא נספרת בחישוב נוזלים"],l:"משככי כאבים · קומפרסים קרים · משחות"},
+{c:"burn",n:"Second-Degree Burn (Partial-Thickness)",h:"כוויה דרגה II — עובי חלקי",k:"לח עם שלפוחיות ובצקת, אדום/לבן מנומר; כאב ורגישות לאוויר קר",s:["נוזלים רותחים, אש, מגע בגוף חם","Epidermis + חלק מה-Dermis","ריפוי 2–3 שבועות, ייתכן שינוי פיגמנטציה וצלקת"],l:"שטיפה · חבישה אנטימיקרוביאלית · לעיתים השתלת עור"},
+{c:"burn",n:"Third-Degree Burn (Full-Thickness)",h:"כוויה דרגה III — עובי מלא",k:"יבש, לבן/אדום כהה או שחור עם גלד (Eschar) — ללא כאב (העדר תחושה)",s:["אש, חשיפה ממושכת לנוזל חם, כימי, חשמל","כל שכבות העור, לעיתים רקמת חיבור ושריר","הלם, Hemolysis, Myoglobinuria","ריפוי: צלקות, קונטרקטורות, איבוד תפקוד"],l:"הטרייה · השתלת עור"},
+{c:"burn",n:"Fourth-Degree Burn (Deep Burn Necrosis)",h:"כוויה דרגה IV",k:"רקמה חרוכה עד שריר ועצם",s:["חשיפה תרמית ממושכת, כימי, חשמל","הלם, Hemolysis, Myoglobinuria"],l:"הטרייה · השתלה · אמפוטציה"},
+{c:"burn",n:"Electrical Burn",h:"כוויית חשמל",k:"פצע כניסה ופצע יציאה; נזק עמוק מעבר למה שנראה בעור",s:["חומרה לפי מתח ומשך חשיפה","ניתוק הזרם, CPR, אק״ג","Myoglobinuria → סכנה לכליה","נוירופתיות מאוחרות"],l:"ABA: 4 מ״ל × ק״ג × %TBSA · שתן 75–100 מ״ל/שעה"},
+{c:"burn",n:"Chemical Burn",h:"כוויה כימית",k:"חומרה לפי ריכוז, משך וצורת החשיפה לחומצה או לבסיס",s:["אבקה — לנער קודם","הסרת בגדים ושטיפה במים","להתייעץ עם מרכז ההרעלות"],l:"ABA: 2 מ״ל × ק״ג × %TBSA"},
+{c:"burn",n:"Inhalation Injury / Smoke Inhalation",h:"פגיעת שאיפה",k:"שיער פנים חרוך + כיח מכוסה פיח + צרידות אחרי שריפה בחלל סגור",s:["כוויות בפנים/צוואר, שיעול, סטרידור, טכיפנאה","אודם ושלפוחיות ברירית הפה","עליונה (מעל ה-Glottis): בצקת → חסימה → אינטובציה מוקדמת","תחתונה: CO, ציאניד, תמט, ברונכוספזם","סיבוכים: דלקת ריאות, בצקת, ARDS"],l:"ABG · COHb · ברונכוסקופיה · ישיבה 45° · ציוד אינטובציה ליד המיטה"},
+{c:"burn",n:"Carbon Monoxide Poisoning",h:"הרעלת פחמן חד-חמצני",k:"צבע \"Cherry red\" — היפוקסיה רקמתית (Carboxyhemoglobin)",s:["חלק מפגיעת שאיפה","100% חמצן מקצר זמן מחצית חיים של COHb מ-4 שעות ל-45 דקות"],l:"COHb · ABG · 100% O₂"},
+// burn complications
+{c:"bcx",n:"Burn Shock",h:"הלם כוויה (שלב דליפה)",k:"דליפת נוזלים, נתרן וחלבון מהכלים לחלל הבין-תאי ב-24–36 השעות הראשונות → היפוולמיה",s:["↓CO, ↓BP, ↑דופק, ↓CVP","בצקות 4–18 שעות אחרי הפגיעה","Hemoconcentration, Thrombocytopenia, זמן קרישה מאורך","Hyperkalemia (הרס תאים) ו-Hyponatremia"],l:"TBSA > 20% → נוזלי IV (Lactated Ringer) · שתן 0.5–1 מ״ל/ק״ג/שעה"},
+{c:"bcx",n:"Fluid Remobilization",h:"שלב חזרת הנוזלים",k:"Diuresis — נוזלים חוזרים לכלי הדם (עד שבועיים) ומסמנים את תחילת השלב החריף",s:["↓בצקות, ↑BP, ↑CO","Hypokalemia ו-Hyponatremia"],l:"מעקב אלקטרוליטים"},
+{c:"bcx",n:"Circumferential Burn — Compartment / Chest Restriction",h:"כוויה היקפית",k:"כוויה עמוקה היקפית בגפה או בחזה שחוסמת זרימה או נשימה",s:["בצקת לוחצת על כלים ועצבים דיסטליים — איסכמיה","בחזה/צוואר: הגבלת התרחבות","אומדן דפקים ידני או Doppler"],l:"Escharotomy / Fasciotomy"},
+{c:"bcx",n:"Myoglobinuria / Acute Renal Failure",h:"פגיעה כלייתית",k:"Oliguria/Anuria עם עלייה ב-BUN וקריאטינין על רקע Hemoglobin ו-Myoglobin בשתן",s:["ירידה בנפח הדם","שכיח בכוויות עמוקות וחשמל","מעקב צבע, ריח וצלילות השתן"],l:"יעד שתן 0.5–1 מ״ל/ק״ג/שעה (30–50 מ״ל/שעה)"},
+{c:"bcx",n:"Curling's Ulcer",h:"כיב קורלינג",k:"כיב פפטי של לחץ (Stress) אצל נפגע כוויות — לנטר סימני דימום",s:["חלק מהשינויים במערכת העיכול"],l:"PPI"},
+{c:"bcx",n:"Paralytic Ileus",h:"שיתוק מעיים",k:"הקאות וסכנת אספירציה בכוויה נרחבת",s:["צום בשלב ההחייאה","זונדה לניקוז ב-TBSA > 20%"],l:"זונדה · נוזלי IV"},
+{c:"bcx",n:"Abdominal Compartment Syndrome",h:"תסמונת מדור בטני",k:"לחץ בשלפוחית השתן מעל 30 בנפגע עם שטח כוויה גדול",s:["חדירות מעי מוגברת → Sepsis"],l:"Laparotomy"},
+{c:"bcx",n:"Hypermetabolism",h:"מצב היפרמטבולי",k:"עלייה בחום, דופק, צריכת חמצן וקטבוליזם של חלבון ושרירים",s:["↑Catecholamines, ADH, Aldosterone, Cortisol","תנגודת לאינסולין","ויסות: הטרייה והשתלה מוקדמות, תזונה, סביבה חמה, איזון סוכר","Oxandrolone, Propranolol"],l:"תזונה עשירה בחלבון ופחמימות"},
+{c:"bcx",n:"Graft Failure",h:"כשל בקליטת השתל",k:"דם, אוויר, שומן או רקמה נמקית בין השתל לאזור המקבל",s:["גם זיהום, דימום, תזוזת השתל","מניעה: קיבוע וחבישות הדוקות, החלפה 3–5 ימים אחרי ניתוח","חזרה לשימוש בגפה אחרי 5–7 ימים","Autograft — עדיף (ללא דחייה)"],l:"אזור תורם: רה-אפיתליזציה תוך 7–14 ימים"},
+{c:"bcx",n:"Hypertrophic / Keloid Scar",h:"צלקות פתולוגיות",k:"צלקת מוגבהת בשלב השיקום, לצד קונטרקטורות",s:["מניעה: לחות, עיסוי, בגדי לחץ (Pressure garments)","סדים ופיזיותרפיה למניעת קונטרקטורות"],l:"—"}
+];
+
+const out=document.getElementById('out'),q=document.getElementById('q'),chips=document.getElementById('chips'),empty=document.getElementById('empty');
+let cat="all";
+const esc=s=>s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+function chip(id,label){const b=document.createElement('button');b.className='chip';b.textContent=label;b.setAttribute('aria-pressed',id===cat);b.onclick=()=>{cat=id;[...chips.children].forEach(x=>x.setAttribute('aria-pressed',x===b));render();};chips.appendChild(b);}
+chip("all","הכל");CATS.forEach(([id,l])=>chip(id,l));
+function render(){
+  const term=q.value.trim().toLowerCase();let total=0;let html="";
+  CATS.forEach(([id,label])=>{
+    if(cat!=="all"&&cat!==id)return;
+    const items=D.filter(d=>d.c===id&&(!term||[d.n,d.h,d.k,d.l,...d.s].join(' ').toLowerCase().includes(term)));
+    if(!items.length)return;total+=items.length;
+    html+=`<section><h2>${label}<small>${items.length}</small></h2><div class="grid">`+items.map(d=>`
+      <article class="card" tabindex="0">
+        <div class="name">${esc(d.n)}<span class="he">${esc(d.h)}</span></div>
+        <div class="key"><b>סימן מזהה</b>${esc(d.k)}</div>
+        ${d.s.length?`<ul>${d.s.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}
+        ${d.l&&d.l!=="—"?`<div class="lab">${esc(d.l)}</div>`:''}
+      </article>`).join('')+`</div></section>`;
+  });
+  out.innerHTML=html;empty.hidden=total>0;
+}
+out.addEventListener('click',e=>{const c=e.target.closest('.card');if(c)c.classList.toggle('shown');});
+out.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList.contains('card'))e.target.classList.toggle('shown');});
+q.addEventListener('input',render);
+document.getElementById('practice').addEventListener('change',e=>{out.classList.toggle('hide',e.target.checked);out.querySelectorAll('.shown').forEach(c=>c.classList.remove('shown'));});
+render();
+</script>
+
+
+
+</body></html>
