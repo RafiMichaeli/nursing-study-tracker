@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>מבחני תרגול — סיעוד המבוגר</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&display=swap">
+<style>
+:root{--bg:#f5f7fb;--panel:#fff;--line:#e2e8f0;--fg:#0f172a;--mut:#64748b;--accent:#0d9488;--accent-bg:#ccfbf1;--tag:#f1f5f9}
+@media (prefers-color-scheme:dark){:root{--bg:#0f172a;--panel:#1e293b;--line:#334155;--fg:#e2e8f0;--mut:#94a3b8;--accent:#2dd4bf;--accent-bg:#134e4a;--tag:#273549}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 "Assistant","Segoe UI",Arial,sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:24px 16px 60px}
+.back{display:inline-flex;gap:6px;align-items:center;color:var(--mut);text-decoration:none;font-size:14px}
+.back:hover{color:var(--accent)}
+h1{font-size:26px;margin:12px 0 4px}
+.sub{color:var(--mut);margin:0 0 24px}
+h2{font-size:15px;color:var(--mut);font-weight:600;margin:28px 0 10px;letter-spacing:.02em}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.card{display:flex;flex-direction:column;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;text-decoration:none;color:inherit;transition:border-color .15s,transform .15s}
+.card:hover{border-color:var(--accent);transform:translateY(-1px)}
+.card.featured{border-color:var(--accent);background:linear-gradient(0deg,var(--panel),var(--panel)) padding-box}
+.card h3{margin:0;font-size:17px}
+.card p{margin:0;color:var(--mut);font-size:14px}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto;padding-top:6px}
+.tag{background:var(--tag);border-radius:999px;padding:2px 10px;font-size:12px;color:var(--mut)}
+.tag.hl{background:var(--accent-bg);color:var(--accent);font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../index.html">→ חזרה למעקב הלימודים</a>
+  <h1>מבחני תרגול</h1>
+  <p class="sub">כל מבחני התרגול במקום אחד. כל מבחן נפתח בלשונית חדשה.</p>
+
+  <h2>חלק ב׳ — סיעוד המבוגר (כירורגי)</h2>
+  <div class="grid">
+    <a class="card featured" href="part-b-exam-bank.html" target="_blank" rel="noopener">
+      <h3>🎲 מחולל מבחנים ממחסן השאלות</h3>
+      <p>560 שאלות משחזורים. כל מבחן: 80 שאלות לפי חלוקת הנושאים של הקורס. שאלות שכבר נשאלו לא יוגרלו שוב.</p>
+      <div class="tags"><span class="tag hl">מתחדש בכל פעם</span><span class="tag">80 שאלות</span></div>
+    </a>
+    <a class="card" href="part-b-exam-1.html" target="_blank" rel="noopener">
+      <h3>📝 מבחן תרגול 1</h3>
+      <p>תרחישים קליניים: עדיפות סיעודית וממצאים מדאיגים.</p>
+      <div class="tags"><span class="tag">80 שאלות</span><span class="tag">תרחישים</span></div>
+    </a>
+    <a class="card" href="part-b-exam-2.html" target="_blank" rel="noopener">
+      <h3>📝 מבחן תרגול 2</h3>
+      <p>שאלות ידע: פתופיזיולוגיה, סימנים, אבחון, טיפול ותרופות. לשינון ולכיסוי רחב.</p>
+      <div class="tags"><span class="tag">80 שאלות</span><span class="tag">ידע ישיר</span></div>
+    </a>
+    <a class="card" href="part-b-exam-3.html" target="_blank" rel="noopener">
+      <h3>📝 מבחן תרגול 3</h3>
+      <p>שאלות ידע נוספות בלי חפיפה למבחן 2: אנטומיה ופיזיולוגיה, מנגנונים, בדיקות, סמנים וטיפולים.</p>
+      <div class="tags"><span class="tag">80 שאלות</span><span class="tag">ידע ישיר</span></div>
+    </a>
+  </div>
+</div>
+</body>
+</html>
