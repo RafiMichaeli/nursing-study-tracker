@@ -377,6 +377,32 @@ A(reviewTargets.filter((f) => f.startsWith('markers-')).every((f) =>
   'every marker page links back to the hub');
 A(reviewHtml.includes('href="../index.html"'), 'hub links back to the tracker');
 
+console.log('25. exam question bank');
+const bankHtml = fs.readFileSync(path.join(DIR, 'study-tools', 'part-b-exam-bank.html'), 'utf8');
+const dataStart = bankHtml.indexOf('const DATA = ');
+const dataLine = bankHtml.slice(dataStart + 'const DATA = '.length, bankHtml.indexOf('\n', dataStart)).replace(/;\s*$/, '');
+let BANK = null, QUOTA = null, NAMES = null;
+try { const parsed = JSON.parse(dataLine); BANK = parsed.bank; QUOTA = parsed.quota; NAMES = parsed.names; } catch (e) { /* reported below */ }
+A(Array.isArray(BANK) && BANK.length > 0, 'bank data parses as JSON');
+if (BANK) {
+  A(new Set(BANK.map((q) => q.n)).size === BANK.length, 'every question id is unique');
+  const malformed = BANK.filter((q) =>
+    !Array.isArray(q.o) || q.o.length !== 4 || new Set(q.o).size !== 4 ||
+    !(q.a >= 0 && q.a < 4) || !q.q || !String(q.e || '').trim());
+  A(malformed.length === 0, 'no malformed questions: ' + (malformed.map((q) => q.n).join(', ') || '—'));
+  const unknownTopic = BANK.filter((q) => !QUOTA[q.t] || !NAMES[q.t]);
+  A(unknownTopic.length === 0, 'every question has a known topic');
+  const short = Object.keys(QUOTA).filter((t) => BANK.filter((q) => q.t === t).length < QUOTA[t]);
+  A(short.length === 0, 'every topic has at least its exam quota: ' + (short.join(', ') || '—'));
+  const badFlag = BANK.filter((q) => q.os !== undefined && ![1, 2, 3].includes(q.os));
+  A(badFlag.length === 0, 'syllabus flags are 1, 2 or 3 only');
+  A(BANK.some((q) => q.os === 1), 'bank marks questions whose topic is outside the syllabus');
+  // הסימון חייב להיות מוצג — לא רק לשבת בנתונים
+  A(/id="sylTag"/.test(bankHtml) && /const SYL = \{/.test(bankHtml), 'the page renders a syllabus tag');
+  A(/\$\("sylTag"\)/.test(bankHtml), 'showQ sets the syllabus tag');
+  A(!/560 שאלות במחסן/.test(bankHtml), 'the bank size in the header is not hard-coded');
+}
+
 A(errors.length === 0, 'no window errors: ' + (errors.join('; ') || '—'));
 
 console.log(fails ? `\n✗ ${fails} FAILURE(S)` : '\n✓ ALL TESTS PASSED');
