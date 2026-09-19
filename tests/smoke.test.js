@@ -403,6 +403,14 @@ if (BANK) {
   A(!/560 שאלות במחסן/.test(bankHtml), 'the bank size in the header is not hard-coded');
 }
 
+console.log('26. study-tools favicons');
+const toolPages = fs.readdirSync(path.join(DIR, 'study-tools')).filter((f) => f.endsWith('.html')).sort();
+const noIcon = toolPages.filter((f) => {
+  const head = fs.readFileSync(path.join(DIR, 'study-tools', f), 'utf8').split('</head>')[0];
+  return !/<link rel="icon"/.test(head);
+});
+A(toolPages.length > 0 && noIcon.length === 0, 'every study-tools page has a favicon in <head>: ' + (noIcon.join(', ') || '—'));
+
 A(errors.length === 0, 'no window errors: ' + (errors.join('; ') || '—'));
 
 console.log(fails ? `\n✗ ${fails} FAILURE(S)` : '\n✓ ALL TESTS PASSED');
