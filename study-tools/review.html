@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>חזרה כללית — סיעוד המבוגר, חלק ב׳</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=Assistant:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F4F5F8; --surface:#FFFFFF; --ink:#1A1F2B; --muted:#5B6272; --line:#DDE0E7;
+  --accent:#1F3A5F; --chip:#ECEEF3; --tip:#EAF1F6; --tip-ink:#1E4660; --shadow:0 1px 2px rgba(20,25,40,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#11141B; --surface:#191D26; --ink:#E6E8EE; --muted:#9AA1AE; --line:#2B303C;
+    --accent:#8FB3DC; --chip:#232834; --tip:#162634; --tip-ink:#A9D1EC; --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11141B; --surface:#191D26; --ink:#E6E8EE; --muted:#9AA1AE; --line:#2B303C;
+  --accent:#8FB3DC; --chip:#232834; --tip:#162634; --tip-ink:#A9D1EC; --shadow:none;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Assistant",system-ui,sans-serif}
+.back{display:inline-flex;gap:6px;align-items:center;color:var(--muted);text-decoration:none;font-size:14px;margin-bottom:14px}
+.back:hover{color:var(--accent)}
+.wrap{direction:rtl;max-width:1100px;margin:0 auto;padding-inline:20px;padding-block:32px 60px}
+h1,h2{font-family:"Frank Ruhl Libre",Georgia,serif;text-wrap:balance;margin:0}
+h1{font-size:clamp(30px,6vw,46px);line-height:1.1}
+.sub{color:var(--muted);margin:10px 0 0;max-width:70ch}
+.stats{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:14px;font-weight:600;box-shadow:var(--shadow)}
+.stat b{font-family:"IBM Plex Mono",monospace;color:var(--accent)}
+.bar{position:sticky;top:0;z-index:5;background:var(--bg);padding-block:14px;margin-top:20px;border-bottom:1px solid var(--line)}
+.bar input[type=search]{width:100%;font:inherit;padding:11px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink)}
+input:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+section{margin-top:30px}
+section h2{font-size:22px;display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
+section h2 small{font:400 14px "Assistant",sans-serif;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px;margin-top:14px}
+@media (max-width:420px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:9px;text-decoration:none;color:inherit;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;inset-block:0;inset-inline-start:0;width:4px;background:var(--dot)}
+@media (prefers-reduced-motion:no-preference){.card{transition:transform .14s ease,border-color .14s ease}}
+.card:hover{border-color:var(--dot);transform:translateY(-2px)}
+.top{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.name{font:700 18px/1.3 "Assistant",sans-serif}
+.count{font:500 12px "IBM Plex Mono",monospace;color:var(--muted);white-space:nowrap}
+.count b{color:var(--dot);font-size:15px}
+.desc{color:var(--muted);font-size:14px;margin:0}
+.cats{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px}
+.cat{font:600 11.5px "Assistant",sans-serif;background:var(--chip);border-radius:999px;padding:3px 9px;color:var(--ink);opacity:.85}
+.empty{color:var(--muted);margin-top:30px}
+.tips{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-top:14px}
+.tip{background:var(--tip);color:var(--tip-ink);border-radius:10px;padding:14px 16px}
+.tip h3{margin:0 0 6px;font-size:15px}
+.tip p{margin:0;font-size:14px}
+.foot{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <a class="back" href="../index.html">→ חזרה למעקב הלימודים</a>
+  <h1>חזרה כללית</h1>
+  <p class="sub">כל חומרי החזרה לחלק ב׳ — סיעוד המבוגר כירורגי, במקום אחד. לכל נושא דף עם כרטיס לכל מחלה: הסימן הייחודי שמכוון לאבחנה, סימנים תומכים וממצאי מעבדה והדמיה. בכל דף יש חיפוש, סינון לפי קטגוריה, ומצב תרגול שמסתיר את שמות המחלות — ובסוף גם שלושה מבחני תרגול.</p>
+
+  <div class="stats">
+    <span class="stat"><b id="nTopics">11</b> נושאים</span>
+    <span class="stat"><b id="nCards">315</b> כרטיסים</span>
+    <span class="stat"><b id="nQs">240</b> שאלות תרגול</span>
+    <span class="stat">מבוסס על מצגות הקורס + ברונר 15/16</span>
+  </div>
+
+  <div class="bar">
+    <input type="search" id="q" placeholder="חיפוש נושא או מחלה (למשל שבץ, גלאוקומה, גאוט, לימפאדמה)">
+  </div>
+
+  <div id="out"></div>
+  <p class="empty" id="empty" hidden>לא נמצא נושא שמתאים לחיפוש הזה.</p>
+
+  <section>
+    <h2>איך להשתמש בדפים</h2>
+    <div class="tips">
+      <div class="tip"><h3>מצב תרגול</h3><p>סמנו את התיבה בראש הדף — שמות המחלות מיטשטשים. קראו את הסימן המזהה, נחשו, ולחצו על הכרטיס כדי לחשוף.</p></div>
+      <div class="tip"><h3>חיפוש חוצה-קטגוריות</h3><p>בכל דף אפשר לחפש סימן, מחלה או בדיקה — החיפוש עובר על כל שדות הכרטיס, כולל שורת המעבדה.</p></div>
+      <div class="tip"><h3>"הבחנות שכדאי לזכור"</h3><p>בתחתית כל דף — אבחנות מבדלות, מספרים קריטיים וחלונות זמן. זה החלק שמכוון לשאלות ה"מה מבדיל בין" במבחן.</p></div>
+      <div class="tip"><h3>עותק בכל ספרייה</h3><p>כל דף נמצא גם בתיקיית הנושא שלו, לצד המצגות — והעותק כאן זהה לו. בראש כל דף יש קישור חזרה לכאן.</p></div>
+      <div class="tip"><h3>סדר עבודה מוצע</h3><p>קראו את הדף במצב רגיל, עברו למצב תרגול, ואז גשו למבחני התרגול כדי לבדוק מה באמת נקלט.</p></div>
+    </div>
+  </section>
+
+  <p class="foot">כל הדפים נבנו מהמצגות של הקורס ומפרקי ברונר המתאימים. חומר עזר ללמידה בלבד — לא תחליף לחומר המקורי.</p>
+</div>
+
+<script>
+const GROUPS=[
+ ["core","מערכות מרכזיות"],
+ ["sens","חושים ואזורים ממוקדים"],
+ ["sys","נושאים חוצי-מערכות"],
+ ["exam","מבחני תרגול"]
+];
+const T=[
+{g:"core",f:"markers-neuro.html",n:"נוירולוגיה",d:"מערכת העצבים — ברונר 60–65",c:30,dot:"#5A6FD0",
+ cats:["צרברווסקולרי ו-ICP","כאבי ראש","אפילפסיה","דמיאלינציה ואוטואימוני","מחלות ניווניות","זיהומים"],
+ kw:"שבץ איסכמי דימומי TIA SAH מפרצת AVM קושינג מיגרנה אשכולי טמפורלית טריגמינלית אפילפסיה סטטוס טרשת נפוצה מיאסטניה גיאן בארה פרקינסון הנטינגטון ALS מנינגיטיס אנצפליטיס מורסה CJD"},
+{g:"core",f:"markers-hematology.html",n:"המטולוגיה",d:"מחלות דם ולימפה — ברונר 28–30",c:48,dot:"#8E1630",
+ cats:["אנמיות היפופרוליפרטיביות","אנמיות המוליטיות","פוליציטמיה ועודף ברזל","הפרעות טסיות","הפרעות קרישה","הפרעות טרומבוטיות","ממאירויות המטולוגיות","השתלה ועירוי דם"],
+ kw:"אנמיה ברזל B12 פולית אפלסטית תלסמיה חרמשית G6PD קומבס פוליציטמיה המוכרומטוזיס ITP TTP HIT המופיליה פון וילברנד DIC פקטור 5 ליידן אנטיפוספוליפיד AML CML ALL CLL MDS הודג'קין לימפומה מיאלומה GVHD TRALI TACO"},
+{g:"core",f:"markers-immune.html",n:"מערכת חיסונית",d:"ראומטולוגיה, אלרגיה ו-HIV — ברונר 31–34",c:27,dot:"#6A2C8F",
+ cats:["רקמת חיבור","דלקות מפרקים","רגישות יתר","HIV/AIDS"],
+ kw:"RA לופוס SLE סקלרודרמה CREST פולימיוזיטיס PMR GCA גאוט שיגדון ספונדיליטיס פסוריאטית אוסטאוארתריטיס פיברומיאלגיה אנפילקסיס אנגיואדמה HIV AIDS PCP MAC שחפת קנדידה קפושי"},
+{g:"core",f:"markers-nephrology.html",n:"נפרולוגיה",d:"הכליה — ברונר 47–48 · כולל 68 שאלות תרגול בתוך הדף",c:21,dot:"#0E5F5B",
+ cats:["מחלות פקעית","פגיעה אקוטית","אי-ספיקה כרונית","סיבוכי דיאליזה","מבנה וגידולים","מפתח מהיר"],
+ kw:"נפריטית נפרוטית גלומרולונפריטיס AKI prerenal ATN אוליגורי פוליאורי רבדומיוליזיס פוליציסטית סרטן כליה נפרוסקלרוזיס CKD eGFR אורמית המודיאליזה פריטוניאלית"},
+{g:"core",f:"markers-urinary.html",n:"מערכת השתן",d:"דרכי השתן והאורולוגיה — ברונר 47–49",c:23,dot:"#0F766E",
+ cats:["מונחים ויסודות","זיהומים","אבנים","ערמונית ואשך","גידולים","בריחת שתן","הדמיה ובדיקות"],
+ kw:"UTI ציסטיטיס פיאלונפריטיס אורתריטיס אבנים קוליק פרוסטטיטיס BPH TURP אפידידימיטיס סרטן ערמונית שלפוחית כליה אשך בריחת שתן תפקוד מיני צבע השתן"},
+{g:"sens",f:"markers-ent.html",n:"אף אוזן גרון",d:"אא״ג ושמיעה — ברונר 59",c:19,dot:"#2A6033",
+ cats:["אוזן ושמיעה","סחרחורת","אף וסינוסים","גרון וצוואר"],
+ kw:"אוטיטיס מסטואידיטיס כולסטאטומה אוטוסקלרוזיס ובר רינה BPPV מנייר ורטיגו אפיסטקסיס קיסלבך סינוסיטיס ריניטיס אבצס פריטונסילרי טריסמוס סרטן גרון צרידות OSA סטרידור"},
+{g:"sens",f:"markers-eyes.html",n:"מחלות עיניים",d:"עין וראייה — ברונר 58",c:17,dot:"#8A5A00",
+ cats:["עדשה ולחץ תוך-עיני","רשתית","קרנית ולחמית","חבלות"],
+ kw:"קטרקט גלאוקומה IOP טונומטריה cupping היפרדות רשתית וילון floaters CRVO BRVO קרטוקונוס קונג'קטיביטיס לחמית היפמה גוף זר שחיקת קרנית"},
+{g:"sens",f:"markers-skin.html",n:"מחלות עור וכוויות",d:"עור, זיהומים, אלרגיה וכוויות — ברונר 55–57",c:63,dot:"#8A3418",
+ cats:["זיהומים חיידקיים","ויראליים","פטרייתיים","פרזיטיים","גרד ואורטיקריה","דרמטיטיס","פסוריאזיס","שלפוחיות","כוויות — דרגות","כוויות — סיבוכים"],
+ kw:"פוליקוליטיס פורונקל צלוליטיס אבצס הרפס זוסטר אבעבועות טינאה קנדידה סקביאס כינים פשפשים אורטיקריה אנגיואדמה דרמטיטיס אטופית סבוראית פסוריאזיס SJS TEN כוויות דרגה חשמלית כימית שאיפת עשן פחמן חד חמצני שוק כוויה קרלינג"},
+{g:"sens",f:"markers-breast.html",n:"מחלות שד",d:"השד — ברונר 52",c:24,dot:"#8A3418",
+ cats:["ממצאים שפירים","טרום-סרטניים","סרטן השד","אבחון וניתוח"],
+ kw:"פיברואדנומה ציסטה מסטיטיס אבצס גינקומסטיה LCIS DCIS פפילומה פילודס קליפת תפוז פאג'ט BRCA ממוגרפיה בלוטת זקיף למפקטומי מסטקטומי לימפאדמה"},
+{g:"sys",f:"markers-onco.html",n:"אונקולוגיה",d:"מצבי חירום וסיבוכי טיפול — ברונר 12–13",c:17,dot:"#0E5F5B",
+ cats:["מצבי חירום","סיבוכי טיפול","אבחון וסיווג"],
+ kw:"SVCS ורידי נבוב לחץ על חוט השדרה היפרקלצמיה TLS פירוק גידול SIADH חום נויטרופני ANC אקסטרהוזציה נדיר מוקוזיטיס TNM grade סמני גידול"},
+{g:"sys",f:"markers-ortho.html",n:"אורתופדיה",d:"שלד ושריר — ברונר 35–37",c:25,dot:"#3A4A63",
+ cats:["שברים וטראומה","רקמה רכה ומפרקים","סיבוכים","מחלות ללא טראומה"],
+ kw:"שבר דחיסה מאמץ פתולוגי תלישה ענף ירוק קולס סמית ירך פריקת כתף נקע RICE ACL מניסקוס אכילס קרפלי דורבן תסמונת מדור 5P תסחיף שומן ברגמן אוסטאומיאליטיס פאנטום אוסטאופורוזיס DEXA פאג'ט גידולי עצם"},
+{g:"exam",f:"part-b-exam-1.html",n:"מבחן תרגול 1",d:"תרחישים קליניים קצרים בסגנון בחינה",c:80,u:"שאלות",dot:"#6B4F9E",
+ cats:["תרחישים קליניים","כל הנושאים"],
+ kw:"מבחן תרגול תרחיש קליני שאלות בחינה סימולציה"},
+{g:"exam",f:"part-b-exam-2.html",n:"מבחן תרגול 2",d:"ידע ישיר — פתופיזיולוגיה, סימנים, אבחון וטיפול",c:80,u:"שאלות",dot:"#6B4F9E",
+ cats:["ידע ישיר","תרופות","אבחון"],
+ kw:"מבחן תרגול ידע ישיר פתופיזיולוגיה תרופות אבחון טיפול"},
+{g:"exam",f:"part-b-exam-3.html",n:"מבחן תרגול 3",d:"ידע ישיר נוסף, ללא חפיפה למבחן 2",c:80,u:"שאלות",dot:"#6B4F9E",
+ cats:["ידע ישיר","אנטומיה ופיזיולוגיה"],
+ kw:"מבחן תרגול ידע ישיר אנטומיה פיזיולוגיה"}
+];
+
+const out=document.getElementById('out'),q=document.getElementById('q'),empty=document.getElementById('empty');
+const esc=s=>s.replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+document.getElementById('nTopics').textContent=T.filter(t=>t.g!=='exam').length;
+document.getElementById('nCards').textContent=T.filter(t=>t.g!=='exam').reduce((a,t)=>a+t.c,0);
+document.getElementById('nQs').textContent=T.filter(t=>t.g==='exam').reduce((a,t)=>a+t.c,0);
+
+function render(){
+  const term=q.value.trim().toLowerCase();let total=0,html="";
+  GROUPS.forEach(([gid,label])=>{
+    const items=T.filter(t=>t.g===gid&&(!term||[t.n,t.d,t.kw,...t.cats].join(' ').toLowerCase().includes(term)));
+    if(!items.length)return;total+=items.length;
+    html+=`<section><h2>${label}<small>${items.length}</small></h2><div class="grid">`+items.map(t=>`
+      <a class="card" href="${encodeURI(t.f)}" style="--dot:${t.dot}">
+        <div class="top"><span class="name">${esc(t.n)}</span><span class="count"><b>${t.c}</b> ${t.u||'כרטיסים'}</span></div>
+        <p class="desc">${esc(t.d)}</p>
+        <div class="cats">${t.cats.map(c=>`<span class="cat">${esc(c)}</span>`).join('')}</div>
+      </a>`).join('')+`</div></section>`;
+  });
+  out.innerHTML=html;empty.hidden=total>0;
+}
+q.addEventListener('input',render);
+render();
+</script>
+</body>
+</html>
