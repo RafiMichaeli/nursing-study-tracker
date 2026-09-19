@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>סמנים מזהים באונקולוגיה</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=Assistant:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F4F5F8; --surface:#FFFFFF; --ink:#1A1F2B; --muted:#5B6272; --line:#DDE0E7;
+  --accent:#0E5F5B; --hl:#E0F1EF; --hl-ink:#084642; --chip:#ECEEF3; --tip:#EAF1F6; --tip-ink:#1E4660;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#11141B; --surface:#191D26; --ink:#E6E8EE; --muted:#9AA1AE; --line:#2B303C;
+    --accent:#5FC9C1; --hl:#0F2E2C; --hl-ink:#A8E8E2; --chip:#232834; --tip:#162634; --tip-ink:#A9D1EC;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11141B; --surface:#191D26; --ink:#E6E8EE; --muted:#9AA1AE; --line:#2B303C;
+  --accent:#5FC9C1; --hl:#0F2E2C; --hl-ink:#A8E8E2; --chip:#232834; --tip:#162634; --tip-ink:#A9D1EC;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Assistant",system-ui,sans-serif}
+.wrap{direction:rtl;max-width:1100px;margin:0 auto;padding-inline:20px;padding-block:28px 60px}
+h1,h2{font-family:"Frank Ruhl Libre",Georgia,serif;text-wrap:balance;margin:0}
+h1{font-size:clamp(28px,5vw,40px);line-height:1.15}
+.sub{color:var(--muted);margin:8px 0 0;max-width:68ch}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:14px;margin-top:18px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.bar input[type=search]{flex:1 1 220px;min-width:0;font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:600 13px "Assistant",sans-serif;border:1px solid var(--line);background:var(--chip);color:var(--ink);padding:5px 11px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.practice{display:flex;gap:6px;align-items:center;font-weight:600;font-size:14px;cursor:pointer}
+button:focus-visible,input:focus-visible,.card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+section{margin-top:34px}
+section h2{font-size:24px;display:flex;align-items:baseline;gap:10px}
+section h2 small{font:400 14px "Assistant",sans-serif;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin-top:14px}
+@media (max-width:420px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.name{font:700 17px/1.3 "Assistant",sans-serif;direction:ltr;text-align:right;unicode-bidi:plaintext}
+.name .he{display:block;font-weight:400;font-size:14px;color:var(--muted)}
+.key{background:var(--hl);color:var(--hl-ink);border-radius:6px;padding:9px 11px;font-weight:700;line-height:1.45}
+.key b{display:block;font:500 11px "IBM Plex Mono",monospace;letter-spacing:.06em;opacity:.8;margin-bottom:2px}
+ul{margin:0;padding-inline-start:18px;display:flex;flex-direction:column;gap:3px}
+li{unicode-bidi:plaintext;text-align:right}
+.lab{font:13px/1.5 "IBM Plex Mono",monospace;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px;unicode-bidi:plaintext;text-align:right}
+.tips{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-top:14px}
+.tip{background:var(--tip);color:var(--tip-ink);border-radius:10px;padding:14px 16px}
+.tip h3{margin:0 0 6px;font-size:16px}
+.tip p{margin:0;unicode-bidi:plaintext}
+.hide .name{filter:blur(7px);cursor:pointer;user-select:none}
+.hide .card.shown .name{filter:none}
+.empty{color:var(--muted);margin-top:30px}
+.foot{margin-top:40px;color:var(--muted);font-size:13px}
+@media (prefers-reduced-motion:no-preference){.name{transition:filter .2s}}
+
+/* breadcrumbs */
+.crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin:0 0 18px;
+  font:600 13px "Assistant",system-ui,sans-serif;line-height:1}
+.crumbs a{display:inline-flex;align-items:center;gap:6px;color:var(--accent,#8E1630);
+  text-decoration:none;border:1px solid var(--line,#DDE0E7);background:var(--surface,#fff);
+  padding:6px 13px;border-radius:999px}
+.crumbs a:hover{border-color:var(--accent,#8E1630)}
+.crumbs a:focus-visible{outline:2px solid var(--accent,#8E1630);outline-offset:2px}
+.crumbs .sep{color:var(--muted,#5B6272);opacity:.6}
+.crumbs .here{color:var(--muted,#5B6272)}
+@media (prefers-reduced-motion:no-preference){.crumbs a{transition:border-color .14s ease}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<nav class="crumbs" aria-label="ניווט"><a href="../index.html"><span aria-hidden="true">⌂</span>מעקב הלימודים</a><span class="sep" aria-hidden="true">‹</span><a href="review.html">חזרה כללית</a><span class="sep" aria-hidden="true">‹</span><span class="here" aria-current="page">אונקולוגיה</span></nav>
+
+  <h1>סמנים מזהים באונקולוגיה</h1>
+  <p class="sub">מצבי חירום אונקולוגיים, סיבוכי הטיפול ומושגי יסוד באבחון: לכל מצב הסימן הייחודי שמכוון לזיהוי (מודגש), סימנים תומכים וממצאי מעבדה. במצב תרגול השמות מוסתרים — קראו את הסימן ונחשו, ולחצו על הכרטיס כדי לחשוף.</p>
+
+  <div class="bar">
+    <input type="search" id="q" placeholder="חיפוש: סימן, מצב או בדיקה (למשל ANC, נדיר, TNM)">
+    <label class="practice"><input type="checkbox" id="practice"> מצב תרגול</label>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div id="out"></div>
+  <p class="empty" id="empty" hidden>לא נמצאו תוצאות לחיפוש הזה.</p>
+
+  <section id="tips-sec">
+    <h2>הבחנות שכדאי לזכור</h2>
+    <div class="tips">
+      <div class="tip"><h3>ארבעת מצבי החירום בפרק</h3><p>SVCS · Spinal Cord Compression · Hypercalcemia · Tumor Lysis Syndrome. החמור מביניהם נחשב SCC, אך כולם מסכני חיים. לכך מצטרפים ספסיס וחום נויטרופני ו-SIADH.</p></div>
+      <div class="tip"><h3>ANC — מספרים שחייבים לזכור</h3><p>מתחת ל-1,500 סיכון מוגבר · מתחת ל-1,000 סיכון משמעותי · מתחת ל-500 סיכון חמור. חום מעל 38°C עם ANC מתחת ל-500 = חום נויטרופני = ספסיס = אנטיביוטיקה מיידית.</p></div>
+      <div class="tip"><h3>היפרקלצמיה — מה לא לתת</h3><p>לא משתנים תיאזידיים (אוגרים אלקטרוליטים), לא תוספי סידן, לא ויטמין D ולא ויטמין A. כן: הידרציה מסיבית + משתני לולאה + ביספוספונטים. חוסר ניעות מחמיר.</p></div>
+      <div class="tip"><h3>TLS — כיוון האלקטרוליטים</h3><p>מה שיוצא מהתא עולה בדם: אשלגן ↑, זרחן ↑, חומצה אורית ↑. הזרחן קושר סידן — ולכן סידן ↓. ה-ECG: קיצור QT (היפוקלצמיה) והיפוך גלי T (היפרקלמיה).</p></div>
+      <div class="tip"><h3>SVCS — תנוחה</h3><p>Semi-Fowler והגבהת מראשות המיטה. להימנע משכיבה פרקדן, שכיבה על הבטן וכפיפה קדימה — כולן מחמירות את הגודש. ואין לדקור או להחדיר וריד בגפיים עליונות.</p></div>
+      <div class="tip"><h3>SCC — למה הכאב כל כך חשוב</h3><p>כאב הגב או הצוואר מקדים את הלחץ על חוט השדרה עצמו. זיהוי בשלב הכאב בלבד מציל את התפקוד; משהופיעו חסרים נוירולוגיים — הנזק עלול להיות בלתי הפיך.</p></div>
+      <div class="tip"><h3>Nadir</h3><p>הנקודה הנמוכה ביותר של ספירות הדם אחרי טיפול — כ-7–14 ימים מהטיפול הכימי. זו התקופה שבה הסיכון לזיהום ולדימום הוא הגבוה ביותר.</p></div>
+      <div class="tip"><h3>Vesicant מול Irritant</h3><p>Irritant — צריבה ואודם ללא נזק קבוע. Vesicant — נמק ונזק בלתי הפיך. הוזיקנטיות השכיחות: Doxorubicin, Daunorubicin, Vincristine, Vinblastine — עדיף לתת דרך וריד מרכזי.</p></div>
+      <div class="tip"><h3>מתי לחשוד שזו הפרזנטציה הראשונה</h3><p>SVCS, SCC והיפרקלצמיה יכולים להיות הביטוי הראשון של מחלה ממאירה שטרם אובחנה — מטופל שמגיע למיון בלי לדעת שהוא חולה סרטן.</p></div>
+      <div class="tip"><h3>קרינה — מקומי מול סיסטמי</h3><p>רוב תופעות הלוואי הן מקומיות לאזור המוקרן (כולל Alopecia). היוצאת מן הכלל היא עייפות — התופעה הסיסטמית השכיחה ביותר, ולרוב חולפת תוך חודשים.</p></div>
+    </div>
+  </section>
+
+  <p class="foot">מבוסס על מצגות הקורס באונקולוגיה (עינת ברייננברג, RN MPH) ועל ברונר 16, פרקים 12–13. חומר עזר ללמידה בלבד.</p>
+</div>
+
+<script>
+const CATS=[["emerg", "מצבי חירום אונקולוגיים"], ["tox", "סיבוכי הטיפול האונקולוגי"], ["basics", "אבחון, סיווג וסמנים"]];
+const D=[{"c": "emerg","n": "Spinal Cord Compression (SCC)","h": "לחץ על חוט השדרה","k": "כאב גב או צוואר — הסימן הראשון והשכיח ביותר, מחמיר בלילה בשכיבה, בשיעול ובמאמץ","s": ["המצב החמור מבין מצבי החירום האונקולוגיים — נזק נוירולוגי עלול להיות בלתי הפיך","הכאב המקומי מקדים את הלחץ עצמו — הערנות בשלב הזה קריטית","גרורות משד, ריאה, פרוסטטה ומעי גס; לעיתים הפרזנטציה הראשונה של המחלה","60% מהפגיעות בחוליות החזה (שד, ריאה) · 30% מותניות (מעי גס, גידולי אגן) · 10% צוואריות/סקרליות","מוטורית: ירידה בכוח, תחושת כובד בגפיים, הירדמות גפה עד שיתוק רפה","תחושתית: הפרעות חום/קור, אובדן רפלקסים, נימול ועקצוץ, אי-יציבות בעמידה","בחומרה: אובדן שליטה על סוגרים — מעל S2 = Overflow incontinence; בין S3–S5 = אי-שליטה","טיפול: Dexamethasone IV במינון גבוה (מפחית בצקת מקומית) + אופיואידים + קרינה ממוקדת; ניתוח לדקומפרסיה וייצוב אם לא עזרו"],"l": "MRI עמוד שדרה — בדיקת הבחירה · בפועל לרוב צילום/CT ומיפוי עצמות"},{"c": "emerg","n": "Superior Vena Cava Syndrome (SVCS)","h": "תסמונת הווריד הנבוב העליון","k": "נפיחות סביב העיניים (Periorbital edema) בעיקר בבוקר + \"ציור ורידי\" וגודש בצוואר ובחזה","s": ["בצקת בצוואר, בזרועות ובחזה — מוחמרת בשכיבה ובכפיפה קדימה","קושי בנשימה, שיעול, צרידות, כאבים בחזה; בהחמרה — סטרידור (היצרות בלוע)","גודש ורידי אל המוח → עליית ICP: כאבי ראש, הפרעות ראייה, שינוי בהכרה עד אנוקסיה","גורמים: גידולי מדיאסטינום — סרטן ריאות, לימפומות, סרטן שד מפושט; גם קריש דם או נזק יאטרוגני (קוצב, צנתר מרכזי)","לעיתים האבחנה הראשונה של המחלה — המטופל מגיע למיון בלי לדעת שהוא חולה סרטן","סיעודי: Semi-Fowler והגבהת מראשות המיטה (לא Prone/Supine), הימנעות מלבוש לוחץ, תכשיטים וטבעות, ואין לדקור או להחדיר וריד בגפיים עליונות","טיפול: קרינה במינון גבוה, כימותרפיה בגידולים רגישים (לימפומה, SCLC), נוגדי קרישה/tPA, סטנט"],"l": "צילום חזה · CT או MRI חזה · אנגיו/ונוגרפיה בחשד לקריש · זהירות ביוד בחולים רגישים"},{"c": "emerg","n": "Hypercalcemia of Malignancy","h": "היפרקלצמיה ממאירה","k": "סידן מעל 10.4 mg/dL עם פוליאוריה, פולידיפסיה, עצירות ובלבול — התסמינים המוקדמים לא ספציפיים","s": ["שכיחה בכ-20% מהמטופלים; מנגנון: ציטוקינים וגורמי גדילה מפעילים אוסטאוקלסטים ומפרקים עצם","שכיחה בגרורות לעצם (שד, ריאה), מיאלומה נפוצה, לוקמיות ולימפומות","עייפות, חולשה, אובדן תיאבון, בחילות והקאות, התייבשות, ירידה בעירנות עד קומה","בהחמרה: חולשת שרירים קשה, שיתוק מעי (אילאוס), אובדן רפלקסים, הפרעות קצב ושינויי ECG","בעלייה הדרגתית הגוף \"מסתגל\" — תסמינים רק ברמות גבוהות מאוד","טיפול: הידרציה מסיבית N/S 0.9% (2–4 ליטר ליממה) + משתני לולאה (Furosemide) + ביספוספונטים (Zolendronate, Pamidronate) + סטרואידים","אין לתת: משתנים תיאזידיים, תוספי סידן, ויטמין D או ויטמין A — כולם מחמירים","חוסר ניעות מחמיר היפרקלצמיה — לעודד תנועה והליכה"],"l": "סידן מעל 10.4 mg/dL (תקין 8.6–10.2) · סידן מיונן מעל 1.29 mmol/L · ECG"},{"c": "emerg","n": "Tumor Lysis Syndrome (TLS)","h": "תסמונת פירוק הגידול","k": "שלישיית המעבדה: היפרקלמיה + היפרפוספטמיה + היפראוריצמיה — ובעקבותיהן היפוקלצמיה","s": ["הרס מהיר של תאים ממאירים בקצב מהיר מיכולת הפינוי של הגוף — לרוב אחרי כימותרפיה","אופייני לגידולים אגרסיביים: לוקמיה חריפה, NHL דיפוזי, SCLC, סרטן שד דלקתי, מלנומה ומיאלומה","הנזק העיקרי: כלייתי, לבבי ועצבי","נוירולוגית: עייפות, חולשת שרירים, שינויים בהכרה, פרכוסים, בלבול","לבבית: הפרעות קצב — קיצור QT מהיפוקלצמיה, היפוך גלי T מהיפרקלמיה","כלייתית: אוליגוריה עד אנוריה, בצקות, שתן חומצי, AKI","מניעה: הידרציה טובה לפני ובמהלך 24 שעות סביב הטיפול + אנטי-אמטי + מעקב משקל ואלקטרוליטים","טיפול: Kayexalate או אינסולין בגלוקוז לאשלגן · Allopurinol/Rasburicase לחומצה אורית · Calcium gluconate · קושרי פוספט · דיאליזה במצב חמור"],"l": "אבחנה קלינית: AKI (קריאטינין מעל פי 1.5 מהנורמה), הפרעת קצב או פרכוסים — 3 ימים לפני עד 7 ימים אחרי טיפול ציטוטוקסי"},{"c": "emerg","n": "SIADH","h": "הפרשה בלתי הולמת של ADH","k": "היפונתרמיה עם אגירת נוזלים ועלייה במשקל — ללא בצקות פריפריות","s": ["גורם קלאסי: סרטן ריאות מסוג תאים קטנים (SCLC); גם סרטן ראש-צוואר עם גרורות למוח, מלנומה, סרטן מעי גס וממאירות המטולוגית","תרופות: Cyclophosphamide, Cisplatin, Morphine Sulfate","היפונתרמיה קלה: חולשה, התכווצויות שרירים, אובדן תיאבון ועייפות","היפונתרמיה קשה: עלייה במשקל, שינויים באישיות, בלבול וחולשת שרירים קיצונית","מתחת ל-110 mEq/L: פרכוסים, תרדמת ומוות","חומרת המצב תלויה בקצב הירידה של הנתרן, לא רק ברמה","טיפול: הגבלת נוזלים, העלאת נתרן, משתנים בזהירות וטיפול בגידול עצמו"],"l": "Na מתחת ל-135 (תקין 136–145) · אוסמולריות סרום נמוכה · שתן מרוכז"},{"c": "emerg","n": "Febrile Neutropenia / Sepsis","h": "חום נויטרופני וספסיס","k": "חום מעל 38°C עם ANC מתחת ל-500 — נחשב ספסיס ודורש אנטיביוטיקה רחבת טווח מיידית","s": ["ANC מתחת ל-1,500 = סיכון מוגבר · מתחת ל-1,000 = סיכון משמעותי · מתחת ל-500 = סיכון חמור","לא ממתינים לתשובות תרביות — מטפלים מיד ומתאימים לפי המזהם","תרביות: דם, שתן, כיח, צואה, צנתרים, פצעים + צילום חזה","גורמי סיכון: פגיעה בשלמות עור וריריות, תת-תזונה, אנטיביוטיקה ממושכת (פגיעה בפלורה), הסרטן עצמו וחדירה למח העצם","זיהומים חיידקיים, ויראליים או פטרייתיים; סיכון להתפתחות שוק ספטי ואף DIC","הדרכה: מדידת חום (רצוי PO), הימנעות מקהל ומקומות סגורים, בידוד, חיטוי ידיים, שטיפת מזון ואכילת מזון מבושל ולא טרי"],"l": "ANC (Absolute Neutrophil Count) · ספירת דם · תרביות"},{"c": "tox","n": "Extravasation","h": "אקסטרהוזציה — דליפת כימותרפיה","k": "כאב עז, צריבה, אודם ונפיחות באזור העירוי — עם חוסר חזרת דם והתנגדות בשטיפה","s": ["דליפה של כימותרפיה מהווריד לרקמה שסביבו — מגירוי קל ועד נזק בלתי הפיך","תרופות Irritant גורמות לצריבה ואודם ללא נזק קבוע; תרופות Vesicant גורמות לנמק","וזיקנטיות שכיחות: Doxorubicin, Daunorubicin, Vincristine, Vinblastine","מניעה: וריד טוב \"ללא חפירות\", ודאו חזרת דם לפני חיבור, אין להזריק לווריד שטחי או בכף היד","שכיח יותר בווריד פריפרי — לכן מעדיפים וריד מרכזי (Hickman, Port, PICC) לתרופות וזיקנטיות","טיפול: הפסקת העירוי מיד + פרוטוקול אנטידוט ספציפי לחומר"],"l": "—"},{"c": "tox","n": "Myelosuppression & Nadir","h": "דיכוי מח עצם ונדיר","k": "Nadir — הנקודה הנמוכה ביותר של ספירות הדם, כ-7–14 ימים אחרי הטיפול הכימי","s": ["רוב הטיפולים הכימותרפיים גורמים לדיכוי מח עצם בכל שורות הדם","לויקופניה (בדגש על נויטרופניה) → סיכון לזיהום","ירידה ב-RBC ובהמוגלובין → אנמיה, עייפות וחולשה","טרומבוציטופניה → סיכון לדימום","מהנדיר הספירות עולות בהדרגה, לרוב בסיוע זריקות גורמי גדילה","ספירות נמוכות עלולות לחייב דחיית טיפול או הקטנת מינון"],"l": "CBC · ANC · מעקב שבועי"},{"c": "tox","n": "Stomatitis / Mucositis","h": "סטומטיטיס ומוקוזיטיס","k": "אדמומיות ובצקת בריריות הפה ושינויים בתחושה — עד כיבים כואבים, דימום וזיהום משני","s": ["פתופיזיולוגיה: נזק לשכבת המוקוזה של תאי האפיתל עד אטרופיה וכיבים, וחדירת חיידקים","המטופלים מדווחים על כאב קשה, הפרעה בבליעה, בתזונה ובדיבור — עד הפסקת או שינוי הטיפול","גורמי סיכון: היגיינת פה ירודה, מצב תזונתי ירוד, עישון, תפקוד כלייתי ירוד, יובש בפה, טיפולי סרטן/קרינה קודמים","גיל: מתחת ל-25 או מעל 65","מניעה וטיפול: היגיינת פה קפדנית, שטיפות מים וסודה לשתייה, קריותרפיה (מציצת קרח בזמן העירוי), Palifermin, טיפולי שיניים סדירים","מעקב סיעודי: הערכת חלל הפה מדי יום — יובש, זיהום, כאב, מצב תזונתי והידרציה"],"l": "—"},{"c": "tox","n": "Hypersensitivity to Chemotherapy","h": "תגובתיות יתר לטיפול","k": "אורטיקריה, חום, קוצר נשימה, ירידת לחץ דם וכאבים בחזה — עד סינקופה, במהלך העירוי או אחריו","s": ["יכול להופיע מיידי (5 דקות עד 6 שעות) או מאוחר (שעות עד ימים אחרי סיום העירוי)","מתווך ע\"י IgE או ע\"י תסמונת שחרור ציטוקינים (CRS)","הסיכון עולה עם חשיפה חוזרת לתרופה — גם אם לא הייתה תגובה קודם לכן","טיפול: הפסקת החומר + אנטיהיסטמינים, סטרואידים ואדרנלין לפי פרוטוקול","בהמשך: האטת קצב העירוי, שינוי מינון או חומר, ופרה-מדיקציה למניעת תגובה חוזרת"],"l": "—"},{"c": "tox","n": "CINV — Chemotherapy-Induced Nausea & Vomiting","h": "בחילות והקאות מכימותרפיה","k": "תופעת הלוואי השכיחה ביותר במערכת העיכול","s": ["פרה-מדיקציה לפני כל טיפול: נוגדי בחילה + סטרואידים","חוסמי סרוטונין (5-HT3 — Setron, זופרן) הם הטיפול המרכזי","בחילות ממושכות → תת-תזונה, התייבשות וחוסר איזון אלקטרוליטים","אנטי-אמטי חיוני גם כדי לאפשר שתייה מרובה במניעת TLS"],"l": "מעקב משקל ומאזן נוזלים"},{"c": "tox","n": "Radiation Side Effects","h": "תופעות לוואי מקרינה","k": "תופעות מקומיות באזור המוקרן בלבד — למעט עייפות, שהיא התופעה הסיסטמית השכיחה","s": ["הקרינה פוגעת במיוחד בתאים שמתחלקים מהר: מח עצם, לימפה, שיער וריריות","Alopecia מקומית — נשירת שיער רק באזור המוקרן","קרינה לראש-צוואר: דיספגיה ויובש בריריות · לחזה: כאב בחזה · לבטן: אנורקסיה, בחילות, הקאות, שלשול, ציסטיטיס","עייפות קשה וחולשה — הגוף מותש מתיקון התאים; לרוב חולפת תוך חודשים","בקרינה חיצונית (טלתרפיה) המטופל אינו רדיואקטיבי; בברכיתרפיה (קרינה פנימית) — כן, ונדרשים אמצעי הגנה","מנת הקרינה נמדדת ביחידות Gray ומחולקת לפרקציות"],"l": "—"},{"c": "tox","n": "CACS — Cachexia-Anorexia Syndrome","h": "תסמונת קכקסיה-אנורקסיה","k": "ירידה במשקל ואובדן תיאבון במחלה מתקדמת — שאינם מתוקנים ע\"י תוספת קלוריות בלבד","s": ["מאפיין מרכזי בחולי סרטן בשלב מתקדם, לצד כאב ועייפות","סיכון נלווה: פצעי לחץ, דיכאון, הפרעות נוזלים ואלקטרוליטים, זיהומים עד ספסיס","הטיפול מתמקד בתמיכה ובהקלה על סבל ותסמינים"],"l": "מעקב משקל ואלבומין"},{"c": "basics","n": "TNM Staging","h": "סיווג TNM","k": "T — גודל הגידול ומיקומו · N — מעורבות בלוטות לימפה · M — גרורות מרוחקות","s": ["\"שפה משותפת\" לכלל הרופאים המטפלים — סטנדרטיזציה באבחון","קובע את הטיפול לפי שלב המחלה ואת הפרוגנוזה","שם הסרטן נגזר ממיקום הגידול הראשוני — ולא ממיקום הגרורה","גרורות מתפשטות דרך זרם הדם, דרך מערכת הלימפה או בהתפשטות ישירה"],"l": "PET או CT חזה-בטן-אגן לאיתור גרורות"},{"c": "basics","n": "Grading (G1–G4)","h": "דרגת התמיינות","k": "מדד ל\"אלימות\" התאים — נקבע רק בביופסיה, בבדיקה היסטולוגית","s": ["G1 — Well differentiated (low grade): דמיון רב לתאים בריאים","G2 — Moderately differentiated (intermediate grade)","G3 — Poorly differentiated (high grade)","G4 — Undifferentiated: התאים בלתי ניתנים לזיהוי","ככל שהתאים דומים יותר לתאי המקור — הם פחות אלימים","נבדק גם Mitotic Index — קצב ואיכות החלוקה; מדד פרוגנוסטי לחומרת המחלה"],"l": "ביופסיה — בדיקה היסטולוגית במעבדה פתולוגית"},{"c": "basics","n": "Seven Warning Signs of Cancer","h": "שבעת סימני האזהרה לסרטן","k": "שינוי בהרגלי יציאות או שתן · פצע שאינו מחלים · דימום או הפרשה חריגה","s": ["גוש בשד או במקום אחר","קושי בעיכול או בבליעה","שינוי בשומה קיימת בעור","שיעול טורדני או צרידות","מניעה ראשונית: אורח חיים וחיסונים (HPV) · מניעה שניונית: סקרינינג וגילוי מוקדם"],"l": "—"},{"c": "basics","n": "Tumor Markers","h": "סמני גידול","k": "CEA — מעי גס וקיבה (עולה גם בדלקות ובמעשנים)","s": ["CA 15-3 — שד וסרטנים גינקולוגיים","CA-125 — שחלה ושד","CA 19-9 — לבלב, מעי גס וריאה","HCG — אשכים","AFP — כבד, אשכים ושחלות","סמנים אינם אבחנתיים בפני עצמם — משמשים למעקב ולהערכת תגובה לטיפול"],"l": "בדיקות דם למעקב"}];
+
+const out=document.getElementById('out'),q=document.getElementById('q'),chips=document.getElementById('chips'),empty=document.getElementById('empty');
+let cat="all";
+const esc=s=>s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+function chip(id,label){const b=document.createElement('button');b.className='chip';b.textContent=label;b.setAttribute('aria-pressed',id===cat);b.onclick=()=>{cat=id;[...chips.children].forEach(x=>x.setAttribute('aria-pressed',x===b));render();};chips.appendChild(b);}
+chip("all","הכל");CATS.forEach(([id,l])=>chip(id,l));
+function render(){
+  const term=q.value.trim().toLowerCase();let total=0;let html="";
+  CATS.forEach(([id,label])=>{
+    if(cat!=="all"&&cat!==id)return;
+    const items=D.filter(d=>d.c===id&&(!term||[d.n,d.h,d.k,d.l,...d.s].join(' ').toLowerCase().includes(term)));
+    if(!items.length)return;total+=items.length;
+    html+=`<section><h2>${label}<small>${items.length}</small></h2><div class="grid">`+items.map(d=>`
+      <article class="card" tabindex="0">
+        <div class="name">${esc(d.n)}<span class="he">${esc(d.h)}</span></div>
+        <div class="key"><b>סימן מזהה</b>${esc(d.k)}</div>
+        <ul>${d.s.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+        ${d.l&&d.l!=="—"?`<div class="lab">${esc(d.l)}</div>`:''}
+      </article>`).join('')+`</div></section>`;
+  });
+  out.innerHTML=html;empty.hidden=total>0;
+}
+out.addEventListener('click',e=>{const c=e.target.closest('.card');if(c)c.classList.toggle('shown');});
+out.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList.contains('card'))e.target.classList.toggle('shown');});
+q.addEventListener('input',render);
+document.getElementById('practice').addEventListener('change',e=>{out.classList.toggle('hide',e.target.checked);out.querySelectorAll('.shown').forEach(c=>c.classList.remove('shown'));});
+render();
+</script>
+</body>
+</html>

@@ -55,11 +55,11 @@
 
     <!-- Part A/B chips -->
     <div class="sidebar-parts">
-      <div class="sidebar-part-chip pa" id="chipA" onclick="filterPart('א')" data-i18n-tooltip="chipTooltipA" data-tooltip="לחץ לסינון נושאי חלק א׳ בלבד — לחץ שוב לביטול הסינון">
+      <div class="sidebar-part-chip pa" id="chipA" onclick="filterPart('א')" data-i18n-tooltip="chipTooltipA" data-tooltip="לחץ לסינון נושאי חלק א׳ בלבד — לחץ שוב לביטול. הבחירה נשמרת לפעם הבאה">
         <span class="pct" id="sidebarPartA">0%</span>
         <span class="lbl" data-i18n="partA">חלק א׳</span>
       </div>
-      <div class="sidebar-part-chip pb" id="chipB" onclick="filterPart('ב')" data-i18n-tooltip="chipTooltipB" data-tooltip="לחץ לסינון נושאי חלק ב׳ בלבד — לחץ שוב לביטול הסינון">
+      <div class="sidebar-part-chip pb" id="chipB" onclick="filterPart('ב')" data-i18n-tooltip="chipTooltipB" data-tooltip="לחץ לסינון נושאי חלק ב׳ בלבד — לחץ שוב לביטול. הבחירה נשמרת לפעם הבאה">
         <span class="pct" id="sidebarPartB">0%</span>
         <span class="lbl" data-i18n="partB">חלק ב׳</span>
       </div>
@@ -75,7 +75,7 @@
           <span class="link-badge" id="sb-badge-all">19</span>
         </button>
       </li>
-      <li class="sidebar-header" data-i18n="partA">חלק א׳</li>
+      <li class="sidebar-header" id="sbHeadA" data-i18n="partA">חלק א׳</li>
       <!-- Part A categories built by JS -->
       <li class="sidebar-item" id="sb-surgery_shock">
         <button class="sidebar-link" data-cat="surgery_shock" onclick="filterCat('surgery_shock')">
@@ -107,7 +107,7 @@
           <span class="link-badge" id="sb-badge-endocrine"></span>
         </button>
       </li>
-      <li class="sidebar-header" data-i18n="partB">חלק ב׳</li>
+      <li class="sidebar-header" id="sbHeadB" data-i18n="partB">חלק ב׳</li>
       <li class="sidebar-item" id="sb-nephrology">
         <button class="sidebar-link" data-cat="nephrology" onclick="filterCat('nephrology')">
           <span class="link-icon">💧</span> נפרולוגיה
@@ -155,6 +155,12 @@
           <span class="link-icon">🎗️</span> אונקולוגיה ודם
           <span class="link-badge" id="sb-badge-onco_hematology"></span>
         </button>
+      </li>
+      <li class="sidebar-header">חזרה כללית</li>
+      <li class="sidebar-item">
+        <a class="sidebar-link" href="study-tools/review.html">
+          <span class="link-icon">🔎</span> כל דפי החזרה
+        </a>
       </li>
       <li class="sidebar-header">מבחני תרגול</li>
       <li class="sidebar-item">

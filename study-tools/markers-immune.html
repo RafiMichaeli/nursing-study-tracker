@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>סמנים מזהים במערכת החיסונית</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=Assistant:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F4F5F8; --surface:#FFFFFF; --ink:#1A1F2B; --muted:#5B6272; --line:#DDE0E7;
+  --accent:#6A2C8F; --hl:#F2E6F8; --hl-ink:#4E1E6B; --chip:#ECEEF3; --tip:#EAF1F6; --tip-ink:#1E4660;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#11141B; --surface:#191D26; --ink:#E6E8EE; --muted:#9AA1AE; --line:#2B303C;
+    --accent:#C68BE0; --hl:#2A1436; --hl-ink:#E4C2F5; --chip:#232834; --tip:#162634; --tip-ink:#A9D1EC;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11141B; --surface:#191D26; --ink:#E6E8EE; --muted:#9AA1AE; --line:#2B303C;
+  --accent:#C68BE0; --hl:#2A1436; --hl-ink:#E4C2F5; --chip:#232834; --tip:#162634; --tip-ink:#A9D1EC;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Assistant",system-ui,sans-serif}
+.wrap{direction:rtl;max-width:1100px;margin:0 auto;padding-inline:20px;padding-block:28px 60px}
+h1,h2{font-family:"Frank Ruhl Libre",Georgia,serif;text-wrap:balance;margin:0}
+h1{font-size:clamp(28px,5vw,40px);line-height:1.15}
+.sub{color:var(--muted);margin:8px 0 0;max-width:68ch}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:14px;margin-top:18px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.bar input[type=search]{flex:1 1 220px;min-width:0;font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:600 13px "Assistant",sans-serif;border:1px solid var(--line);background:var(--chip);color:var(--ink);padding:5px 11px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.practice{display:flex;gap:6px;align-items:center;font-weight:600;font-size:14px;cursor:pointer}
+button:focus-visible,input:focus-visible,.card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+section{margin-top:34px}
+section h2{font-size:24px;display:flex;align-items:baseline;gap:10px}
+section h2 small{font:400 14px "Assistant",sans-serif;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin-top:14px}
+@media (max-width:420px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.name{font:700 17px/1.3 "Assistant",sans-serif;direction:ltr;text-align:right;unicode-bidi:plaintext}
+.name .he{display:block;font-weight:400;font-size:14px;color:var(--muted)}
+.key{background:var(--hl);color:var(--hl-ink);border-radius:6px;padding:9px 11px;font-weight:700;line-height:1.45}
+.key b{display:block;font:500 11px "IBM Plex Mono",monospace;letter-spacing:.06em;opacity:.8;margin-bottom:2px}
+ul{margin:0;padding-inline-start:18px;display:flex;flex-direction:column;gap:3px}
+li{unicode-bidi:plaintext;text-align:right}
+.lab{font:13px/1.5 "IBM Plex Mono",monospace;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px;unicode-bidi:plaintext;text-align:right}
+.tips{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-top:14px}
+.tip{background:var(--tip);color:var(--tip-ink);border-radius:10px;padding:14px 16px}
+.tip h3{margin:0 0 6px;font-size:16px}
+.tip p{margin:0;unicode-bidi:plaintext}
+.hide .name{filter:blur(7px);cursor:pointer;user-select:none}
+.hide .card.shown .name{filter:none}
+.empty{color:var(--muted);margin-top:30px}
+.foot{margin-top:40px;color:var(--muted);font-size:13px}
+@media (prefers-reduced-motion:no-preference){.name{transition:filter .2s}}
+
+/* breadcrumbs */
+.crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin:0 0 18px;
+  font:600 13px "Assistant",system-ui,sans-serif;line-height:1}
+.crumbs a{display:inline-flex;align-items:center;gap:6px;color:var(--accent,#8E1630);
+  text-decoration:none;border:1px solid var(--line,#DDE0E7);background:var(--surface,#fff);
+  padding:6px 13px;border-radius:999px}
+.crumbs a:hover{border-color:var(--accent,#8E1630)}
+.crumbs a:focus-visible{outline:2px solid var(--accent,#8E1630);outline-offset:2px}
+.crumbs .sep{color:var(--muted,#5B6272);opacity:.6}
+.crumbs .here{color:var(--muted,#5B6272)}
+@media (prefers-reduced-motion:no-preference){.crumbs a{transition:border-color .14s ease}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<nav class="crumbs" aria-label="ניווט"><a href="../index.html"><span aria-hidden="true">⌂</span>מעקב הלימודים</a><span class="sep" aria-hidden="true">‹</span><a href="review.html">חזרה כללית</a><span class="sep" aria-hidden="true">‹</span><span class="here" aria-current="page">מערכת חיסונית</span></nav>
+
+  <h1>סמנים מזהים במערכת החיסונית</h1>
+  <p class="sub">מחלות ראומטיות ורקמת חיבור, תגובות רגישות יתר ו-HIV/AIDS: לכל מחלה הסימן הייחודי שמכוון לאבחנה (מודגש), סימנים תומכים וממצאי מעבדה. במצב תרגול שמות המחלות מוסתרים — קראו את הסימן ונחשו, ולחצו על הכרטיס כדי לחשוף.</p>
+
+  <div class="bar">
+    <input type="search" id="q" placeholder="חיפוש: סימן, מחלה או בדיקה (למשל CREST, ANA, טופי)">
+    <label class="practice"><input type="checkbox" id="practice"> מצב תרגול</label>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div id="out"></div>
+  <p class="empty" id="empty" hidden>לא נמצאו תוצאות לחיפוש הזה.</p>
+
+  <section id="tips-sec">
+    <h2>הבחנות שכדאי לזכור</h2>
+    <div class="tips">
+      <div class="tip"><h3>RA מול אוסטאוארתריטיס</h3><p>RA: נוקשות בוקר מעל שעה, סימטרי, מפרקים קטנים ופרוקסימליים, ↑ESR/CRP, RF חיובי, ביטויים מערכתיים. OA: נוקשות פחות מ-30 דקות, א-סימטרי, מפרקים נושאי משקל, מעבדה תקינה, כאב מכני שמוקל במנוחה.</p></div>
+      <div class="tip"><h3>PMR מול GCA</h3><p>PMR: כאב פרוקסימלי בצוואר/כתפיים/אגן, נוקשות בוקר מעל 45 דקות, ללא פגיעה בראייה, סטרואידים במינון נמוך. GCA: כאב ראש חדש, כאב בקרקפת, חולשת לסת, עורק טמפורלי רגיש וללא דופק, סכנת עיוורון — סטרואידים במינון גבוה.</p></div>
+      <div class="tip"><h3>4 סוגי רגישות יתר</h3><p>I — IgE, מיידי, מגיב לאנטיהיסטמינים · II — ציטוטוקסי (IgG/IgM + משלים) · III — קומפלקסים חיסוניים · IV — תאי T, מושהה 24–72 שעות. רק סוג I מגיב לאנטיהיסטמינים.</p></div>
+      <div class="tip"><h3>אנפילקסיס — סדר הפעולות</h3><p>הפסקת חשיפה → קריאה לעזרה → השכבה והרמת רגליים (ישיבה אם קוצר נשימה) → Epinephrine IM מיידי → חמצן 90–100% → ניטור → וריד פתוח. אדרנלין קודם לכל תרופה אחרת.</p></div>
+      <div class="tip"><h3>CD4 — מספרים שמכוונים</h3><p>תקין 500–1,500 · מתחת ל-200 = AIDS · מתחת ל-50 = סיכון ל-MAC. TB לעומת זאת אינה תלויה בספירת CD4, אך הסיכון עולה עם ירידתה.</p></div>
+      <div class="tip"><h3>טריגרים ל-SLE</h3><p>UV (שמש או מנורות), עישון כולל פסיבי, אסטרוגן (גלולות, טיפול הורמונלי), זיהומים ויראליים, טראומה/ניתוח/הריון, סטרס. תרופות: Procainamide, Hydralazine, Minocycline, Sulfa, Penicillin.</p></div>
+      <div class="tip"><h3>CREST</h3><p>C — Calcinosis (שקיעת סידן) · R — Raynaud · E — Esophageal dysmotility · S — Sclerodactyly · T — Telangiectasia. ריינו הוא הסימן הראשון והשכיח ביותר (90%).</p></div>
+      <div class="tip"><h3>לפני כל DMARD ביולוגי</h3><p>בדיקת TB (Mantoux), ספירה וכימיה, תפקודי כבד וכליות, שתן, דם סמוי בצואה, HBV ו-HCV. מחלה לטנטית — לטפל בה קודם.</p></div>
+      <div class="tip"><h3>Hydroxychloroquine — התופעה החשובה</h3><p>פגיעה ברשתית העין היא תופעת הלוואי הרצינית ביותר — בדיקת עיניים לפני התחלה וכל 6 חודשים. אין לתת למטופלים עם מחלות לב והפרעות קצב.</p></div>
+      <div class="tip"><h3>HLA-B27</h3><p>מקשר בין הספונדילוארתרופתיות: Ankylosing spondylitis, Reactive arthritis (Reiter), Psoriatic arthritis, וגם מחלות מעי דלקתיות (Crohn, Colitis ulcerosa). לרוב גברים, גיל 20–30.</p></div>
+    </div>
+  </section>
+
+  <p class="foot">מבוסס על מצגות הקורס "מערכת חיסונית" (אינה נשר, MN, CCRN) ועל פרקים 31–34 בברונר. חומר עזר ללמידה בלבד.</p>
+</div>
+
+<script>
+const CATS=[["ct", "מחלות רקמת חיבור אוטואימוניות"], ["arth", "דלקות מפרקים וכאב מפושט"], ["hyp", "רגישות יתר ותגובות אלרגיות"], ["hiv", "HIV/AIDS וזיהומים אופורטוניסטיים"]];
+const D=[{"c": "ct","n": "Rheumatoid Arthritis (RA)","h": "דלקת מפרקים שגרונית","k": "נוקשות בוקר מעל שעה + דלקת סימטרית במפרקים קטנים ופרוקסימליים","s": ["דפורמציות אופייניות: Boutonniere ו-Swan neck","גושים ראומטיים תת-עוריים על בליטות עצם (מרפק) — רק במטופלים עם RF חיובי","סימני דלקת מוקדמים: חום ואודם מקומיים, אנורקסיה, ירידה במשקל וחום סב-פיברילי","נשים פי 2–3, גיל 30–60; עודף משקל מעלה סיכון פי 20; עישון, EBV, גנטיקה","מערכתי: Pericarditis, Myocarditis, Raynaud, פלאוריטיס ופיברוזיס ריאתי, Carpal tunnel, Baker cysts, Sjögren, אנמיה וטרומבוציטוזיס","טיפול: DMARDs תוך 3 חודשים מהאבחנה — Methotrexate קו ראשון (טרטוגני, הוסיפו חומצה פולית); ביולוגיים אנטי-TNF/IL-6/IL-1; JAK inhibitors"],"l": "↑ESR · ↑CRP · RF · ANA · X-ray/MRI — שחיקת עצם · ≥6 נקודות בקריטריונים · בדיקת TB (Mantoux) לפני טיפול ביולוגי"},{"c": "ct","n": "Systemic Lupus Erythematosus (SLE)","h": "זאבת מערכתית","k": "פריחת פרפר (Butterfly rash) על הפנים — ב-50% מהמטופלים; \"מחלה עם אלף פנים\"","s": ["נשים פי 4–12, שכיחה יותר באוכלוסייה כהת-עור; אסטרוגן הוא טריגר","סימנים עוריים ב-85%: נגעים דיסקואידים, כיבים בפה, אלופציה, פוטוסנסיטיביות","כאבים ובצקת במפרקים במעל 90%","Nephritis ב-40% — חלבון ודם בשתן, שתן קצפי; סיבת המוות העיקרית במבוגרים","המטולוגי: טרומבוציטופניה (50%), אנמיה המוליטית","טריגרים תרופתיים (drug-induced lupus): Procainamide, Hydralazine, Minocycline, Sulfa, Penicillin","מניעת חשיפה ל-UV: SPF 30+, בגדים, כובע; הפסקת עישון קריטית","Belimumab — ביולוגי ספציפי ל-SLE (מעקב שעתיים אחרי מתן, סיכון לשוק אנפילקטי)"],"l": "ANA חיובי ב-99% · אנטי-dsDNA · חלבון ודם בשתן · משלים נמוך"},{"c": "ct","n": "Systemic Sclerosis (Scleroderma)","h": "סקלרודרמה","k": "עור מתוח, חלק ומבריק עם פני-מסכה ו\"שפה קפואה\" — ותופעת ריינו כסימן ראשון ב-90%","s": ["תסמונת CREST: Calcinosis, Raynaud, Esophageal dysmotility, Sclerodactyly, Telangiectasia","בצקת ונפיחות באצבעות בעיקר בבוקר, עיבוי עור, קונטרקטורות","מערכת עיכול ב-90%: ריפלוקס, שלשולים, עצירות, ספיגה לקויה, סימני חסימת מעיים","ריאות: פיברוזיס ולחץ ריאתי גבוה · לב: מיוקרדיטיס, הפרעות קצב ובלוקים","כליות: יתר לחץ דם ממאיר ואי-ספיקת כליות — ACE-I מוריד תמותה","טיפול: Nintedanib ו-Pirfenidone (אנטי-פיברוטיות), חוסמי סידן, PPI, הימנעות מקור קיצוני"],"l": "ANA · אנטי-Scl-70 · אנטי-צנטרומר (CREST) · קפילרוסקופיה"},{"c": "ct","n": "Polymyositis","h": "פולימיוזיטיס","k": "חולשת שרירים סימטרית פרוקסימלית — קושי לקום מכיסא, לעלות מדרגות ולסרק שיער","s": ["מיופתיה דלקתית אידיופתית אוטואימונית","נשים פי 2–3; גיל ממוצע 50–60","כאבי מפרקים, אדמומיות מעל מפרקים מעורבים, פריחה","טיפול: קורטיקוסטרואידים; אם אין תגובה — IVIG, פלזמפרזיס; Hydroxychloroquine לפריחה; פיזיותרפיה חיונית"],"l": "↑CK · EMG · ביופסיית שריר · סרולוגיה לנוגדנים"},{"c": "ct","n": "Polymyalgia Rheumatica (PMR)","h": "פולימיאלגיה ראומטיקה","k": "כאב ונוקשות פרוקסימלית סימטרית בצוואר, בכתפיים ובאגן — עם נוקשות בוקר מעל 45 דקות","s": ["מעל גיל 50, שכיח יותר באנשים בעלי עור בהיר; תורשתי","תחושת חולשה אך לא חולשה אמיתית בבדיקה","תסמינים מערכתיים: עייפות, ירידה במשקל, חום, חוסר תיאבון, דיכאון","שכיחה פי 2–3 מ-GCA; שתיהן חולקות מרקרים גנטיים והפרשת IL-1/IL-6","אבחנה: קליניקה + תגובה מהירה לסטרואידים במינון נמוך"],"l": "↑ESR · ↑CRP · אין פגיעה בראייה"},{"c": "ct","n": "Giant Cell (Temporal) Arteritis","h": "דלקת עורקי ענק","k": "עורק טמפורלי רגיש, מעובה וללא דופק + כאב ראש חדש וכאב בקרקפת — סכנת עיוורון בלתי הפיך","s": ["Vasculitis של כלי דם גדולים-בינוניים, בעיקר העורק הטמפורלי","כאב ראש ב-60%, חולשה בלסת וקושי בלעיסה (Jaw claudication)","ראייה מטושטשת — מחייבת סטרואידים דחופים במינון גבוה","ללא טיפול מיידי — סיכון ל-Stroke","טיפול: סטרואידים במינון גבוה + Aspirin"],"l": "↑ESR · ↑CRP · ביופסיית עורק טמפורלי · MRI"},{"c": "arth","n": "Gout","h": "שיגדון","k": "התקף כאב עז ופתאומי, מחמיר בלילה, במפרק ה-Metatarsophalangeal של הבוהן (90%) — אדום, חם ובצקתי","s": ["Hyperuricemia מעל 6.8 mg/dL; גברים פי 3–4 מנשים","טריגרים: אכילת בשר, אלכוהול, פרוקטוזה, צום ממושך, סטרס, משתנים, Aspirin, ניאצין","התקפים ראשוניים חולפים תוך 3–10 ימים; עם הזמן תדירים יותר ומערבים יותר מפרקים","TOPHI — מחלה כרונית: משקעים במרפקים, גידים, אפרכסת האוזן, עפעפיים, מסתמי לב","סיבוך: אבנים בכליות (Ureterolithiasis) ופגיעה כלייתית","טיפול חריף: Colchicine, NSAIDs (Indomethacin), סטרואידים, Anakinra. הפוגה: Allopurinol/Febuxostat, Probenecid","לא מפסיקים טיפול מונע במהלך התקף"],"l": "ניקור נוזל סינוביאלי — קריסטלים של uric acid (אבחנה סופית) · ↑חומצה אורית"},{"c": "arth","n": "Ankylosing Spondylitis","h": "ספונדיליטיס מקשחת","k": "כאב גב תחתון כרוני בגבר צעיר עם היווצרות קיפוזיס והתקשחות עמוד השדרה (Ankylosis)","s": ["HLA-B27 חיובי; מתחיל בגיל 20–30; שכיח בגברים; עובר בתורשה","דלקת באתרי החיבורים (אנתזיטיס) — גידים, קפסולות מפרקים ורצועות","דלקת במפרק הסקרואיליאקי ברוב המטופלים","לחץ על איברי בית החזה + פגיעה בשיווי משקל","סיבוכים: אוסטאופורוזיס ומחלות לב","טיפול: פיזיותרפיה ושמירה על יציבה, NSAIDs קו ראשון, DMARDs ביולוגיים (Anti-TNF)"],"l": "HLA-B27 · הדמיית מפרק סקרואיליאקי"},{"c": "arth","n": "Reactive Arthritis (Reiter)","h": "דלקת מפרקים תגובתית","k": "שלישייה: Urethritis + Arthritis + Conjunctivitis — אחרי זיהום במערכת העיכול או בדרכי השתן","s": ["לרוב גברים צעירים; קשור ל-HLA-B27","גם דלקת עור, כאבי מותניים, כיבים ברירית הפה ובעור הפין"],"l": "HLA-B27 · תרביות לזיהום המקורי"},{"c": "arth","n": "Psoriatic Arthritis","h": "דלקת מפרקים פסוריאטית","k": "דלקת מפרקים א-סימטרית עם sacroiliitis, על רקע פסוריאזיס — כאב חזק בלילה שנחלש בפעילות","s": ["מתחיל בגיל 30–50; שכיחות שווה בין נשים לגברים","Synovitis + Polyarthritis + Spondylitis","כאבים בירכיים, בכפות הרגליים ובעקבים","סטרואידים PO לתקופה ארוכה לא מומלצים — הפסקה עלולה להחמיר את הפסוריאזיס","טיפול: NSAIDs, Anti-TNF, PDE-4 inhibitor, anti-IL-12/IL-23"],"l": "אבחנה קלינית + הדמיה"},{"c": "arth","n": "Osteoarthritis","h": "אוסטאוארתריטיס (מחלה ניוונית)","k": "כאב מכני שמחמיר בפעילות ומוקל במנוחה, עם נוקשות בוקר קצרה (פחות מ-30 דקות)","s": ["מחלה לא-דלקתית/ניוונית — בניגוד ל-RA","מפרקים נושאי משקל; א-סימטרי","37% מהמבוגרים מדווחים על סימנים ראומטיים; יש מטופלים עם שתי המחלות יחד","טיפול: ירידה במשקל, פיזיותרפיה, Acetaminophen, NSAIDs, החלפת מפרק"],"l": "סימני דלקת תקינים (ESR/CRP) · RF שלילי · X-ray: היצרות מרווח מפרקי ואוסטאופיטים"},{"c": "arth","n": "Fibromyalgia","h": "פיברומיאלגיה","k": "כאב מפושט כרוני עם רגישות יתר למגע קל — ללא סימני דלקת במעבדה","s": ["נשים יותר מגברים; לרוב משולב עם מחלות ראומטיות אחרות","עייפות כרונית, נוקשות שרירים, הפרעות שינה, ליקוי תפקודי","מנגנון: רגישות יתר במסלולים העולים והיורדים במערכת העצבים","מחמירים: דיכאון, חרדה, טראומה פיזית, סטרס, זיהום ויראלי, עודף משקל, הורמונים נשיים","טיפול: נוגדי דיכאון, SNRIs, אנטי-אפילפטיים, מרפי שרירים, פיזיותרפיה אישית"],"l": "בדיקות דם תקינות — אבחנה קלינית"},{"c": "hyp","n": "Type I — Anaphylactic (IgE)","h": "רגישות יתר מיידית","k": "IgE על תאי MAST — תגובה תוך שניות עד דקות מרגע החשיפה","s": ["חשיפה ראשונה = סנסיטיזציה (יצירת IgE); כל מגע נוסף מפעיל שחרור היסטמין, ברדיקינין, הפרין ופרוסטגלנדינים","דוגמאות: שוק אנפילקטי, נזלת אלרגית, אסתמה אטופית, אטופיק דרמטיטיס, אורטיקריה","מגיבה ל-Antihistamines"],"l": "IgE ספציפי · Prick test"},{"c": "hyp","n": "Type II — Cytotoxic","h": "רגישות יתר ציטוטוקסית","k": "IgG או IgM + מערכת המשלים כנגד תאי גוף — הרס ישיר של תאים","s": ["דוגמאות: תגובה למנת דם לא מתאימה, אנמיה המוליטית, ITP, דחיית אברים","תגובה לרוב מהירה","אין תגובה ל-Antihistamines"],"l": "Coombs · סרולוגיה"},{"c": "hyp","n": "Type III — Immune Complex","h": "רגישות יתר מסוג קומפלקסים","k": "קומפלקסים של Ag+Ab שוקעים ברקמות ומפעילים דלקת — לרוב תגובה איטית/כרונית","s": ["דוגמאות: SLE, Rheumatoid Arthritis, MS, תגובות לתרופות","אין תגובה ל-Antihistamines"],"l": "קומפלקסים חיסוניים · משלים נמוך"},{"c": "hyp","n": "Type IV — Delayed (Cell-mediated)","h": "רגישות יתר מושהית","k": "תגובה תאי T שמתפתחת תוך 24–72 שעות — לא נוגדנים","s": ["הפעלת לימפוציטים → הפרשת IL-12/23/27 → הפעלת מקרופאג'ים","דוגמאות: טסט Mantoux, דרמטיטיס ממגע (צמחים, טבעת), רגישות מאוחרת למנת דם","טיפול: קורטיקוסטרואידים — לא אנטיהיסטמינים"],"l": "Patch test · Mantoux"},{"c": "hyp","n": "Anaphylactic Shock","h": "שוק אנפילקטי","k": "מעורבות שתי מערכות גוף לפחות תוך שניות עד דקות — עם צניחת לחץ דם וכיווץ סמפונות","s": ["עור (הכי שכיח): אורטיקריה מגרדת, Angioedema","נשימתי: שיעול, צפצופים, קוצר נשימה, סטרידור/צרידות, תחושת חנק, היפוקסמיה","לב וכלי דם: תת לחץ דם, טכיקרדיה, דפיקות לב · הכרה: בלבול והכרה מעורפלת","עיכול: התכווצויות בטן, כאבי בטן, שלשול, הקאות, קושי בבליעה","גורם שכיח בצעירים — מזון; במבוגרים — תרופות, לטקס ועקיצות חרקים","טיפול מיידי: הפסקת חשיפה → Epinephrine IM → חמצן 90–100% → השכבה עם הרמת רגליים (או ישיבה אם קוצר נשימה) → ניטור ווריד פתוח","מתן אדרנלין הוא פעולת סיעוד המותרת לאחות מוסמכת בכל מקום (חוזר מינהל הסיעוד 204/2023)","כל מי שלקה בתגובה אנפילקטית נמצא בסיכון לתגובה חוזרת"],"l": "אין צורך במעורבות מספר מערכות אם ידוע על תגובה קשה בעבר לאותו אלרגן"},{"c": "hyp","n": "Angioedema","h": "אנגיואדמה","k": "בצקת עמוקה של כל שכבות העור והרקמה התת-עורית — הכי שכיח בראש ובצוואר","s": ["מתווכת בעיקר ע\"י Bradykinin (ולא היסטמין) — לכן עלולה לא להגיב לאנטיהיסטמינים","תרופות שגורמות להצטברות ברדיקינין: ACE Inhibitors, NSAIDs","עלולה להופיע ימים, חודשים ואף שנים אחרי תחילת התרופה — ועדיין תגובה מסוג I","Intestinal angioedema: בחילות, הקאות וכאבי בטן עזים עם התכווצויות","סכנת חסימת דרכי אוויר"],"l": "—"},{"c": "hiv","n": "HIV Infection — Stages","h": "זיהום HIV — שלבי המחלה","k": "AIDS מאובחן כש-CD4 יורד מתחת ל-200/mm³ או עם מחלה אופורטוניסטית כלשהי","s": ["CD4 תקין: 500–1,500/mm³","HIV-0 (תקופת החלון): מכניסת הווירוס ועד הופעת נוגדנים","HIV-1 (זיהום חריף, 2–4 שבועות): חום, עייפות, פריחה, כאבי שרירים, כאבי גרון, צמרמורת והזעה — המטופל מאוד מדבק, השלב המומלץ להתחלת טיפול","HIV-2 (לטנטיות קלינית, 8–10 שנים): CD4 מעל 200","HIV-3 (AIDS, עד 3 שנים): CD4 מתחת ל-200 — המטופל שוב מאוד מדבק","U=U: אם הווירוס אינו מזוהה בדם בעזרת טיפול — אינו מדביק","PEP אחרי חשיפה: להתחיל בהקדם ולא יאוחר מ-72 שעות; PrEP לקבוצות סיכון"],"l": "בדיקת נוגדנים (אם חיובית — טסט נוסף) · ספירת CD4 · Viral Load · בדיקת רגישות גנומית לפני טיפול"},{"c": "hiv","n": "Pneumocystis Pneumonia (PCP)","h": "דלקת ריאות פנאומוציסטית","k": "קוצר נשימה, חום ושיעול יבש ללא כיח — עם היפוקסמיה אך צילום חזה נורמלי","s": ["הזיהום האופורטוניסטי השכיח ביותר; גורם: Pneumocystis jirovecii","סימנים מתפתחים על פני ימים עד שבועות","במקרים קלים הנשימה משתפרת במנוחה; במאמץ — עלייה בדופק ובקצב הנשימה וחרחורים יבשים","לעיתים כיבים או פטרת בפה במקביל; ↑Lactate","ללא טיפול → אי-ספיקה נשימתית"],"l": "היפוקסמיה · ↑Lactate · צילום חזה תקין בתחילה · תרבית כיח או ביופסיה לאבחנה סופית"},{"c": "hiv","n": "Mycobacterium avium Complex (MAC)","h": "זיהום MAC","k": "חולשה קיצונית, חום, זיעת לילה וירידה במשקל כש-CD4 מתחת ל-50/mm³","s": ["דיכוי חיסוני קשה ביותר","כאבי בטן, שלשולים, עייפות, הגדלת בלוטות לימפה"],"l": "תרביות דם, לימפה, מח עצם ורקמות"},{"c": "hiv","n": "Tuberculosis in HIV","h": "שחפת בחולי HIV","k": "בדיקת Mantoux ותרבית כיח עלולות לחזור שליליות כש-CD4 מתחת ל-200 — שלילי אינו שולל","s": ["שכיחות 3–16%, לא שונה מהאוכלוסייה הכללית, אך הסיכון עולה עם ירידת CD4","מיקומים: ריאות, CNS, עצמות, פריקרד, קיבה, פריטונאום, כיס האשכים","סקר לכל מטופל HIV; בקבוצות סיכון — סקר שנתי","טיפול: Isoniazid + Rifampin + Pyrazinamide + Ethambutol"],"l": "צילום חזה · תרבית כיח · Mantoux · IGRA (QuantiFERON-TB Gold, T-SPOT.TB)"},{"c": "hiv","n": "Candidiasis (Oropharyngeal/Esophageal)","h": "קנדידיאזיס","k": "נגעים דמויי פלאק, לבנים-קרמיים, ללא כאב, שניתן לגרד בקלות בשפטל","s": ["על הלחי, החיך הקשה או הרך, הלוע או הלשון","Vulvovaginitis עם גירוד בלתי נסבל והפרשה לבנה מרובה — לעיתים הרמז הראשון ל-HIV באישה","מערכת עיכול: חוסר תיאבון, בחילות, הקאות, שלשולים"],"l": "אבחנה קלינית · משטח"},{"c": "hiv","n": "Kaposi Sarcoma","h": "סרקומה על שם קפושי","k": "מוקדים חומים-ורודים עד סגול כהה בעור ובריריות — ללא כאב וללא גירוד","s": ["גורם: HHV-8 (Human Herpes virus 8); מעבר דרך יחסי מין","יכול לערב גם איברים פנימיים: בלוטות לימפה, מערכת עיכול וריאות","סיבוכים: Venous stasis, Lymphedema וכאב","מגיבה טוב ל-ART","סיבת מוות: דימומים, זיהומים וסיבוכים אחרים"],"l": "ביופסיה"},{"c": "hiv","n": "HIV Wasting Syndrome","h": "תסמונת תשישות","k": "ירידה מעל 10% ממשקל הגוף עם חולשה גוברת, חום ושלשולים במשך יותר מחודש","s": ["על חשבון פירוק שומנים וחלבונים","גורמים: חסר קלורי, זיהומים אופורטוניסטיים, דיכאון, תופעות לוואי, ספיגה לקויה, דלקת","השכיחות ירדה בשנים האחרונות בזכות ART","השלשול גורם לחוסר איזון נוזלים ואלקטרוליטים, גירוי פריאנלי ופגיעה ב-ADL"],"l": "משקל · אלבומין · אלקטרוליטים"},{"c": "hiv","n": "HAND — HIV-Associated Neurocognitive Disorder","h": "הפרעה נוירוקוגניטיבית ב-HIV","k": "ירידה קוגניטיבית הדרגתית ב-60% ממטופלי HIV — עם ניוון רקמת מוח והרחבת חדרים ב-CT","s": ["השם הקודם: HIV encephalopathy","אובדן זיכרון, ירידה ביכולת למידה וריכוז, שינויים באישיות","חשוב לאבחן מוקדם — ניתן להשפיע ע\"י שינוי הטיפול התרופתי"],"l": "HIV ב-CSF · CT (אטרופיה והרחבת חדרים) · MRI · ביופסיה"},{"c": "hiv","n": "IRIS — Immune Reconstitution Inflammatory Syndrome","h": "תסמונת שיקום חיסוני דלקתית","k": "החמרה פרדוקסלית של זיהום קיים בחודשים הראשונים של ה-ART — דווקא כשהמצב החיסוני משתפר","s": ["בעיקר במטופלים עם TB, PCP, מיקובקטריה או זיהומים פטרייתיים שאובחנו לפני תחילת הטיפול","סימנים: חום, תסמינים בטניים ונשימתיים, החמרת הזיהום האופורטוניסטי הקיים","טיפול: אשפוז + Hydrocortisone"],"l": "—"}];
+
+const out=document.getElementById('out'),q=document.getElementById('q'),chips=document.getElementById('chips'),empty=document.getElementById('empty');
+let cat="all";
+const esc=s=>s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+function chip(id,label){const b=document.createElement('button');b.className='chip';b.textContent=label;b.setAttribute('aria-pressed',id===cat);b.onclick=()=>{cat=id;[...chips.children].forEach(x=>x.setAttribute('aria-pressed',x===b));render();};chips.appendChild(b);}
+chip("all","הכל");CATS.forEach(([id,l])=>chip(id,l));
+function render(){
+  const term=q.value.trim().toLowerCase();let total=0;let html="";
+  CATS.forEach(([id,label])=>{
+    if(cat!=="all"&&cat!==id)return;
+    const items=D.filter(d=>d.c===id&&(!term||[d.n,d.h,d.k,d.l,...d.s].join(' ').toLowerCase().includes(term)));
+    if(!items.length)return;total+=items.length;
+    html+=`<section><h2>${label}<small>${items.length}</small></h2><div class="grid">`+items.map(d=>`
+      <article class="card" tabindex="0">
+        <div class="name">${esc(d.n)}<span class="he">${esc(d.h)}</span></div>
+        <div class="key"><b>סימן מזהה</b>${esc(d.k)}</div>
+        <ul>${d.s.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+        ${d.l&&d.l!=="—"?`<div class="lab">${esc(d.l)}</div>`:''}
+      </article>`).join('')+`</div></section>`;
+  });
+  out.innerHTML=html;empty.hidden=total>0;
+}
+out.addEventListener('click',e=>{const c=e.target.closest('.card');if(c)c.classList.toggle('shown');});
+out.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList.contains('card'))e.target.classList.toggle('shown');});
+q.addEventListener('input',render);
+document.getElementById('practice').addEventListener('change',e=>{out.classList.toggle('hide',e.target.checked);out.querySelectorAll('.shown').forEach(c=>c.classList.remove('shown'));});
+render();
+</script>
+</body>
+</html>

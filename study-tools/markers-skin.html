@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>סמנים מזהים במחלות עור</title>
 <link rel="preconnect" href="https://fonts.googleapis.com/">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&amp;family=Assistant:wght@400;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
 <style>
 :root{
   --bg:#F7F4F0; --surface:#FFFFFF; --ink:#221C18; --muted:#6A5F57; --line:#E4DDD5;
@@ -58,11 +58,25 @@ li{unicode-bidi:plaintext;text-align:right}
 .empty{color:var(--muted);margin-top:30px}
 .foot{margin-top:40px;color:var(--muted);font-size:13px}
 @media (prefers-reduced-motion:no-preference){.name{transition:filter .2s}}
+
+/* breadcrumbs */
+.crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin:0 0 18px;
+  font:600 13px "Assistant",system-ui,sans-serif;line-height:1}
+.crumbs a{display:inline-flex;align-items:center;gap:6px;color:var(--accent,#8E1630);
+  text-decoration:none;border:1px solid var(--line,#DDE0E7);background:var(--surface,#fff);
+  padding:6px 13px;border-radius:999px}
+.crumbs a:hover{border-color:var(--accent,#8E1630)}
+.crumbs a:focus-visible{outline:2px solid var(--accent,#8E1630);outline-offset:2px}
+.crumbs .sep{color:var(--muted,#5B6272);opacity:.6}
+.crumbs .here{color:var(--muted,#5B6272)}
+@media (prefers-reduced-motion:no-preference){.crumbs a{transition:border-color .14s ease}}
 </style>
 </head>
 <body>
 
 <div class="wrap">
+<nav class="crumbs" aria-label="ניווט"><a href="../index.html"><span aria-hidden="true">⌂</span>מעקב הלימודים</a><span class="sep" aria-hidden="true">‹</span><a href="review.html">חזרה כללית</a><span class="sep" aria-hidden="true">‹</span><span class="here" aria-current="page">מחלות עור וכוויות</span></nav>
+
   <h1>סמנים מזהים במחלות עור</h1>
   <p class="sub">לכל מחלה ומצב במצגות העור (זיהומים, מחלות דלקתיות ואלרגיות, בדיקות אבחון) ובמצגת הכוויות – Brunner 15: הסימן הייחודי שמכוון לאבחנה (מודגש), סימנים תומכים ובדיקה/טיפול מפתח. במצב תרגול שמות המחלות מוסתרים — קראו את הסימן ונחשו, ולחצו על הכרטיס כדי לחשוף.</p>
 

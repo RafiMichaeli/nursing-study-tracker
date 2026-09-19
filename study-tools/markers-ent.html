@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>סמנים מזהים באף-אוזן-גרון</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=Assistant:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F4F5F8; --surface:#FFFFFF; --ink:#1A1F2B; --muted:#5B6272; --line:#DDE0E7;
+  --accent:#2A6033; --hl:#E4F2E6; --hl-ink:#1C4523; --chip:#ECEEF3; --tip:#EAF1F6; --tip-ink:#1E4660;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#11141B; --surface:#191D26; --ink:#E6E8EE; --muted:#9AA1AE; --line:#2B303C;
+    --accent:#7DC98A; --hl:#152E19; --hl-ink:#B9E8C1; --chip:#232834; --tip:#162634; --tip-ink:#A9D1EC;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11141B; --surface:#191D26; --ink:#E6E8EE; --muted:#9AA1AE; --line:#2B303C;
+  --accent:#7DC98A; --hl:#152E19; --hl-ink:#B9E8C1; --chip:#232834; --tip:#162634; --tip-ink:#A9D1EC;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Assistant",system-ui,sans-serif}
+.wrap{direction:rtl;max-width:1100px;margin:0 auto;padding-inline:20px;padding-block:28px 60px}
+h1,h2{font-family:"Frank Ruhl Libre",Georgia,serif;text-wrap:balance;margin:0}
+h1{font-size:clamp(28px,5vw,40px);line-height:1.15}
+.sub{color:var(--muted);margin:8px 0 0;max-width:68ch}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:14px;margin-top:18px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.bar input[type=search]{flex:1 1 220px;min-width:0;font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:600 13px "Assistant",sans-serif;border:1px solid var(--line);background:var(--chip);color:var(--ink);padding:5px 11px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.practice{display:flex;gap:6px;align-items:center;font-weight:600;font-size:14px;cursor:pointer}
+button:focus-visible,input:focus-visible,.card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+section{margin-top:34px}
+section h2{font-size:24px;display:flex;align-items:baseline;gap:10px}
+section h2 small{font:400 14px "Assistant",sans-serif;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin-top:14px}
+@media (max-width:420px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.name{font:700 17px/1.3 "Assistant",sans-serif;direction:ltr;text-align:right;unicode-bidi:plaintext}
+.name .he{display:block;font-weight:400;font-size:14px;color:var(--muted)}
+.key{background:var(--hl);color:var(--hl-ink);border-radius:6px;padding:9px 11px;font-weight:700;line-height:1.45}
+.key b{display:block;font:500 11px "IBM Plex Mono",monospace;letter-spacing:.06em;opacity:.8;margin-bottom:2px}
+ul{margin:0;padding-inline-start:18px;display:flex;flex-direction:column;gap:3px}
+li{unicode-bidi:plaintext;text-align:right}
+.lab{font:13px/1.5 "IBM Plex Mono",monospace;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px;unicode-bidi:plaintext;text-align:right}
+.tips{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-top:14px}
+.tip{background:var(--tip);color:var(--tip-ink);border-radius:10px;padding:14px 16px}
+.tip h3{margin:0 0 6px;font-size:16px}
+.tip p{margin:0;unicode-bidi:plaintext}
+.hide .name{filter:blur(7px);cursor:pointer;user-select:none}
+.hide .card.shown .name{filter:none}
+.empty{color:var(--muted);margin-top:30px}
+.foot{margin-top:40px;color:var(--muted);font-size:13px}
+@media (prefers-reduced-motion:no-preference){.name{transition:filter .2s}}
+
+/* breadcrumbs */
+.crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin:0 0 18px;
+  font:600 13px "Assistant",system-ui,sans-serif;line-height:1}
+.crumbs a{display:inline-flex;align-items:center;gap:6px;color:var(--accent,#8E1630);
+  text-decoration:none;border:1px solid var(--line,#DDE0E7);background:var(--surface,#fff);
+  padding:6px 13px;border-radius:999px}
+.crumbs a:hover{border-color:var(--accent,#8E1630)}
+.crumbs a:focus-visible{outline:2px solid var(--accent,#8E1630);outline-offset:2px}
+.crumbs .sep{color:var(--muted,#5B6272);opacity:.6}
+.crumbs .here{color:var(--muted,#5B6272)}
+@media (prefers-reduced-motion:no-preference){.crumbs a{transition:border-color .14s ease}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<nav class="crumbs" aria-label="ניווט"><a href="../index.html"><span aria-hidden="true">⌂</span>מעקב הלימודים</a><span class="sep" aria-hidden="true">‹</span><a href="review.html">חזרה כללית</a><span class="sep" aria-hidden="true">‹</span><span class="here" aria-current="page">אף אוזן גרון</span></nav>
+
+  <h1>סמנים מזהים באף-אוזן-גרון</h1>
+  <p class="sub">מחלות האוזן והשמיעה, סחרחורת, האף והסינוסים, הגרון והצוואר: לכל מצב הסימן הייחודי שמכוון לאבחנה (מודגש), סימנים תומכים ובדיקות. במצב תרגול השמות מוסתרים — קראו את הסימן ונחשו, ולחצו על הכרטיס כדי לחשוף.</p>
+
+  <div class="bar">
+    <input type="search" id="q" placeholder="חיפוש: סימן, מחלה או בדיקה (למשל Trismus, Weber, Kiesselbach)">
+    <label class="practice"><input type="checkbox" id="practice"> מצב תרגול</label>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div id="out"></div>
+  <p class="empty" id="empty" hidden>לא נמצאו תוצאות לחיפוש הזה.</p>
+
+  <section id="tips-sec">
+    <h2>הבחנות שכדאי לזכור</h2>
+    <div class="tips">
+      <div class="tip"><h3>אוזן חיצונית מול תיכונה</h3><p>חיצונית: גירוד ורגישות למגע, אחרי שחייה, Aspergillus שכיח, טיפול בטיפות אוזניים. תיכונה: אחרי URTI, בלט עור התוף עם נוזלים, טיפול ב-Amoxicillin פומי, מסטואידיטיס הוא הסיבוך.</p></div>
+      <div class="tip"><h3>Weber ו-Rinne</h3><p>Rinne תקין: הולכה אווירית טובה מעצמית. Rinne הפוך (עצמית טובה מאווירית) = ירידה הולכתית באותה אוזן. Weber מתמרכז לאוזן החולה בירידה הולכתית, ולאוזן הבריאה בירידה עצבית.</p></div>
+      <div class="tip"><h3>שלישיית מנייר</h3><p>ורטיגו התקפי + טיניטוס + ירידת שמיעה עצבית חד-צדדית משתנה, לעיתים עם תחושת מלאות באוזן. התקף נמשך שעות. זו ההבחנה מ-BPPV, שנמשך פחות מדקה וללא ירידת שמיעה.</p></div>
+      <div class="tip"><h3>מתי סחרחורת היא חירום</h3><p>סטיית זווית הפה, ירידת הכרה, חסרים נוירולוגיים או גורמי סיכון קרדיו-וסקולריים — ורטיגו מרכזי עד שהוכח אחרת. סחרחורת שמופיעה רק במעבר לעמידה — Pre-syncope, ומתחילים בסימנים חיוניים.</p></div>
+      <div class="tip"><h3>Epistaxis — סדר הפעולות</h3><p>ABC קודם, ואז לחיצה על כנפי האף עם הראש קדימה ומטה (לא לאחור — זה גורם לבליעת דם). בדימום מסיבי עוצרים קודם ומבררים אחר כך. 95% מהדימומים אנטריוריים מ-Kiesselbach.</p></div>
+      <div class="tip"><h3>אבחנת סינוסיטיס</h3><p>אבחנה קלינית בלבד — גודש/הפרשה + 2 תסמינים או יותר. אין צורך ב-CT ולא בבדיקת דם. שטיפות אף בסליין הן חלק הכרחי מהטיפול.</p></div>
+      <div class="tip"><h3>הדגל האדום שמכוון לגידול</h3><p>תסמינים חד-צדדיים בלבד — מחלות ויראליות וחיידקיות לא "בוחרות צד". גם דיפלופיה, כישלון טיפול, וצרידות מעל שבועיים.</p></div>
+      <div class="tip"><h3>Trismus</h3><p>מגבלה בפתיחת הפה — הסימן שמבדיל אבצס פריטונסילרי מדלקת גרון או שקדים קשה. מופיע בכשני שלישים מהמטופלים, ומגביר סיכון להתייבשות כי המטופל לא יכול לאכול.</p></div>
+      <div class="tip"><h3>למה דלקות אוזן שכיחות בילדים</h3><p>ה-Eustachian Tube קצרה, צרה ואופקית (~10° לעומת ~45° במבוגר), הסחוס התומך רך יותר ונוטה לקריסה, והאדנואיד המוגדל חוסם את פתחה. תוצאה: ניקוז לקוי וחדירת פתוגנים מהנזופרינקס.</p></div>
+      <div class="tip"><h3>בדיקת השמיעה הנכונה לפי גיל</h3><p>תינוק או ילד שלא משתף פעולה — BERA. מבוגר במרפאה — מבחני קולן לאבחנה מהירה. הערכת סף מדויקת — Pure Tone Audiometry. הבנת דיבור — SRT.</p></div>
+    </div>
+  </section>
+
+  <p class="foot">מבוסס על מצגות הקורס אף-אוזן-גרון (2026, ברונר 15) ועל פרק 59 בברונר. חומר עזר ללמידה בלבד.</p>
+</div>
+
+<script>
+const CATS=[["ear", "האוזן והשמיעה"], ["vert", "סחרחורת ושיווי משקל"], ["nose", "האף והסינוסים"], ["neck", "הגרון, הצוואר ודרכי האוויר"]];
+const D=[{"c": "ear","n": "Otitis Externa","h": "דלקת אוזן חיצונית","k": "אוזן מגרדת ורגישה למגע — כאב בלחיצה על הטרגוס ובמשיכת האפרכסת","s": ["שכיח אחרי שחייה בבריכה (\"אוזן שחיין\") ואצל מרכיבי מכשיר שמיעה","Aspergillus הוא פתוגן שכיח","הפרשה בתעלה — או שזו דלקת חיצונית, או דלקת תיכונה עם חור בעור התוף","הטיפול הוא בטיפות אוזניים — לא אנטיביוטיקה פומית"],"l": "אוטוסקופיה"},{"c": "ear","n": "Otitis Media","h": "דלקת אוזן תיכונה","k": "בלט של עור התוף עם נוזלים מאחוריו באוטוסקופיה — הסימן הקלאסי","s": ["שכיח אחרי URTI; שכיח מאוד בילדים","בילדים ה-Eustachian Tube קצרה, צרה ואופקית (~10° לעומת ~45° במבוגרים) — ניקוז לקוי וחדירה רטרוגרדית של פתוגנים מהנזופרינקס","אדנואיד מוגדל עלול לחסום את פתח התעלה","הפרשה אינה תסמין שכיח — עור התוף חוסם מעבר נוזלים","טיפול: Amoxicillin (מוקסיפן) קו ראשון · Augmentin קו שני · שיכוך כאב והורדת חום","במקרים כרוניים או חוזרים: החדרת צינוריות אוורור (\"כפתורים\") דרך עור התוף"],"l": "אוטוסקופיה + אנמנזה · טימפנומטריה"},{"c": "ear","n": "Mastoiditis","h": "מסטואידיטיס","k": "תסמיני Otitis Media בשילוב עם זקירת האוזן החוצה — ורגישות מעל הזיז המאסטואידי","s": ["דלקת בתאי האוויר בזיז המאסטואיד של העצם הטמפורלית","מופיעה לרוב כסיבוך של Otitis Media","סיבוכים נוספים של OM: Sinus Vein Thrombosis, Meningitis","טיפול: אנטיביוטיקה IV, ולעיתים Mastoidectomy לניקוז התאים; לרוב בשילוב החדרת כפתורים"],"l": "בדיקה גופנית · CT ראש"},{"c": "ear","n": "Cholesteatoma","h": "כולסטאטומה","k": "הפרשה כרונית מהאוזן עם ירידת שמיעה — ולעיתים פגיעה בעצב הפנים","s": ["נגע לא סרטני של האוזן החיצונית, התיכונה או שתיהן","נוצר מכיס-רטרקציה, לחץ שלילי כרוני (למשל מ-ETD) או דלקת כרונית","גם כאב","הטיפול ניתוחי"],"l": "אוטוסקופיה · CT"},{"c": "ear","n": "Otosclerosis","h": "אוטוסקלרוזיס","k": "ירידת שמיעה הולכתית מתקדמת עם עור תוף תקין באוטוסקופיה — הולכה עצמית טובה מהולכה אווירית ב-Rinne","s": ["היווצרות עצם ספוגית חדשה סביב החלון הסגלגל וקיבוע ה-Stapes","שכיח יותר בנשים; מצב משפחתי; עלול להתקדם לחירשות מלאה","תיתכן טיניטוס; עשוי לערב אוזן אחת או שתיהן","טיפול: מכשיר שמיעה, או Stapedectomy/Stapedotomy"],"l": "אודיוגרם: ירידה הולכתית או מעורבת, בעיקר בתדרים נמוכים · Rinne הפוך"},{"c": "ear","n": "Cauliflower Ear","h": "אוזן כרובית","k": "עיוות מבני של ה-Pinna אחרי חבלות חוזרות — פגיעה בפריכונדריום ואיסכמיה של הסחוס","s": ["אופייני למתאבקים ולמתאגרפים","דלקות חוזרות באוזן חיצונית אינן נוטות לערב את ה-Pinna","חשיפה לרעש גורמת לירידת שמיעה עצבית — לא לשינוי מבני"],"l": "אבחנה קלינית"},{"c": "ear","n": "Conductive vs Sensorineural Hearing Loss","h": "ירידת שמיעה הולכתית מול עצבית","k": "מבחני קולן (Weber ו-Rinne) מבדילים בין השתיים תוך שניות — בתדר 512 הרץ","s": ["הולכתית: פגיעה באוזן החיצונית או התיכונה — צרומן, נוזלים, פגיעה בעצמימי השמע","עצבית: פגיעה בשבלול, בעצב ה-8 או במרכזי — חשיפה לרעש, שבץ","סף שמיעה תקין: הבחנה בתדרים 0.5–8 קילו-הרץ בעוצמה פחות מ-20 דציבל","26–40 דציבל = Mild · 71–90 דציבל = Severe","חיסרון מבחני הקולן: לא מכמתים את מידת הירידה, ועלולים לפספס ירידה עצבית זהה בשתי האוזניים","אובדן שמיעה חד-צדדי מלא → חוסר יכולת למקם את מקור הרעש במרחב"],"l": "Pure Tone Audiometry — הולכה אווירית באוזניות + הולכה עצמית על ה-Mastoid · SRT (חזרה על מילים דו-הברתיות) · BERA לתינוקות · טימפנומטריה"},{"c": "vert","n": "BPPV","h": "ורטיגו תנוחתי התקפי שפיר","k": "התקפים קצרים מדקה שמופעלים משינוי מנח הראש — עם ניסטגמוס, ללא ירידת שמיעה","s": ["בחילות הן סימפטום שכיח","ללא חסרים נוירולוגיים","אם התסמינים אינם מתאימים — חשוב לחשוד בגורמים אחרים","אבחון: מבחן Dix-Hallpike"],"l": "מבחן Dix-Hallpike · Epley maneuver לטיפול"},{"c": "vert","n": "Ménière's Disease","h": "מחלת מנייר","k": "שלישייה: ורטיגו התקפי + טיניטוס + ירידת שמיעה עצבית חד-צדדית משתנה","s": ["ייצור מוגבר או מלאבסורפציה של Endolymph — Endolymphatic hydrops","תחושת לחץ או מלאות באוזן; ורטיגו משתק עם בחילות והקאות","כל \"התקף\" נמשך מספר שעות, לסירוגין","הופעה לרוב בשנות ה-40; 20–60 שנה; שכיחות שווה בגברים ובנשים","בתחילה מופיעים רק אחד או שניים מהתסמינים"],"l": "אודיומטריה · אבחנה קלינית"},{"c": "vert","n": "Central vs Peripheral Vertigo","h": "ורטיגו מרכזי מול היקפי","k": "סטיית זווית הפה וירידת הכרה — סימנים שמחייבים לחשוד בוורטיגו מרכזי","s": ["היקפי: החדר מסתובב, מושפע מהזזת הראש, ניסטגמוס, ייתכנו טיניטוס וירידת שמיעה","מרכזי: החדר מסתובב, ניסטגמוס, טיניטוס וירידת שמיעה פחות אופייניים, מושפע מגורמי סיכון קרדיו-וסקולריים","Pre-syncope: תחושת טרום-עלפון, מושפע ממעבר לעמידה — לא ורטיגו אמיתי","סחרחורת היא אחת התלונות השכיחות במיון, אך חלק מהמקרים מסכני חיים"],"l": "בוורטיגו מרכזי: CT/MRI ראש · בסחרחורת אורתוסטטית: סימנים חיוניים בשכיבה ובעמידה"},{"c": "nose","n": "Epistaxis","h": "דימום מהאף","k": "95% מהמקרים אנטריוריים ומקורם ב-Kiesselbach Plexus — לחיצה על כנפי האף עם הראש קדימה מטה","s": ["אנטריורי: Anterior Ethmoidal, ענף אף לטרלי של Sphenopalatine, ענף שפתי עליון של ה-Facial","פוסטריורי (5%): כלי דם גדולים יותר — מסוכן יותר, קשה לשלוט","ABC ראשית: האם נתיב האוויר מאוים? האם המטופל יציב המודינמית?","גורמים: חיטוט באף, חבלות, CPAP, סטרואידים נזאליים (Fluticasone, Mometasone), קוקאין, זונדה, ניתוח, גידולים, וסקוליטיס (GPA), HHT","טיפול: לחיצה, צריבה, טמפונדה; בדימום מסיבי — עצירת הדימום קודמת לבירור"],"l": "אנמנזה · בדיקת קצב ומשך הדימום · הערכת גורמי סיכון לאנמיה"},{"c": "nose","n": "Septal Hematoma","h": "המטומה של מחיצת האף","k": "נפיחות דו-צדדית של המחיצה אחרי חבלה — דורשת ניקוז דחוף","s": ["ללא ניקוז: נמק סחוסי → \"אף אוכף\" (Saddle nose)","תמיד לבדוק את מחיצת האף אחרי חבלת אף","סיכון לזיהום ולאבצס"],"l": "בדיקה ישירה של המחיצה"},{"c": "nose","n": "Rhinosinusitis","h": "ריניטיס וסינוסיטיס","k": "גודש אפי או הפרשה + שניים או יותר מהתסמינים — אבחנה קלינית, ללא צורך ב-CT או בדיקת דם","s": ["זיהום ויראלי הוא הגורם העיקרי; מופיע לרוב בשילוב: Rhino-sinusitis","תסמינים: נזלת, גודש אפי, עיטוש, גרד, כאב בפנים, ירידה בחוש הריח","סינוסיטיס זיהומית: נזלת ירוקה וסמיכה ולעיתים קרובות חום","טיפול: סימפטומטי — אקמול, שטיפות אף בסליין, אינהלציית סליין, מפחיתי גודש (אוטריוין, אלרין)","אלרגי: אנטיהיסטמינים + סטרואידים נזאליים (פליקסונאז) · חיידקי: אנטיביוטיקה","CT רק בחשד לגידול, לאבחנה מבדלת או לסיבוך"],"l": "אבחנה קלינית — אנמנזה ובדיקה גופנית"},{"c": "nose","n": "Sinusitis Red Flags","h": "דגלים אדומים בסינוסיטיס","k": "דיפלופיה (כפל ראייה) — סימן לסיבוך אורביטלי או תוך-גולגולתי","s": ["תסמינים חד-צדדיים בלבד — מחלות ויראליות וחיידקיות \"לא בוחרות צד\"","מחשידים לגידול או למחלה סיסטמית","כישלון טיפול בסינוסיטיס עם כאב מתמשך באזור הנגע ובפנים","סמיכות הסינוסים למבנים סמוכים — סיכון לדלף CSF ולסיבוכים מוחיים"],"l": "CT באינדיקציה"},{"c": "nose","n": "Facial Fracture","h": "שבר בפנים","k": "א-סימטריה של הפנים + דלף CSF — עם סימן Battle לשבר בסיס גולגולת","s": ["מנגנון: כוח פרונטלי","הערכה: ABC ראשית — סטרידור וקוצר נשימה מחייבים Tracheostomy/Cricothyroidotomy","בדיקת ראייה ותנועות עיניים, בדיקת הפה, בדיקת האוזן","CT ראש; CT עמוד שדרה אם הצוואר מעורב","בחבלת אף: תמיד לבדוק את מחיצת האף (המטומה) ואת תנועות העיניים"],"l": "CT או MRI"},{"c": "neck","n": "Peritonsillar Abscess (PTA)","h": "אבצס פריטונסילרי","k": "Trismus (מגבלה בפתיחת הפה) + בליטה חד-צדדית בחך הרך עם דחיקת הענבל לצד הבריא","s": ["Trismus מופיע בכשני שלישים מהמטופלים — ומבדיל PTA מדלקת גרון או שקדים קשה","Hot Potato voice (קול עמום) — האבצס מפריע לתנועת החך","כאב גרון חד-צדדי, לעיתים מקרין לאוזן, וחום","סיבוך של Peritonsillitis או Pharyngitis; פולי-מיקרוביאלי — GAS, Staph aureus, Haemophilus, אנאירובים","עישון הוא גורם סיכון","הערכה: ABC — ריור (Drooling) ו-Tripoding הם דגלים אדומים לאיום על נתיב האוויר","התקדמות מהירה + איום על נתיב האוויר — חשד ל-Epiglottitis"],"l": "אבחון קליני · ניסיון ניקור · US דרך הפה או הצוואר"},{"c": "neck","n": "Laryngeal Cancer","h": "סרטן הגרון","k": "צרידות מעל שבועיים — תמיד נחשוד בבעיה ב-Larynx","s": ["גורם הסיכון מספר 1: עישון; גם אלכוהול, אזבסט, נסורת, אדי צבע וכימיקלים","כמעט תמיד ממקור אפיתל (קרצינומה)","כאב גרון, שיעול כרוני, דיספגיה, ירידה במשקל, הקרנת כאב לאוזן","היעדר סימני זיהום (חום, נזלת) — מבדיל מדלקת","טיפול: Direct Laryngoscopy, Total Laryngectomy, Tracheostomy, כימותרפיה, הקרנות","קלינאית תקשורת — אימון דיבור ובליעה"],"l": "סיב אופטי · מישוש בלוטות צוואריות · CT/MRI · ביופסיה · מעבדה ל-HPV"},{"c": "neck","n": "Obstructive Sleep Apnea (OSA)","h": "דום נשימה חסימתי בשינה","k": "יקיצות בלילה + כאבי ראש בבוקר + ישנוניות יומית ושכחנות","s": ["נחירות מרעישות; הירדמות בעבודה","סיבוכים שכיחים: יתר לחץ דם ושיעור מוגבר של התקפי לב; גם תאונות מעייפות","טיפול: CPAP; ירידה במשקל","היענות ל-CPAP היא בעיה שכיחה בשל אי-נוחות"],"l": "Polysomnography — נשימה, דופק, סטורציה, EEG"},{"c": "neck","n": "Upper Airway Obstruction","h": "חסימת דרכי אוויר עליונות","k": "סטרידור — סימן מיידי להיצרות בדרכי האוויר העליונות","s": ["הצעד הראשון בירידת סטורציה פתאומית: התבוננות בחלל הפה ושאיבת הפרשות","Cricothyroidotomy: החדרה בסמוך לגבול התחתון של ה-Thyroid cartilage (בין התירואיד לקריקואיד)","ריור (Drooling) וישיבה בתנוחת חצובה (Tripoding) — דגלים אדומים","ב-PTA או אפיגלוטיטיס — הידרדרות עלולה להיות מהירה מאוד"],"l": "אומדן ABC · סטורציה"}];
+
+const out=document.getElementById('out'),q=document.getElementById('q'),chips=document.getElementById('chips'),empty=document.getElementById('empty');
+let cat="all";
+const esc=s=>s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+function chip(id,label){const b=document.createElement('button');b.className='chip';b.textContent=label;b.setAttribute('aria-pressed',id===cat);b.onclick=()=>{cat=id;[...chips.children].forEach(x=>x.setAttribute('aria-pressed',x===b));render();};chips.appendChild(b);}
+chip("all","הכל");CATS.forEach(([id,l])=>chip(id,l));
+function render(){
+  const term=q.value.trim().toLowerCase();let total=0;let html="";
+  CATS.forEach(([id,label])=>{
+    if(cat!=="all"&&cat!==id)return;
+    const items=D.filter(d=>d.c===id&&(!term||[d.n,d.h,d.k,d.l,...d.s].join(' ').toLowerCase().includes(term)));
+    if(!items.length)return;total+=items.length;
+    html+=`<section><h2>${label}<small>${items.length}</small></h2><div class="grid">`+items.map(d=>`
+      <article class="card" tabindex="0">
+        <div class="name">${esc(d.n)}<span class="he">${esc(d.h)}</span></div>
+        <div class="key"><b>סימן מזהה</b>${esc(d.k)}</div>
+        <ul>${d.s.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+        ${d.l&&d.l!=="—"?`<div class="lab">${esc(d.l)}</div>`:''}
+      </article>`).join('')+`</div></section>`;
+  });
+  out.innerHTML=html;empty.hidden=total>0;
+}
+out.addEventListener('click',e=>{const c=e.target.closest('.card');if(c)c.classList.toggle('shown');});
+out.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList.contains('card'))e.target.classList.toggle('shown');});
+q.addEventListener('input',render);
+document.getElementById('practice').addEventListener('change',e=>{out.classList.toggle('hide',e.target.checked);out.querySelectorAll('.shown').forEach(c=>c.classList.remove('shown'));});
+render();
+</script>
+</body>
+</html>

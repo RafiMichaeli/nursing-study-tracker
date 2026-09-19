@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>סמנים מזהים באורתופדיה</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=Assistant:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F4F5F8; --surface:#FFFFFF; --ink:#1A1F2B; --muted:#5B6272; --line:#DDE0E7;
+  --accent:#3A4A63; --hl:#E8ECF3; --hl-ink:#27344A; --chip:#ECEEF3; --tip:#EAF1F6; --tip-ink:#1E4660;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#11141B; --surface:#191D26; --ink:#E6E8EE; --muted:#9AA1AE; --line:#2B303C;
+    --accent:#9BB0D0; --hl:#1C2431; --hl-ink:#C6D6EE; --chip:#232834; --tip:#162634; --tip-ink:#A9D1EC;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11141B; --surface:#191D26; --ink:#E6E8EE; --muted:#9AA1AE; --line:#2B303C;
+  --accent:#9BB0D0; --hl:#1C2431; --hl-ink:#C6D6EE; --chip:#232834; --tip:#162634; --tip-ink:#A9D1EC;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Assistant",system-ui,sans-serif}
+.wrap{direction:rtl;max-width:1100px;margin:0 auto;padding-inline:20px;padding-block:28px 60px}
+h1,h2{font-family:"Frank Ruhl Libre",Georgia,serif;text-wrap:balance;margin:0}
+h1{font-size:clamp(28px,5vw,40px);line-height:1.15}
+.sub{color:var(--muted);margin:8px 0 0;max-width:68ch}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:14px;margin-top:18px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.bar input[type=search]{flex:1 1 220px;min-width:0;font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:600 13px "Assistant",sans-serif;border:1px solid var(--line);background:var(--chip);color:var(--ink);padding:5px 11px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.practice{display:flex;gap:6px;align-items:center;font-weight:600;font-size:14px;cursor:pointer}
+button:focus-visible,input:focus-visible,.card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+section{margin-top:34px}
+section h2{font-size:24px;display:flex;align-items:baseline;gap:10px}
+section h2 small{font:400 14px "Assistant",sans-serif;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin-top:14px}
+@media (max-width:420px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.name{font:700 17px/1.3 "Assistant",sans-serif;direction:ltr;text-align:right;unicode-bidi:plaintext}
+.name .he{display:block;font-weight:400;font-size:14px;color:var(--muted)}
+.key{background:var(--hl);color:var(--hl-ink);border-radius:6px;padding:9px 11px;font-weight:700;line-height:1.45}
+.key b{display:block;font:500 11px "IBM Plex Mono",monospace;letter-spacing:.06em;opacity:.8;margin-bottom:2px}
+ul{margin:0;padding-inline-start:18px;display:flex;flex-direction:column;gap:3px}
+li{unicode-bidi:plaintext;text-align:right}
+.lab{font:13px/1.5 "IBM Plex Mono",monospace;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px;unicode-bidi:plaintext;text-align:right}
+.tips{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-top:14px}
+.tip{background:var(--tip);color:var(--tip-ink);border-radius:10px;padding:14px 16px}
+.tip h3{margin:0 0 6px;font-size:16px}
+.tip p{margin:0;unicode-bidi:plaintext}
+.hide .name{filter:blur(7px);cursor:pointer;user-select:none}
+.hide .card.shown .name{filter:none}
+.empty{color:var(--muted);margin-top:30px}
+.foot{margin-top:40px;color:var(--muted);font-size:13px}
+@media (prefers-reduced-motion:no-preference){.name{transition:filter .2s}}
+
+/* breadcrumbs */
+.crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin:0 0 18px;
+  font:600 13px "Assistant",system-ui,sans-serif;line-height:1}
+.crumbs a{display:inline-flex;align-items:center;gap:6px;color:var(--accent,#8E1630);
+  text-decoration:none;border:1px solid var(--line,#DDE0E7);background:var(--surface,#fff);
+  padding:6px 13px;border-radius:999px}
+.crumbs a:hover{border-color:var(--accent,#8E1630)}
+.crumbs a:focus-visible{outline:2px solid var(--accent,#8E1630);outline-offset:2px}
+.crumbs .sep{color:var(--muted,#5B6272);opacity:.6}
+.crumbs .here{color:var(--muted,#5B6272)}
+@media (prefers-reduced-motion:no-preference){.crumbs a{transition:border-color .14s ease}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<nav class="crumbs" aria-label="ניווט"><a href="../index.html"><span aria-hidden="true">⌂</span>מעקב הלימודים</a><span class="sep" aria-hidden="true">‹</span><a href="review.html">חזרה כללית</a><span class="sep" aria-hidden="true">‹</span><span class="here" aria-current="page">אורתופדיה</span></nav>
+
+  <h1>סמנים מזהים באורתופדיה</h1>
+  <p class="sub">שברים, פגיעות רקמה רכה, סיבוכים ומחלות שלד-שריר: לכל מצב הסימן הייחודי שמכוון לאבחנה (מודגש), סימנים תומכים וממצאי הדמיה ומעבדה. במצב תרגול השמות מוסתרים — קראו את הסימן ונחשו, ולחצו על הכרטיס כדי לחשוף.</p>
+
+  <div class="bar">
+    <input type="search" id="q" placeholder="חיפוש: סימן, מצב או בדיקה (למשל 5P, DEXA, Colles)">
+    <label class="practice"><input type="checkbox" id="practice"> מצב תרגול</label>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div id="out"></div>
+  <p class="empty" id="empty" hidden>לא נמצאו תוצאות לחיפוש הזה.</p>
+
+  <section id="tips-sec">
+    <h2>הבחנות שכדאי לזכור</h2>
+    <div class="tips">
+      <div class="tip"><h3>חמשת ה-P של תסמונת מדור</h3><p>Pain (הראשון והשכיח, ולא פרופורציונלי לפציעה) · Pallor · Paraesthesia · Paralysis · Pulselessness. היעדר דופק הוא סימן מאוחר — לא ממתינים לו.</p></div>
+      <div class="tip"><h3>שני האומדנים החשובים ביותר בכל שבר</h3><p>אומדן וסקולרי של הגפה ואומדן כאב — בכל שלבי הטיפול. אין לבצע רדוקציה לפני הדמיה, אלא אם יש קיפוח וסקולרי — ואז מקדימים את ההדמיה.</p></div>
+      <div class="tip"><h3>אוסטאוארתריטיס מול RA</h3><p>OA: א-סימטרי, מפרק אחד או שניים, כאב שמחמיר בתנועה, מעבדה תקינה, נוקשות בוקר קצרה. RA: סימטרי, מפרקים קטנים ופרוקסימליים, נוקשות בוקר מעל שעה, ↑ESR/CRP, RF ו-Anti-CCP, תסמינים מערכתיים.</p></div>
+      <div class="tip"><h3>T Score ב-DEXA</h3><p>מעל ‎-1 = צפיפות עצם תקינה · בין ‎-1 ל-‎-2.5 = אוסטאופניה · מתחת ל-‎-2.5 = אוסטאופורוזיס.</p></div>
+      <div class="tip"><h3>קוצר נשימה אחרי שבר בעצם ארוכה</h3><p>תסחיף שומן עד שהוכח אחרת. טריאדת ברגמן: קוצר נשימה, בלבול ופריחה. זה הסיבוך המסוכן ביותר של שברים בעצמות ארוכות.</p></div>
+      <div class="tip"><h3>RICE</h3><p>Rest · Ice · Compression · Elevation — הטיפול הבסיסי בנקע. החבישה האלסטית מרופדת, ולא לישון איתה.</p></div>
+      <div class="tip"><h3>ORIF מול קיבוע חיצוני</h3><p>ORIF — חתך, רדוקציה למנח אנטומי, קיבוע בברגים/פלטות/מסרגות/מסמרים. External Fixation — יציבות מהירה בשברים מורכבים וללא נשיאת משקל, אך מסורבל ונוטה לזיהומים באתרי המסרגות.</p></div>
+      <div class="tip"><h3>DHS מול IMN בשבר צוואר ירך</h3><p>DHS עדיף כשנדרשת קומפרסיה גבוהה. IMN מאפשר חתכים קטנים משמעותית ומסמר ארוך לקיבוע שבר נוסף דיסטלית. הוויכוח עדיין פתוח.</p></div>
+      <div class="tip"><h3>מתיחה — עורית מול גרמית</h3><p>עורית: עיגון על עור הגפה — אומדן עור לפחות פעם ביום. גרמית: העצם היא העוגן — אומדן אתרי החדרה. בשתיהן: המשקלים תלויים חופשי ואינם נוגעים ברצפה.</p></div>
+      <div class="tip"><h3>ALP מוגבר עם סידן תקין</h3><p>מכוון למחלת פאג'ט — בניגוד להיפרקלצמיה ממאירה (סידן ↑) ולהיפרפאראתירואידיזם (סידן ↑, PTH ↑).</p></div>
+    </div>
+  </section>
+
+  <p class="foot">מבוסס על מצגות הקורס "מערכת שלד שריר" (אריאל ברוורמן) ועל פרקים 35–37 בברונר. חומר עזר ללמידה בלבד.</p>
+</div>
+
+<script>
+const CATS=[["frac", "שברים וטראומה"], ["soft", "פגיעות רקמה רכה ומפרקים"], ["compl", "סיבוכים ומצבי חירום"], ["dis", "מחלות שלד-שריר ללא טראומה"]];
+const D=[{"c": "frac","n": "Compression Fracture","h": "שבר דחיסה","k": "שבר בחוליות המותניות והחזיות — באדם ללא אוסטאופורוזיס יש לחשוד בטראומה באנרגיה גבוהה מאוד","s": ["שכיח בעמוד השדרה על רקע אוסטאופורוזיס — לרוב ללא טראומה משמעותית","ללא פגיעה עצבית משמעותית — שואפים לטיפול שמרני","קיבוע: Lumbar Fusion, Rods, Plating, Cage System","Vertebroplasty (צמנט) או Kyphoplasty (בלון) לייצוב החוליה"],"l": "צילום בשני מנחים לפחות (AP + LAT) · CT/MRI"},{"c": "frac","n": "Stress Fracture","h": "שבר מאמץ","k": "שברים קטנים מעומס מחזורי — לרוב בכפות הרגליים ובשוק (Fibula)","s": ["מטופל שמרנית: מנוחה והתאמת עומס (סוליות, נעליים)","מחליש את העצם ומעלה סיכון לשבר מלא באזור","שכיח בספורטאים ובמתגייסים"],"l": "לעיתים לא נראה בצילום ראשוני — MRI או מיפוי עצמות"},{"c": "frac","n": "Pathological Fracture","h": "שבר פתולוגי","k": "אין התאמה בין הכוח במנגנון הפציעה לאופי השבר — שבר \"גדול מדי\" לטראומה קלה","s": ["מקורו בתהליך הרס של העצם","הסיבה השכיחה ביותר: גידולים בעצמות","גם גרורות בעצמות והפרעות מטבוליות: Paget's Disease, Osteoporosis, Hyperparathyroidism"],"l": "צילום · מיפוי עצמות · ביופסיה"},{"c": "frac","n": "Avulsion Fracture","h": "שבר תלישה","k": "גיד או רצועה תולשת חלק מהעצם שאליו היא מחוברת","s": ["מנגנון: טראומה דמוית נקע (כוח מחוץ לציר העצם) או פריקה","יחסית נפוץ בפציעות ספורט","הגישה הטיפולית משתנה לפי מרחק התזוזה מהמנח האנטומי"],"l": "צילום AP + LAT"},{"c": "frac","n": "Greenstick Fracture","h": "שבר \"ענף ירוק\"","k": "שבר של ה-Cortex בצד אחד בלבד — לא לכל רוחב העצם","s": ["מאפיין עצמות גמישות (ילדים); נוצר מהפעלת כוח בכיפוף","עלול להעיד על התעללות","הגישה משתנה לפי הזווית שנוצרה ויכולת הרדוקציה"],"l": "צילום"},{"c": "frac","n": "Colles' vs Smith's Fracture","h": "שבר קולס מול שבר סמית","k": "Colles — שבר רדיוס דיסטלי עם תזוזה דורסלית (\"מזלג\"); Smith — תזוזה ונטרלית (הפוך)","s": ["מהטראומות השכיחות ביותר, במבוגרים ובילדים כאחד","ברוב המקרים ניתן להימנע מ-ORIF","שבר Scaphoid מקובע בגבס מסוג Spica"],"l": "צילום שורש כף היד"},{"c": "frac","n": "Hip Fracture","h": "שבר בירך","k": "באוכלוסייה מבוגרת — נגרם מנפילה פשוטה; שברים באגן מעידים על טראומה באנרגיה גבוהה מאוד","s": ["שברים בירך (כל הסוגים) כמעט בהכרח יטופלו ניתוחית","DHS (Dynamic Hip Screw) — עדיף כשנדרשת קומפרסיה גבוהה","IMN (Intra-Medullary Nail) — חתכים קטנים יותר, מסמר ארוך לקיבוע נוסף דיסטלית","Hemiarthroplasty — בהרס משמעותי של ראש הפמור; מחייבת אצטבולום שלם","לרוב תוביל עם הזמן להחלפת מפרק מלאה (THR)"],"l": "צילום אגן וירך · CT"},{"c": "frac","n": "Shoulder Dislocation","h": "פריקת כתף","k": "פריקה קדמית (Anterior) היא השכיחה — הזרוע באבדוקציה ורוטציה חיצונית, ראש הומרוס מוחש קדמית","s": ["טראומה באזור הכתף שכיחה — שבר או פריקה","בהרבה מצבים נמנעים מניתוח ומטפלים שמרנית","הגישה משתנה לפי התזוזות ויכולת לשמור על מצב סטטי להחלמה","פריקה אחורית (Posterior) — נדירה יותר, קשורה לפרכוסים והתחשמלות"],"l": "צילום בשני מנחים · אומדן נוירווסקולרי לפני ואחרי רדוקציה"},{"c": "soft","n": "Sprain (Grades I–III)","h": "נקע","k": "דרגה III — הכאב דווקא פחות משמעותי מדרגה II, אך יש חוסר יכולת דריכה וטווחי תנועה ירודים מאוד","s": ["דרגה I: רגישות, נפיחות מינימלית, ללא תנועה פתולוגית","דרגה II: כאב חמור (במיוחד בנשיאת משקל), נפיחות וסימני דמם תת-עורי, ירידה משמעותית בטווחים","דרגה III: קרעים משמעותיים בסיבים","טיפול: RICE — Rest, Ice, Compression, Elevation + NSAIDs","החבישה האלסטית תהיה מרופדת, ומומלץ לא לישון איתה","דרגה III לעיתים תדרוש סד גבס"],"l": "—"},{"c": "soft","n": "ACL Tear","h": "קרע ברצועה הצולבת הקדמית","k": "הטראומה השכיחה ביותר מבין רצועות הברך — לרוב בפציעות ספורט","s": ["מבחן מגירה קדמית חיובי","תיקון בארתרוסקופיה: תפירה ישירה, או החלפה ברצועה מבנק רקמות או קציר Gracilis/Hamstrings","בהחלפת ברך מלאה ACL ו-PCL מוסרות; LCL ו-MCL נשמרות"],"l": "MRI · מבחן מגירה קדמית"},{"c": "soft","n": "Meniscus Tear","h": "קרע במניסקוס","k": "פציעת הברך השכיחה ביותר","s": ["גורמי סיכון: ספורט הכרוך בהרמת משקל וכיפוף ברכיים, עודף משקל","תיקון בארתרוסקופיה — לרוב משנים את גיאומטריית הקרע כדי למנוע העמקה; לעיתים תפירה","במקרים קשים — השתלת מניסקוס מלאכותי מלא או חלקי"],"l": "MRI · ארתרוסקופיה"},{"c": "soft","n": "Achilles Tendon Rupture","h": "קרע בגיד אכילס","k": "המטופל מתאר צליל של קרע ונפיחות כמעט מיידית בחלק האחורי של כף הרגל","s": ["לרוב גברים סביב גיל 40, בפעילות ספורטיבית (כדורסל, כדורגל)","התיקון ניתוחי, ולאחריו גבס עם Extension של כף הרגל"],"l": "MRI · מבחן Thompson"},{"c": "soft","n": "Carpal Tunnel Syndrome","h": "תסמונת התעלה הקרפלית","k": "כאב והירדמות בחלק כף היד המוזן ע\"י העצב המדיאני — מחמיר בלילה","s": ["לחץ על העצב המדיאני בשורש כף היד בתוך התעלה הקרפלית","1 מכל 10 אנשים יחווה את התסמינים במהלך חייו","גורמי סיכון: גיל ועיסוקים מסוימים (הקלדה מרובה, נגינה בגיטרה)","גם סיבוך שכיח של RA"],"l": "EMG/NCS · מבחני Phalen ו-Tinel"},{"c": "soft","n": "Plantar Fasciitis / Heel Spur","h": "פאשייטיס פלנטרי (דורבן)","k": "החמרה מיד לאחר מנוחה והקלה לאחר כמה דקות של הליכה — הצעדים הראשונים בבוקר","s": ["דלקת של רקמת החיבור בחלק התחתון של כף הרגל","מצב שכיח מאוד — כשליש מהאוכלוסייה יחווה את התסמינים","גורמי סיכון: משקל עודף, נעליים עם רפידה שטוחה או בגודל לא מתאים"],"l": "אבחנה קלינית"},{"c": "compl","n": "Compartment Syndrome","h": "תסמונת מדור","k": "חמשת ה-P: Pain (הראשון והשכיח) · Pallor · Paraesthesia · Paralysis · Pulselessness","s": ["לחץ על רקמות השריר כנגד רקמה גרמית — מצב מסכן גפה וחיים","הכאב אינו פרופורציונלי לפציעה ואינו מגיב למשככי כאבים רגילים","גבס הוא אחת הסיבות — כתוצאה מהתנפחות הגפה מתחתיו","בחשד לנזק נקרוטי — Fasciotomy מיידית לשחרור הלחץ ולאפשור זרימת דם","בכוויות נרחבות או צירקולריות (מקיפות את הגפה) — Fasciotomy לרוב תבוצע מניעתית"],"l": "אבחנה קלינית · מדידת לחץ מדור"},{"c": "compl","n": "Fat Embolism","h": "תסחיף שומן","k": "טריאדת ברגמן: קוצר נשימה + בלבול + פריחה — אחרי שבר בעצם ארוכה","s": ["הסיבוך המסוכן ביותר של שברים בעצמות ארוכות","כל אירוע של קוצר נשימה סביב שבר בעצם ארוכה (כגון פמור) — חשד לתסחיף שומן עד שהוכח אחרת","הפריחה: פטכיות, לרוב בבית החזה, בצוואר ובבית השחי"],"l": "אבחנה קלינית · היפוקסמיה · צילום חזה"},{"c": "compl","n": "Osteomyelitis","h": "אוסטאומיאליטיס","k": "כאב ורגישות ניכרת במקום + חום גבוה וצמרמורת — זיהום חיידקי של העצם","s": ["החיידק העיקרי: Staphylococcus aureus — מזרם הדם ממוקד מרוחק, או מפצע פתוח","נפוץ בכיבים סוכרתיים שאינם מטופלים או שאינם מחלימים","מיקומים שכיחים: טיביה, מפרק ירך (במיוחד אחרי ניתוח) וחוליות","נפיחות של הרקמה הרכה סביב האזור המזוהם, כאבי ראש והרגשה כללית רעה","טיפול: אנטיביוטיקה IV למשך 4–6 שבועות + הטריה וניקוז; לעיתים קטיעה"],"l": "סימני זיהום בדם (↑WBC, ↑CRP, ↑ESR) · הדמיה תואמת · תרבית מהעצם"},{"c": "compl","n": "Phantom Limb Pain","h": "כאבי פאנטום","k": "תחושה או כאב בגפה שאינה קיימת — כ-70% מהמטופלים אחרי קטיעה","s": ["מנגנון החישה מקורו בקורטקס של המוח","חלק מהמטופלים חשים רק תחושת גפה קיימת, ללא כאב","משככי כאבים מסייעים נקודתית","טיפול ארוך טווח: TENS (גירוי חשמלי) ושימוש במציאות מדומה","הכנת המטופל לפני הניתוח להתקצרות שרירים ולכאבי פאנטום"],"l": "—"},{"c": "compl","n": "Post-Amputation Care","h": "טיפול אחרי קטיעה","k": "חוסם עורקים חייב להיות זמין בסביבת המטופל למקרה של דימום חריף","s": ["כ-80% מהקטיעות הן בגפיים תחתונות; מתחלקות למעל או מתחת לברך","הסיבה השכיחה ביותר: מחלת כלי דם פריפריים ונמק — לרוב על רקע סוכרת; עישון גורם סיכון משמעותי","גפה מעט מורמת ב-24 השעות הראשונות","בקרות דימום תכופות (כל שעה-שעתיים) + בדיקת דופק וטמפרטורה של הגפה","אנטיביוטיקה מניעתית ל-3–4 ימים + מעורבות מוקדמת של פיזיותרפיה"],"l": "—"},{"c": "dis","n": "Osteoporosis","h": "אוסטאופורוזיס","k": "\"מחלה שקטה\" — מאובחנת לרוב רק אחרי שבר מטראומה מועטה או ללא טראומה ידועה","s": ["בהתקדמות: אובדן גובה, קיפוזיס וכאבי גב; שברי דחיסה גורמים לכאבי גב כרוניים","שכיח יותר בנשים — מגיל 35 רוב הנשים מאבדות מסת עצם בשיעור של 1% בשנה","גורמי סיכון: גיל, מחלות כרוניות, סטרואידים, נוגדי פרכוסים, נוגדי קרישה, PPI, SSRI, חסר סידן וויטמין D, עישון, קפאין, אלכוהול, ישיבה ממושכת, הפרעות אכילה ו-IBD","טיפול: סידן וויטמין D, תרגילי נשיאת משקל, HRT בנשים, טסטוסטרון בגברים, ביספוספונטים (Fosalan)"],"l": "DEXA — T Score: מעל ‎-1 תקין · בין ‎-1 ל-‎-2.5 אוסטאופניה · מתחת ל-‎-2.5 אוסטאופורוזיס"},{"c": "dis","n": "Osteoarthritis","h": "אוסטאוארתריטיס","k": "כאב שמחמיר בתנועת המפרק, א-סימטרי ובמפרק אחד או שניים בלבד","s": ["מחלת מפרקים ניוונית לא-דלקתית — פירוק סחוס במפרקים סינוביאליים","גורמי סיכון: תורשה, הזדקנות, מין נשי, השמנה, פציעה קודמת, שימוש יתר תעסוקתי או ספורטיבי","נוקשות עם הגבלה בתנועתיות; מפרקים מעוותים וגושים","טיפול: NSAIDs (Arcoxia, Ibufen), הזרקת סטרואידים למפרק, ירידה במשקל, חיזוק שריר ארבע-ראשי","הדרכה: איזון בין פעילות למנוחה, הימנעות מעומס כבד ממושך, מכשירי עזר"],"l": "צילום רנטגן · Arthrocentesis · סימני דלקת תקינים"},{"c": "dis","n": "Rheumatoid Arthritis (ortho view)","h": "דלקת מפרקים שגרונית","k": "נוקשות בוקר מעל שעה + מפרקים אדומים ונפוחים — סימטרי, מחלה דלקתית","s": ["תגובה חיסונית לא תקינה → דלקת של הממברנה הסינוביאלית והיווצרות אקסודאט","תסמינים מערכתיים: חום נמוך, אנורקסיה עם ירידה במשקל, חולשה","עיוות מפרק ותפקוד לקוי","Acetaminophen קו ראשון לכאב; בנוסף NSAIDs, סטרואידים, Hydroxychloroquine, Methotrexate","מעקב תופעות לוואי: דימום GI, דיכוי מח עצם, נזק כלייתי/כבדי, זיהומים, פצעים בפה, שינויי ראייה"],"l": "RF · Anti-CCP · CRP · ESR · צילום — הרס סחוס ועיוותים · נוקשות בוקר מעל 30 דקות + 3 מפרקים מעל 6 שבועות"},{"c": "dis","n": "Gout (ortho view)","h": "שיגדון","k": "עור מתוח ואדמומי מעל מפרק בצקתי וחם עם כאב קיצוני — הבוהן היא האתר השכיח","s": ["גבישי חומצת שתן שוקעים במפרקים וברקמת החיבור","שכיחות גבוהה ביותר בגברים מגיל 40+","גורמי סיכון: נטייה גנטית למטבוליזם פורינים, דיאטה עתירת חלבון, אלכוהול, משתנים","טיפול: NSAIDs ל-5 ימים · Colchicine (הקלה תוך 24–48 שעות) · סטרואידים · Allopurinol · Pegloticase","סיעודי: הגבלת פורינים ואלכוהול, צריכת 2,000–3,000 מ\"ל נוזלים ליום, תפקודי כבד תקופתיים בגלל Allopurinol"],"l": "↑Uric Acid · ניקור מפרקי · צילום/US"},{"c": "dis","n": "Paget Disease","h": "מחלת פאג'ט של העצם","k": "כאב ועיוות גפה עם ALP מוגבר מאוד בסרום — סידן ופוספט תקינים","s": ["ספיגת עצם לא תקינה והחלפת מח עצם ברקמת חיבור סיבית — העצם חלשה ונוטה לשברים","לעיתים קרובות מתגלה בזמן שבר, כשצילומי הרנטגן חושפים את חריגות העצם","ביטויים מערכתיים: חרשות (פגיעה בעצמות השמיעה), אי-ספיקת לב","עייפות, חולשה, אובדן תיאבון, כאבי בטן ועצירות","מעלה סיכון לאוסטאוסרקומה בגברים מעל גיל 60","טיפול: ביספוספונטים או Miocalcine, NSAIDs, אמצעי עזר לניידות, Osteotomy לתיקון"],"l": "↑Alkaline Phosphatase במחלה פעילה · רנטגן · סריקת עצמות · Hydroxyproline בשתן 24 שעות"},{"c": "dis","n": "Bone Tumors","h": "גידולי עצם","k": "כאב, חום ונפיחות מקומיים — אוסטאוסרקומה היא השכיחה, באזור הברך","s": ["אוסטאוסרקומה: ירך דיסטלית, שוק פרוקסימלית וזרוע פרוקסימלית","Ewing Sarcoma — בעיקר בילדים וצעירים; גם Chondrosarcoma ו-Fibrosarcoma","הגידולים השולחים גרורות לעצם: ערמונית, כליה, בלוטת התריס, שד וריאה","אתרי גרורות שכיחים: ברך, חוליות, אגן, צלעות ופמור","שיעור ריפוי 60–80% באוסטאוסרקומה בשילוב ניתוח וכימותרפיה","טיפול בגידולי עצם עלול ליצור היפרקלצמיה — מטופלת ב-Zoledronic Acid (Aclasta)"],"l": "ביופסיה — בסיס האבחנה · צילום · מיפוי עצמות"}];
+
+const out=document.getElementById('out'),q=document.getElementById('q'),chips=document.getElementById('chips'),empty=document.getElementById('empty');
+let cat="all";
+const esc=s=>s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+function chip(id,label){const b=document.createElement('button');b.className='chip';b.textContent=label;b.setAttribute('aria-pressed',id===cat);b.onclick=()=>{cat=id;[...chips.children].forEach(x=>x.setAttribute('aria-pressed',x===b));render();};chips.appendChild(b);}
+chip("all","הכל");CATS.forEach(([id,l])=>chip(id,l));
+function render(){
+  const term=q.value.trim().toLowerCase();let total=0;let html="";
+  CATS.forEach(([id,label])=>{
+    if(cat!=="all"&&cat!==id)return;
+    const items=D.filter(d=>d.c===id&&(!term||[d.n,d.h,d.k,d.l,...d.s].join(' ').toLowerCase().includes(term)));
+    if(!items.length)return;total+=items.length;
+    html+=`<section><h2>${label}<small>${items.length}</small></h2><div class="grid">`+items.map(d=>`
+      <article class="card" tabindex="0">
+        <div class="name">${esc(d.n)}<span class="he">${esc(d.h)}</span></div>
+        <div class="key"><b>סימן מזהה</b>${esc(d.k)}</div>
+        <ul>${d.s.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+        ${d.l&&d.l!=="—"?`<div class="lab">${esc(d.l)}</div>`:''}
+      </article>`).join('')+`</div></section>`;
+  });
+  out.innerHTML=html;empty.hidden=total>0;
+}
+out.addEventListener('click',e=>{const c=e.target.closest('.card');if(c)c.classList.toggle('shown');});
+out.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList.contains('card'))e.target.classList.toggle('shown');});
+q.addEventListener('input',render);
+document.getElementById('practice').addEventListener('change',e=>{out.classList.toggle('hide',e.target.checked);out.querySelectorAll('.shown').forEach(c=>c.classList.remove('shown'));});
+render();
+</script>
+</body>
+</html>
