@@ -337,6 +337,46 @@ A(run(`(() => {
 w.closeProcedures();
 run(`state = {}; renderAll();`);
 
+console.log('23. part filter — sidebar list + persistence');
+run(`filterPart('ב')`);
+A(d.getElementById('sb-cardio').classList.contains('part-hidden'), 'part A topic hidden from the sidebar');
+A(d.getElementById('sbHeadA').classList.contains('part-hidden'), 'part A header hidden');
+A(!d.getElementById('sb-neuro').classList.contains('part-hidden'), 'part B topic stays visible');
+A(!d.getElementById('sbHeadB').classList.contains('part-hidden'), 'part B header stays visible');
+A(w.localStorage.getItem('mevak_part_filter') === 'ב', 'choice saved to localStorage');
+run(`filterPart('ב')`); // toggle off
+A(!d.getElementById('sb-cardio').classList.contains('part-hidden'), 'clearing the filter restores all topics');
+A(!d.getElementById('sbHeadA').classList.contains('part-hidden'), 'clearing the filter restores the headers');
+A(w.localStorage.getItem('mevak_part_filter') === null, 'cleared choice removed from localStorage');
+// a saved choice is applied on the next load
+A(run(`(() => {
+  localStorage.setItem('mevak_part_filter', 'א');
+  activePart = null;
+  loadPartFilter(); syncFilterUI();
+  return activePart === 'א' && document.getElementById('sb-neuro').classList.contains('part-hidden');
+})()`) === true, 'saved part restored on startup');
+A(run(`(() => {
+  localStorage.setItem('mevak_part_filter', 'zzz');
+  activePart = null;
+  loadPartFilter();
+  return activePart === null;
+})()`) === true, 'a bogus saved value is ignored');
+run(`localStorage.removeItem('mevak_part_filter'); activePart = null; syncFilterUI(); renderAll();`);
+
+console.log('24. general review hub');
+const reviewLink = d.querySelector('.sidebar-link[href="study-tools/review.html"]');
+A(!!reviewLink, 'sidebar links to the general review hub');
+const reviewHtml = fs.readFileSync(path.join(DIR, 'study-tools', 'review.html'), 'utf8');
+const reviewTargets = [...reviewHtml.matchAll(/f:"([^"]+)"/g)].map((m) => m[1]);
+A(reviewTargets.length === 14, 'hub lists 11 marker pages + 3 practice exams');
+A(reviewTargets.every((f) => fs.existsSync(path.join(DIR, 'study-tools', f))), 'every hub target exists: '
+  + (reviewTargets.filter((f) => !fs.existsSync(path.join(DIR, 'study-tools', f))).join(', ') || '—'));
+A(reviewTargets.every((f) => !/[^\x00-\x7F]/.test(f)), 'hub targets use ascii filenames');
+A(reviewTargets.filter((f) => f.startsWith('markers-')).every((f) =>
+  fs.readFileSync(path.join(DIR, 'study-tools', f), 'utf8').includes('href="review.html"')),
+  'every marker page links back to the hub');
+A(reviewHtml.includes('href="../index.html"'), 'hub links back to the tracker');
+
 A(errors.length === 0, 'no window errors: ' + (errors.join('; ') || '—'));
 
 console.log(fails ? `\n✗ ${fails} FAILURE(S)` : '\n✓ ALL TESTS PASSED');

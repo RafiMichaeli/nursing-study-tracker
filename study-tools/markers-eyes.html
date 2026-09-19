@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>סמנים מזהים במחלות עיניים</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=Assistant:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F4F5F8; --surface:#FFFFFF; --ink:#1A1F2B; --muted:#5B6272; --line:#DDE0E7;
+  --accent:#8A5A00; --hl:#FBEEDC; --hl-ink:#6B4500; --chip:#ECEEF3; --tip:#EAF1F6; --tip-ink:#1E4660;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#11141B; --surface:#191D26; --ink:#E6E8EE; --muted:#9AA1AE; --line:#2B303C;
+    --accent:#E8AE4C; --hl:#332404; --hl-ink:#FFD79A; --chip:#232834; --tip:#162634; --tip-ink:#A9D1EC;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11141B; --surface:#191D26; --ink:#E6E8EE; --muted:#9AA1AE; --line:#2B303C;
+  --accent:#E8AE4C; --hl:#332404; --hl-ink:#FFD79A; --chip:#232834; --tip:#162634; --tip-ink:#A9D1EC;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Assistant",system-ui,sans-serif}
+.wrap{direction:rtl;max-width:1100px;margin:0 auto;padding-inline:20px;padding-block:28px 60px}
+h1,h2{font-family:"Frank Ruhl Libre",Georgia,serif;text-wrap:balance;margin:0}
+h1{font-size:clamp(28px,5vw,40px);line-height:1.15}
+.sub{color:var(--muted);margin:8px 0 0;max-width:68ch}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:14px;margin-top:18px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.bar input[type=search]{flex:1 1 220px;min-width:0;font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:600 13px "Assistant",sans-serif;border:1px solid var(--line);background:var(--chip);color:var(--ink);padding:5px 11px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.practice{display:flex;gap:6px;align-items:center;font-weight:600;font-size:14px;cursor:pointer}
+button:focus-visible,input:focus-visible,.card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+section{margin-top:34px}
+section h2{font-size:24px;display:flex;align-items:baseline;gap:10px}
+section h2 small{font:400 14px "Assistant",sans-serif;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin-top:14px}
+@media (max-width:420px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.name{font:700 17px/1.3 "Assistant",sans-serif;direction:ltr;text-align:right;unicode-bidi:plaintext}
+.name .he{display:block;font-weight:400;font-size:14px;color:var(--muted)}
+.key{background:var(--hl);color:var(--hl-ink);border-radius:6px;padding:9px 11px;font-weight:700;line-height:1.45}
+.key b{display:block;font:500 11px "IBM Plex Mono",monospace;letter-spacing:.06em;opacity:.8;margin-bottom:2px}
+ul{margin:0;padding-inline-start:18px;display:flex;flex-direction:column;gap:3px}
+li{unicode-bidi:plaintext;text-align:right}
+.lab{font:13px/1.5 "IBM Plex Mono",monospace;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px;unicode-bidi:plaintext;text-align:right}
+.tips{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-top:14px}
+.tip{background:var(--tip);color:var(--tip-ink);border-radius:10px;padding:14px 16px}
+.tip h3{margin:0 0 6px;font-size:16px}
+.tip p{margin:0;unicode-bidi:plaintext}
+.hide .name{filter:blur(7px);cursor:pointer;user-select:none}
+.hide .card.shown .name{filter:none}
+.empty{color:var(--muted);margin-top:30px}
+.foot{margin-top:40px;color:var(--muted);font-size:13px}
+@media (prefers-reduced-motion:no-preference){.name{transition:filter .2s}}
+
+/* breadcrumbs */
+.crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin:0 0 18px;
+  font:600 13px "Assistant",system-ui,sans-serif;line-height:1}
+.crumbs a{display:inline-flex;align-items:center;gap:6px;color:var(--accent,#8E1630);
+  text-decoration:none;border:1px solid var(--line,#DDE0E7);background:var(--surface,#fff);
+  padding:6px 13px;border-radius:999px}
+.crumbs a:hover{border-color:var(--accent,#8E1630)}
+.crumbs a:focus-visible{outline:2px solid var(--accent,#8E1630);outline-offset:2px}
+.crumbs .sep{color:var(--muted,#5B6272);opacity:.6}
+.crumbs .here{color:var(--muted,#5B6272)}
+@media (prefers-reduced-motion:no-preference){.crumbs a{transition:border-color .14s ease}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<nav class="crumbs" aria-label="ניווט"><a href="../index.html"><span aria-hidden="true">⌂</span>מעקב הלימודים</a><span class="sep" aria-hidden="true">‹</span><a href="review.html">חזרה כללית</a><span class="sep" aria-hidden="true">‹</span><span class="here" aria-current="page">מחלות עיניים</span></nav>
+
+  <h1>סמנים מזהים במחלות עיניים</h1>
+  <p class="sub">קטרקט, גלאוקומה, הפרעות ברשתית, מחלות קרנית, דלקות לחמית וחבלות: לכל מצב הסימן הייחודי שמכוון לאבחנה (מודגש), סימנים תומכים ובדיקות. במצב תרגול השמות מוסתרים — קראו את הסימן ונחשו, ולחצו על הכרטיס כדי לחשוף.</p>
+
+  <div class="bar">
+    <input type="search" id="q" placeholder="חיפוש: סימן, מחלה או בדיקה (למשל IOP, וילון, Cupping)">
+    <label class="practice"><input type="checkbox" id="practice"> מצב תרגול</label>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div id="out"></div>
+  <p class="empty" id="empty" hidden>לא נמצאו תוצאות לחיפוש הזה.</p>
+
+  <section id="tips-sec">
+    <h2>הבחנות שכדאי לזכור</h2>
+    <div class="tips">
+      <div class="tip"><h3>קטרקט מול גלאוקומה</h3><p>קטרקט: טשטוש הדרגתי וללא כאב, סנוור, "מסנן צהוב", ראייה מרכזית נפגעת, הפיך בניתוח. גלאוקומה פתוחת זווית: אובדן שדה ראייה היקפי, שקטה לחלוטין, והנזק לעצב הראייה בלתי הפיך.</p></div>
+      <div class="tip"><h3>פתוחת זווית מול סגורת זווית</h3><p>פתוחה: כרונית, ללא תסמינים, דו-צדדית, אובדן פריפרי הדרגתי. סגורה חריפה: כאב עז, בחילות והקאות, אודם, קרנית בצקתית, אישון אליפטי חצי-מורחב שאינו מגיב — חירום עיני.</p></div>
+      <div class="tip"><h3>טווחי IOP</h3><p>תקין 10–21 ממ"כ. יעד הטיפול: לרוב 30% פחות מהלחץ הנוכחי. בקרנית דקה המדידה עלולה להיות נמוכה שגויה — וגלאוקומה עלולה לא להתגלות.</p></div>
+      <div class="tip"><h3>Punctal Occlusion</h3><p>לחיצה עדינה על זווית העין הפנימית (סמוך לגשר האף) למשך 1–2 דקות מיד אחרי הזלפת הטיפות — מפחיתה ספיגה סיסטמית ותופעות לוואי. קריטי בחוסמי בטא ובאלפא-אגוניסטים.</p></div>
+      <div class="tip"><h3>התוויות נגד לחוסמי בטא בעיניים</h3><p>Timolol אסור באסתמה, COPD, בלוק לבבי דרגה 2 או 3, ברדיקרדיה ואי-ספיקת לב — התרופה נספגת סיסטמית. Acetazolamide אסור באלרגיה לסולפונאמידים, ומחייב מעקב אלקטרוליטים.</p></div>
+      <div class="tip"><h3>הדגלים האדומים של היפרדות רשתית</h3><p>וילון או צל בשדה הראייה · הבזקי אור · הופעה פתאומית של Floaters רבים · קורי עכביש. אין כאב — וזה בדיוק מה שמטעה. מצב חירום כירורגי.</p></div>
+      <div class="tip"><h3>גרד עז בעין אדומה</h3><p>מכוון לדלקת לחמית אלרגית, עם פפילות "אבני מרצפת". הפרשה מוגלתית מכוונת לחיידקית; הפרשה מימית עם תחושת גוף זר ופוליקולים — ויראלית.</p></div>
+      <div class="tip"><h3>מה לא לעשות בפגיעה חודרת</h3><p>לא להסיר את הגוף הזר · לא להפעיל לחץ · לא להניח תחבושת · לא לתת אנטיביוטיקה מקומית בקרע גלגל העין. כן: מגן קשיח, אנטיביוטיקה סיסטמית, טטנוס והפניה דחופה.</p></div>
+      <div class="tip"><h3>מנח אחרי ניתוח רשתית עם בועת גז</h3><p>שכיבה על הבטן (Prone) — כדי שהבועה תעלה ותלחץ על אזור ההיפרדות. יש להכין את המטופל ואת משפחתו לכך מראש, כי זו דרישה תובענית.</p></div>
+      <div class="tip"><h3>תרופות שמעלות סיכון בניתוח קטרקט</h3><p>Tamsulosin ואלפא-אנטגוניסטים אחרים (לערמונית מוגדלת) → Intraoperative Floppy Iris Syndrome: קושי בהרחבת האישון, מיאוזיס ובליטת קשתית. הסיכון קיים גם אם התרופה הופסקה.</p></div>
+    </div>
+  </section>
+
+  <p class="foot">מבוסס על מצגות הקורס "מחלות עיניים" (נועה פישר, RN MN, 2026) ועל פרק 58 בברונר. חומר עזר ללמידה בלבד.</p>
+</div>
+
+<script>
+const CATS=[["lens", "עדשה ולחץ תוך-עיני"], ["ret", "רשתית וכלי דם"], ["ant", "קרנית, לחמית והמקטע הקדמי"], ["trauma", "חבלות ומצבי חירום"]];
+const D=[{"c": "lens","n": "Cataract","h": "קטרקט (ירוד)","k": "טשטוש ראייה הדרגתי וללא כאב — המטופל מתאר \"מסנן צהוב\" או משקפיים מלוכלכים","s": ["עכירות או אטימות בעדשת העין; גורם הסיכון העיקרי הוא גיל","שלושה סוגים שכיחים: Traumatic, Congenital, Senile","סנוור, ירידה ברגישות לניגודיות ובחדות ראייה; ראייה כפולה בעין אחת","החמרת קוצר ראייה — פתאום קוראים מקרוב בלי משקפיים","גורמי סיכון: עישון, סטרואידים במינון גבוה וממושך, קרינת UV, סוכרת, השמנה, תסמונת דאון, Myopia, Uveitis","דרגת העכירות לא תמיד תואמת את התפקוד בפועל","אין טיפול לא-ניתוחי — הטיפול המיטבי הוא מניעה","סיבוך שכיח מאוחר: עכירות קפסולה אחורית; סיבוך נדיר וחמור: Acute bacterial endophthalmitis (~1:1,000)","לשאול על Tamsulosin ואלפא-אנטגוניסטים — Intraoperative Floppy Iris Syndrome (גם אם הופסקו)"],"l": "Snellen visual acuity · אופתלמוסקופ · מנורת סדק · Red reflex"},{"c": "lens","n": "Primary Open-Angle Glaucoma","h": "גלאוקומה פתוחת זווית","k": "\"גנב שקט של ראייה\" — אובדן שדה ראייה היקפי ללא תסמינים, עד שהנזק כבר נעשה","s": ["דו-צדדית בדרך כלל; זווית הלשכה הקדמית פתוחה ונראית תקינה","כ-50% מהחולים אינם מאובחנים; גורם שני בשכיחותו לעיוורון בעולם","Normal tension glaucoma: IOP ≤21 עם פגיעה בעצב והפרעות בשדה ראייה","Ocular hypertension: IOP מוגבר, ייתכן כאב עיני או כאב ראש","גורמי סיכון: מוצא שחור או אסיאתי, סוכרת, מחלות לב, סיפור משפחתי, Myopia, מיגרנה, OSA, גיל, טראומה, סטרואידים ממושכים, קרנית דקה","יעד IOP: לרוב 30% פחות מהלחץ הנוכחי"],"l": "טונומטריה (IOP תקין 10–21 ממ\"כ) · אופתלמוסקופיה: Cupping, חיוורון והגדלת ה-Optic cup · שדה ראייה: Scotomas"},{"c": "lens","n": "Acute Angle-Closure Glaucoma","h": "גלאוקומה חריפה סגורת זווית","k": "כאב עיני עז עם אישון אליפטי אנכי, חצי מורחב ולא מגיב לאור — מצב חירום עיני","s": ["החמרה מהירה בראייה, אודם ודלדול הלחמית, בצקת בקרנית","הכאב מלווה בבחילות, הקאות, ברדיקרדיה והזעה מוגברת — עלול להתפרש בטעות כבטן חריפה","ירידה חדה בחדות ראייה מרכזית; IOP גבוה מאוד","טיפול: חומרים היפראוסמוטיים, Acetazolamide, טיפות להורדת IOP, ואז Laser iridotomy","העין השנייה מטופלת מונעת ב-Pilocarpine ו/או ניתוח — למניעת התקף ספונטני"],"l": "טונומטריה · גוניוסקופיה"},{"c": "lens","n": "Subacute Angle-Closure Glaucoma","h": "גלאוקומה תת-חריפה סגורת זווית","k": "טשטוש ראייה חולף עם הילות סביב אורות וכאב ראש רקתי — התקפים שחולפים מעצמם","s": ["האישון עשוי להיות חצי מורחב בהתקף","ללא טיפול עלולה להתפתח לגלאוקומה חריפה או כרונית","טיפול מונע: Peripheral laser iridotomy"],"l": "גוניוסקופיה · IOP בזמן התקף"},{"c": "ret","n": "Retinal Detachment","h": "היפרדות רשתית","k": "וילון או צל שמכסה חלק משדה הראייה בעין אחת — עם הבזקי אור וריבוי פתאומי של Floaters","s": ["בדרך כלל אין כאב — אך זהו מצב חירום עיני הדורש התערבות כירורגית מיידית","גם מראה של קורי עכביש","Rhegmatogenous — הסוג השכיח: קרע או חור ברשתית ונוזל זגוגית נכנס דרכם. גורמי סיכון: קוצר ראייה גבוה, Aphakia אחרי ניתוח קטרקט, טראומה","Traction — צלקות פיברוטיות מרטינופתיה סוכרתית, דימום בזגוגית או רטינופתיה של פגות","Exudative — נוזל סרוטי מהדמית, על רקע Uveitis או ניוון מקולרי","5–10% מהמקרים קשורים לרטינופתיה שגשוגית סוכרתית","ניתוח: Scleral Buckle או Vitrectomy","אם הוזרקה בועת גז — המטופל נדרש לשכיבה על הבטן (Prone) כדי שהבועה תלחץ על אזור ההיפרדות"],"l": "קרקעית עין עם הרחבת אישונים · אופתלמוסקופ עקיף · Slit-lamp biomicroscopy · OCT · Fluorescein angiography · US"},{"c": "ret","n": "Central Retinal Vein Occlusion (CRVO)","h": "חסימת ורידית מרכזית ברשתית","k": "מראה \"מדמם\" של הרשתית — דימומים מפוזרים, ורידים מורחבים ומפותלים וכתמי כותנה","s": ["שכיחה בעיקר מעל גיל 50","ירידה בחדות ראייה — מטשטוש קל ועד ירידה חמורה","בצקת ב-Optic disc","ככל שחדות הראייה ההתחלתית טובה יותר — הפרוגנוזה טובה יותר","מעקב חודשים אחרי היווצרות כלי דם חדשים והתפתחות Neovascular glaucoma","סיבוכים: בצקת מקולרית, חוסר מקולרי ודימום בזגוגית","טיפול: Laser panretinal photocoagulation"],"l": "אופטלמוסקופיה ישירה · Fluorescein angiography — אזורים נרחבים של סגירת נימים"},{"c": "ret","n": "Branch Retinal Vein Occlusion (BRVO)","h": "חסימת ענף ורידי ברשתית","k": "אובדן ראייה פתאומי רק אם מעורב אזור המקולה — אחרת לעיתים אסימפטומטי","s": ["החסימות מופיעות לרוב בצמתים עורקיים-ורידיים","ירידה הדרגתית בראייה במקרים של בצקת מקולרית נלווית","קרקעית העין דומה לזו שב-CRVO","גורמים: טרשת עורקים, מחלת מסתמים, גודש ורידי, יתר לחץ דם, צמיגות דם מוגברת","גורמי סיכון נלווים: סוכרת, גלאוקומה וגיל מתקדם"],"l": "אופטלמוסקופיה · Fluorescein angiography"},{"c": "ant","n": "Keratoconus","h": "קרטוקונוס","k": "בליטה קונית של הקרנית עם הידקקות מתקדמת ואסטיגמטיזם לא-סדיר","s": ["ניוון קרנית שכיח ביותר; מצב תורשתי, נפוץ יותר בנשים","מתחיל בגיל ההתבגרות ועלול להתקדם יותר מ-20 שנה, לרוב בשתי העיניים","התסמין העיקרי: טשטוש ראייה","במקרים חמורים מופיעה צלקת בקרנית","טיפול: עדשות מגע קשיחות חדירות לגזים מתקנות את האסטיגמטיזם הלא-סדיר; במקרים חמורים PKP"],"l": "טופוגרפיה של הקרנית · מנורת סדק"},{"c": "ant","n": "Bacterial Conjunctivitis","h": "דלקת לחמית חיידקית","k": "הפרשה מוגלתית או רירית-מוגלתית עם אודם וצריבה — ותגובה פפילרית","s": ["Streptococcus pneumoniae, Haemophilus influenzae, Staphylococcus aureus","גורמי סיכון: עדשות מגע והיגיינה ירודה","חריפה עלולה להפוך לכרונית; קשורה לחסימת דרכי דמעות ו-Dacryocystitis","לרוב חולפת; טיפול באנטיביוטיקה מקומית"],"l": "אבחנה קלינית · משטח ותרבית בחשד"},{"c": "ant","n": "Gonococcal Conjunctivitis","h": "דלקת לחמית גונוקוקלית","k": "הפרשה מוגלתית רבה מאוד בהופעה חריפה — מצב דחוף למניעת פרפורציה ועיוורון","s": ["Neisseria gonorrhoeae","הדבקה: מגע מיני אורו-גניטלי, מגע יד-עין","טיפול: אנטיביוטיקה סיסטמית ומקומית"],"l": "משטח ותרבית · צביעת גראם"},{"c": "ant","n": "Viral Conjunctivitis","h": "דלקת לחמית ויראלית","k": "הפרשה מימית ודמעת עם תחושת גוף זר — ותגובה פוליקולרית","s": ["Adenovirus, Herpes simplex Virus","לעיתים לאחר זיהום נשימתי; הדבקה בין אנשים","ייתכנו פסאודוממברנות ופוטופוביה","טיפול תומך: דמעות מלאכותיות, קומפרסים קרים; אנטיהיסטמינים במקרים קשים"],"l": "אבחנה קלינית"},{"c": "ant","n": "Allergic Conjunctivitis","h": "דלקת לחמית אלרגית","k": "גרד עז — הסימן שמבדיל אותה מכל שאר סוגי הקונג'קטיביטיס","s": ["עונתי; תגובת רגישות יתר","דמעת, פוטופוביה, הפרשה רירית","פפילות \"אבני מרצפת\" (Cobblestone)","שכיח יותר בילדים ובמבוגרים צעירים; קשור לאסתמה ואקזמה","טיפול: סטרואידים מקומיים, דמעות מלאכותיות, קומפרסים קרים"],"l": "אבחנה קלינית"},{"c": "ant","n": "Refractive Errors","h": "הפרעות תשבורת","k": "Myopia — גלגל עין ארוך, המוקד לפני הרשתית, ראייה למרחק מטושטשת","s": ["Hyperopia — גלגל עין קצר, המוקד מאחורי הרשתית, ראייה מקרוב מטושטשת","Astigmatism — עקמומיות לא אחידה של הקרנית","Presbyopia — העדשה מאבדת גמישות עם הגיל, קושי בקריאה מקרוב","ניתוחי תשבורת (LASIK, PRK) הם הליכים אלקטיביים","בקוצר ראייה מפחיתים את קמירות הקרנית; ברוחק ראייה מגבירים אותה"],"l": "בדיקת תשבורת · טופוגרפיה"},{"c": "trauma","n": "Penetrating Eye Injury / Globe Rupture","h": "פגיעה חודרת וקרע בגלגל העין","k": "אין לנסות להסיר גוף זר תוך-עיני, ואין להפעיל לחץ או להניח תחבושת על העין","s": ["יש להגן על הגוף הזר מפני תזוזה או זעזוע כדי למנוע נזק נוסף","בקרע בגלגל העין: אין להשתמש בתרופות משתקות שריר Ciliary או באנטיביוטיקה מקומית — רעילות לרקמות תוך-עיניות חשופות","להימנע מכל מגע נוסף בעין עד שהמטופל בהרדמה כללית","אנטיביוטיקה סיסטמית רחבת טווח + חיסון טטנוס בכל פצע חודר + משככי כאבים","בפגיעת התזה: שטיפה בסליין לפני המשך הבדיקה"],"l": "צילום רנטגן ו-CT לזיהוי גוף זר · גופים זרים מתכתיים שוללים MRI"},{"c": "trauma","n": "Hyphema","h": "היפמה","k": "דם בלשכה הקדמית אחרי חבלה קהה — לעיתים עם אישון מוסט","s": ["נגרמת מכוחות חבלה הקורעים כלי דם בקשתית ופוגעים בזווית הלשכה הקדמית","סיכון לעליית IOP ולדימום חוזר","הערכה: גודל האישון, צורתו ותגובתו לאור בהשוואה לעין השנייה; תנועתיות העיניים"],"l": "מנורת סדק · טונומטריה"},{"c": "trauma","n": "Intraocular Foreign Body","h": "גוף זר תוך-עיני","k": "פלדה, נחושת, ברזל וחומרים צמחיים — אלה הגופים הזרים שאינם נסבלים ועלולים לגרום לזיהום מוגלתי","s": ["רוב הגופים הזרים בארובה נסבלים היטב","אנמנזה מדויקת חיונית — במיוחד אם הגוף הזר נמצא זמן ממושך והאירוע כבר נשכח","מסירים בניתוח גופים שטחיים, קדמיים, חדים, או מנחושת/ברזל/חומר צמחי","שימוש במלקחיים או במגנטים ייעודיים","תרביות + אנטיביוטיקה מניעתית: IV בהתחלה, בהמשך PO"],"l": "צילום רנטגן · CT · אין MRI בגוף זר מתכתי"},{"c": "trauma","n": "Corneal Abrasion","h": "שחיקת קרנית","k": "כאב עז, דמעת ופוטופוביה אחרי גוף זר או שימוש בעדשות מגע","s": ["שימוש בעדשות מגע הוא גורם שכיח לשחיקה ולשריטה בקרנית","אחרי הסרת גוף זר משטח העין: משחה אנטיביוטית ותחבושת על העין","יש לבדוק את העין מדי יום לזיהוי סימני זיהום עד לריפוי מלא"],"l": "צביעת פלואורסצאין · מנורת סדק"}];
+
+const out=document.getElementById('out'),q=document.getElementById('q'),chips=document.getElementById('chips'),empty=document.getElementById('empty');
+let cat="all";
+const esc=s=>s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+function chip(id,label){const b=document.createElement('button');b.className='chip';b.textContent=label;b.setAttribute('aria-pressed',id===cat);b.onclick=()=>{cat=id;[...chips.children].forEach(x=>x.setAttribute('aria-pressed',x===b));render();};chips.appendChild(b);}
+chip("all","הכל");CATS.forEach(([id,l])=>chip(id,l));
+function render(){
+  const term=q.value.trim().toLowerCase();let total=0;let html="";
+  CATS.forEach(([id,label])=>{
+    if(cat!=="all"&&cat!==id)return;
+    const items=D.filter(d=>d.c===id&&(!term||[d.n,d.h,d.k,d.l,...d.s].join(' ').toLowerCase().includes(term)));
+    if(!items.length)return;total+=items.length;
+    html+=`<section><h2>${label}<small>${items.length}</small></h2><div class="grid">`+items.map(d=>`
+      <article class="card" tabindex="0">
+        <div class="name">${esc(d.n)}<span class="he">${esc(d.h)}</span></div>
+        <div class="key"><b>סימן מזהה</b>${esc(d.k)}</div>
+        <ul>${d.s.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+        ${d.l&&d.l!=="—"?`<div class="lab">${esc(d.l)}</div>`:''}
+      </article>`).join('')+`</div></section>`;
+  });
+  out.innerHTML=html;empty.hidden=total>0;
+}
+out.addEventListener('click',e=>{const c=e.target.closest('.card');if(c)c.classList.toggle('shown');});
+out.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList.contains('card'))e.target.classList.toggle('shown');});
+q.addEventListener('input',render);
+document.getElementById('practice').addEventListener('change',e=>{out.classList.toggle('hide',e.target.checked);out.querySelectorAll('.shown').forEach(c=>c.classList.remove('shown'));});
+render();
+</script>
+</body>
+</html>

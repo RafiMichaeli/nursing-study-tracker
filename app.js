@@ -4,6 +4,7 @@
 // ── localStorage keys (all in one place) ───────────────────
 const LS_THEME_KEY = 'mevak_theme';
 const LS_STATE_KEY = 'nursingState_adult';
+const LS_PART_KEY  = 'mevak_part_filter'; // 'א' / 'ב' — remembered between visits
 
 // "YYYY-MM-DD" local date (no timezone drift) — same format schedule.js uses
 function localDateStr(d = new Date()) {
@@ -52,6 +53,7 @@ function mobFilter(part) {
   } else {
     activePart = (activePart === part) ? null : part;
   }
+  savePartFilter();
   syncFilterUI();
   renderAll();
 }
@@ -202,6 +204,18 @@ function syncFilterUI() {
   if (wrapA) wrapA.classList.toggle('chart-dimmed', activePart === 'ב');
   if (wrapB) wrapB.classList.toggle('chart-dimmed', activePart === 'א');
 
+  // Sidebar topic list — when a part is selected, only that part's topics
+  // (and its header) stay visible, so the nav matches the filtered table.
+  document.querySelectorAll('#sidebarNav .sidebar-item[id^="sb-"]').forEach(li => {
+    const btn = li.querySelector('.sidebar-link[data-cat]');
+    const cat = btn && btn.dataset.cat;
+    const topic = cat ? TOPICS.find(t => t.cat === cat) : null;
+    li.classList.toggle('part-hidden', !!activePart && !!topic && topic.part !== activePart);
+  });
+  const setHidden = (id, on) => { const el = document.getElementById(id); if (el) el.classList.toggle('part-hidden', on); };
+  setHidden('sbHeadA', activePart === 'ב');
+  setHidden('sbHeadB', activePart === 'א');
+
   // Sidebar category links
   document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active'));
   const link = document.querySelector(`.sidebar-link[data-cat="${activeCat || 'all'}"]`);
@@ -236,8 +250,25 @@ function filterPart(part) {
     if (topic && topic.part !== activePart) activeCat = null;
   }
 
+  savePartFilter();
   syncFilterUI();
   renderAll();
+}
+
+// ── Part filter persistence ────────────────────────────────
+// The chosen part (or "all") is remembered, so the tracker opens on the part
+// being studied instead of resetting to all topics on every visit.
+function savePartFilter() {
+  try {
+    if (activePart) localStorage.setItem(LS_PART_KEY, activePart);
+    else localStorage.removeItem(LS_PART_KEY);
+  } catch {}
+}
+function loadPartFilter() {
+  try {
+    const saved = localStorage.getItem(LS_PART_KEY);
+    if (saved === 'א' || saved === 'ב') activePart = saved;
+  } catch {}
 }
 
 // ── Toggle functions ──────────────────────────────────────
@@ -1207,6 +1238,8 @@ initTheme();
 initTableEvents();
 initTooltips();
 loadState();
+loadPartFilter();
+syncFilterUI();
 renderAll();
 // PWA: register the service worker on https (GitHub Pages) / localhost only —
 // opening index.html directly from disk (file://) keeps working without it.

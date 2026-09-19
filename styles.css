@@ -149,6 +149,8 @@ body {
   text-transform: uppercase; color: var(--sidebar-head);
 }
 .sidebar-item { list-style: none; }
+/* Hidden by the part A/B filter (sidebar topics + part headers) */
+.sidebar-nav .part-hidden { display: none; }
 .sidebar-link {
   display: flex; align-items: center; gap: 8px;
   padding: 5px 14px; color: var(--sidebar-link);
