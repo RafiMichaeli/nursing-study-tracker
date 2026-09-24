@@ -411,6 +411,26 @@ const noIcon = toolPages.filter((f) => {
 });
 A(toolPages.length > 0 && noIcon.length === 0, 'every study-tools page has a favicon in <head>: ' + (noIcon.join(', ') || '—'));
 
+console.log('27. loaded progress file cannot inject HTML');
+{
+  const evil = '"><img src=x onerror="window.__pwned=1">';
+  const ok = run(`applyLoadedProgress(JSON.stringify({
+    shock: { subs:{}, quizzes:[{ score: 80, date: ${JSON.stringify(evil)} }] },
+    _schedule: { enabled: true, startDates: { 'א': ${JSON.stringify(evil)} }, examDates: {}, paceHoursPerDay: ${JSON.stringify(evil)} }
+  }))`);
+  A(ok === true, 'crafted file is still accepted as valid shape');
+  A(run(`getTopicState('shock').quizzes[0].date`) === '', 'non-date quiz date is dropped on load');
+  click(d.getElementById('topic-shock'));
+  const inj = d.querySelectorAll('img[src="x"]').length;
+  A(inj === 0 && !w.__pwned, 'no injected elements in the rendered page');
+  run(`Schedule.openSettingsPanel()`);
+  const startInput = d.getElementById('sched-start-a');
+  A(!!startInput && d.querySelectorAll('img[src="x"]').length === 0 && !w.__pwned,
+    'schedule settings show loaded values as text, not HTML');
+  run(`document.getElementById('sched-overlay') && document.getElementById('sched-overlay').remove()`);
+  run(`localStorage.clear(); state = {}; normalizeState(); renderAll();`);
+}
+
 A(errors.length === 0, 'no window errors: ' + (errors.join('; ') || '—'));
 
 console.log(fails ? `\n✗ ${fails} FAILURE(S)` : '\n✓ ALL TESTS PASSED');
