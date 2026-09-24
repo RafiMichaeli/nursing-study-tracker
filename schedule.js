@@ -606,22 +606,22 @@
         </label>
         <div class="sched-fields">
           <label>${t('sched.start')} — ${partLabel('א')}
-            <input type="date" id="sched-start-a" value="${s.startDates['א'] || ''}">
+            <input type="date" id="sched-start-a" value="${escAttr(s.startDates['א'] || '')}">
           </label>
           <label>${t('sched.start')} — ${partLabel('ב')} <span class="sched-optional">${t('sched.optional')}</span>
-            <input type="date" id="sched-start-b" value="${s.startDates['ב'] || ''}">
+            <input type="date" id="sched-start-b" value="${escAttr(s.startDates['ב'] || '')}">
           </label>
           <label>${t('sched.exam')} — ${partLabel('א')}
-            <input type="date" id="sched-exam-a" value="${s.examDates['א'] || ''}">
+            <input type="date" id="sched-exam-a" value="${escAttr(s.examDates['א'] || '')}">
           </label>
           <label>${t('sched.exam')} — ${partLabel('ב')}
-            <input type="date" id="sched-exam-b" value="${s.examDates['ב'] || ''}">
+            <input type="date" id="sched-exam-b" value="${escAttr(s.examDates['ב'] || '')}">
           </label>
           <label>${t('sched.pace1')}
-            <input type="number" id="sched-pace" step="0.5" min="0.5" value="${s.paceHoursPerDay}">
+            <input type="number" id="sched-pace" step="0.5" min="0.5" value="${escAttr(s.paceHoursPerDay)}">
           </label>
           <label>${t('sched.paceReview')}
-            <input type="number" id="sched-pace-review" step="0.5" min="0.5" value="${s.paceHoursPerDayReview}">
+            <input type="number" id="sched-pace-review" step="0.5" min="0.5" value="${escAttr(s.paceHoursPerDayReview)}">
           </label>
         </div>
         <p class="sched-note">${t('sched.note')}</p>

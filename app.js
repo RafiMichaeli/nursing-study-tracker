@@ -105,7 +105,12 @@ function normalizeState() {
       ts.quizzes = ts.quizzes.filter(q => {
         const n = q && Number(q.score);
         return Number.isFinite(n) && n >= 0 && n <= 100;
-      }).map(q => ({ ...q, score: Math.round(Number(q.score)) }));
+      }).map(q => ({
+        ...q,
+        score: Math.round(Number(q.score)),
+        // date is rendered into HTML — accept only YYYY-MM-DD from a loaded file
+        date: /^\d{4}-\d{2}-\d{2}$/.test(q.date) ? q.date : ''
+      }));
     }
     ts.done = computeTopicDone(t, ts);
   });
@@ -739,7 +744,7 @@ function renderTable() {
     // Last quiz score badge (exam-readiness — independent of "done")
     const lastQuiz = getLastQuizScore(t.id);
     const scoreBadge = lastQuiz
-      ? `<span class="badge quiz-badge ${quizBadgeClass(lastQuiz.score)}" data-tooltip="${T('quiz.lastTooltip', { date: lastQuiz.date })}">📝 ${lastQuiz.score}</span>`
+      ? `<span class="badge quiz-badge ${quizBadgeClass(lastQuiz.score)}" data-tooltip="${T('quiz.lastTooltip', { date: escapeHtml(lastQuiz.date) })}">📝 ${lastQuiz.score}</span>`
       : '';
 
     // Was this topic's sub-panel open before the re-render?
@@ -872,7 +877,7 @@ function renderTable() {
         subHTML += `
           <div class="quiz-list-item">
             <span class="quiz-list-score ${quizBadgeClass(q.score)}">${q.score}</span>
-            <span class="quiz-list-date">${q.date}</span>
+            <span class="quiz-list-date">${escapeHtml(q.date)}</span>
             <button class="quiz-del" data-action="delete-quiz" data-quiz-idx="${i}" aria-label="${T('quiz.delete')}" data-tooltip="${T('quiz.delete')}">×</button>
           </div>`;
       });
